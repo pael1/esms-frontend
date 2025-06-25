@@ -98,7 +98,7 @@ import { ref, onMounted } from 'vue'
   })
 
   onMounted(() => {
-      fetchUsers()
+      // fetchUsers()
   })
 
   async function fetchUsers() {
