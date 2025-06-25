@@ -155,7 +155,7 @@ const chartOptions = ref({
 
 // Fetch from Laravel API
 onMounted(async () => {
-  const { data } = await useFetch('http://localhost:8000/api/sales-data') // adjust to your Laravel backend
+  const { data } = await useFetch('http://192.168.61.145/api/sales-data') // adjust to your Laravel backend
 
   if (data.value) {
     series.value[0].data = data.value.series[0].data
