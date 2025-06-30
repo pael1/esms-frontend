@@ -69,7 +69,7 @@
             </div>
         </div>
         <div class="relative hidden w-0 flex-1 lg:block">
-            <img class="" src="/public/images/bg.png" alt="" />
+            <img class="absolute inset-0 h-full w-full object-cover" src="/public/images/bg_stall.jpg" alt="" />
             <div class="absolute inset-0 bg-green-900 opacity-60"></div>
         </div>
     </div>
