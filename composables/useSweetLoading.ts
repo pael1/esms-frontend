@@ -21,7 +21,8 @@ export const useSweetLoading = () => {
         Swal.fire({
             icon: 'error',
             title,
-            text
+            text,
+            confirmButtonColor: '#16A34A' // Tailwind green-500
         })
     }
 
@@ -29,7 +30,8 @@ export const useSweetLoading = () => {
         Swal.fire({
             icon: 'warning',
             title,
-            text
+            text,
+            confirmButtonColor: '#16A34A' // Tailwind green-500
         })
     }
 
@@ -37,7 +39,8 @@ export const useSweetLoading = () => {
         Swal.fire({
             icon: 'success',
             title,
-            text
+            text,
+            confirmButtonColor: '#16A34A' // Tailwind green-500
         })
     }
 

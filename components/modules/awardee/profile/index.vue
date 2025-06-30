@@ -254,7 +254,7 @@ async function Generate() {
     if (!v$.value.$error) {
       const selectedObjects = getSelectedLedgerObjects()
       try {
-        showLoading();
+        showLoading('Generating', '');
           let params = {
             name: props.profile.full_name,
             stallNo: props.profile.stallRentalDet.stallNo,
@@ -376,9 +376,9 @@ async function generateCurrentOP(awardee) {
     const currentYear = today.getFullYear()
 
     // If today's day < 20, use previous month
-    const targetDate = today.getDate() < 21
-      ? new Date(currentYear, currentMonth - 1) // last month
-      : new Date(currentYear, currentMonth)     // current month
+    const targetDate = today.getDate() >= 21
+      ? new Date(currentYear, currentMonth + 1) // Next month
+      : new Date(currentYear, currentMonth)
 
     const currentMonthYear = targetDate.toLocaleString('default', {
       month: 'long',
