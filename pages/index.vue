@@ -7,17 +7,17 @@
                     <div>
                         <div class="flex justify-center">
                             <NuxtLink to="/" class="text-green-400 hover:text-green-500">
-                                <!-- <img class="w-28" src="/public/img/IGDD-logo.png" alt="Your Company"> -->
+                                <img class="w-28" src="/public/images/logo.png" alt="Your Company">
                             </NuxtLink>
                         </div>
                         <div class="flex justify-center">
-                            <h2 class="mt-6 text-2xl font-bold leading-9 tracking-tight text-green-900">
+                            <h2 class="text-2xl font-bold leading-9 tracking-tight text-green-700">
                                 e-Stall Management System
                             </h2>
                         </div>
                     </div>
 
-                    <div class="mt-10">
+                    <div class="mt-5">
                         <Alert v-if="state.error" :message="state.error" />
                         <form @submit.prevent="login" class="space-y-6" autocomplete="off">
                             <div>
@@ -56,7 +56,7 @@
                     <div class="grid grid-cols-1">
                         <div class="flex justify-center">
                             <a href="https://www.davaocity.gov.ph/" class="text-green-400 hover:text-green-500">
-                                <!-- <img class="w-36" src="/public/img/davao-city-logo.png" alt="Your Company"> -->
+                                <img class="w-36" src="/public/images/dc_logo.png" alt="Your Company">
                             </a>
                         </div>
                         <div class="flex justify-center mt-2">
@@ -69,7 +69,7 @@
             </div>
         </div>
         <div class="relative hidden w-0 flex-1 lg:block">
-            <!-- <img class="absolute inset-0 h-full w-full object-cover" src="/public/img/handsupport.jpg" alt="" /> -->
+            <img class="" src="/public/images/bg.png" alt="" />
             <div class="absolute inset-0 bg-green-900 opacity-60"></div>
         </div>
     </div>
