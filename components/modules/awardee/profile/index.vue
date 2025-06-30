@@ -3,7 +3,7 @@
         <Loader v-if="state.isPageLoading" />
         <div class="flex flex-col sm:flex-row items-center space-x-0 sm:space-x-4 mb-6">
           <embed
-            src="/test.pdf"
+            :src="pdfSrc"
             type="application/pdf"
             width="100%"
             height="500px"
@@ -207,6 +207,12 @@ const daysInEach = computed(() =>
     days: getDaysFromMonth(opt.label)
   }))
 )
+
+//get the base API files
+const config = useRuntimeConfig()
+const pdfSrc = computed(() => {
+  return `${config.public.apiPublicStorage}/${props.profile?.ownerId}/${props.profile?.attachIdPhoto}`
+})
 
 const getOption = (id) => {
   return state.options.find(opt => opt.value === id);
