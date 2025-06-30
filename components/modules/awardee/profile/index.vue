@@ -284,7 +284,7 @@ async function Generate() {
           closeLoading()
           closedDialog()
       } catch (error) {
-          console.log(error)
+          showError('', error.message)
       }
     }
 }
