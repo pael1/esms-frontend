@@ -335,32 +335,29 @@ async function generateCurrentOP(awardee) {
             page: 1,
             ownerId: id,
         }
-      const response = await awardeeService.getAwardeeProfileLedger(params);
+      const response = await awardeeService.getAwardeeProfileLedger(params)
+
       if (response.data) {
         console.log(response.data)
+        //NOTE::: NO NEED NA NAKO ANG EXTENSION KAY COMPUTED NA SIYA SA AMOUNTBASIC
+        const givenMonth = parseInt(response.data.month) // e.g., 6 for June
+        const givenYear = parseInt(response.data.year)   // e.g., 2025
 
-        const today = new Date()
-        const currentMonth = today.getMonth() // 0 = Jan, 1 = Feb, ..., 11 = Dec
-        const currentYear = today.getFullYear()
-        const targetDate = today.getDate() < 21
-          ? new Date(currentYear, currentMonth - 1) // last month
-          : new Date(currentYear, currentMonth)     // current month
-        const currentMonthYear = targetDate.toLocaleString('default', {
-          month: 'long',
-          year: 'numeric'
-        })
-        const date = new Date(currentMonthYear + ' 1') // June 1, 2025
-        const year = date.getFullYear()
-        const month = date.getMonth() + 1 // JS months are 0-based
-        const daysInMonth = new Date(year, month, 0).getDate()
+        // Ensure month is 0-based for JS Date (Jan = 0)
+        const jsMonth = givenMonth - 1
+
+        // Get number of days in the given month
+        const daysInMonth = new Date(givenYear, givenMonth, 0).getDate()
         const extensionRatePerDay = props.profile.stallRentalDet.stallProfileViews.Total_extensionRate
         const extensionRate = daysInMonth * extensionRatePerDay
+
         let options = response.data.map((item) => ({
           value: item.stallOwnerAccountId,
           label: item.date,
           amountBasic: item.amountBasic,
           extensionRate: extensionRate
         }));
+
         state.options = options
       }
     } catch (error) {
