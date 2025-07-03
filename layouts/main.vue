@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="dark:text-white dark:bg-black">
     <TransitionRoot as="template" :show="sidebarOpen">
       <Dialog class="relative z-50 lg:hidden" @close="sidebarOpen = false">
         <TransitionChild as="template" enter="transition-opacity ease-linear duration-300" enter-from="opacity-0"
@@ -24,7 +24,7 @@
                 </div>
               </TransitionChild>
               <!-- Sidebar component, swap this element with another sidebar if you like -->
-              <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-green-800 px-6 pb-4">
+              <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-green-900 px-6 pb-4">
                 <div class="flex h-16 items-center justify-center text-xl font-semibold text-green-100">
                   <img class="w-[4.5rem]" src="/public/images/logo_inside.png" alt="Your Company">
                 </div>
@@ -53,9 +53,9 @@
     </TransitionRoot>
 
     <!-- Static sidebar for desktop -->
-    <div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
+    <div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col dark:text-white dark:bg-black">
       <!-- Sidebar component, swap this element with another sidebar if you like -->
-      <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-green-800 px-6 pb-4">
+      <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-green-900 px-6 pb-4">
         <div class="flex h-16 items-center justify-center text-xl font-semibold text-green-100">
           <img class="w-[4.5rem]" src="/public/images/logo_inside.png" alt="Your Company">
         </div>
@@ -80,7 +80,7 @@
       </div>
     </div>
 
-    <div class="lg:pl-72">
+    <div class="lg:pl-72 dark:text-white dark:bg-black">
       <div
         class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
         <button type="button" class="-m-2.5 p-2.5 text-gray-700 lg:hidden" @click="sidebarOpen = true">
@@ -95,6 +95,14 @@
           <form class="relative flex flex-1 bg-white" action="#" method="GET">
             <label for="search-field" class="sr-only">Search</label>
           </form>
+          <button
+            @click="toggleTheme"
+            class="rounded-full p-2 text-gray-500 hover:text-green-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+            :title="colorMode.preference === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+          >
+            <span v-if="colorMode.preference === 'dark'">🌞</span>
+            <span v-else>🌙</span>
+          </button>
           <div class="flex items-center gap-x-4 lg:gap-x-6">
             <!-- Profile dropdown -->
             <Menu as="div" class="relative">
@@ -132,7 +140,7 @@
       </div>
 
       <main class="py-10">
-        <div class="px-4 sm:px-6 lg:px-8">
+        <div class="px-4 sm:px-6 lg:px-8 dark:text-white dark:bg-black">
           <slot />
         </div>
       </main>
@@ -169,6 +177,12 @@ import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 const userStore = useUserStore()
 const user = userStore.getUser
 const route = useRouter()
+
+const colorMode = useColorMode()
+function toggleTheme() {
+  const newTheme = colorMode.preference === 'light' ? 'dark' : 'light'
+  colorMode.preference = newTheme
+}
 
 const state = reactive({
   error: null,

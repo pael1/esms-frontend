@@ -1,152 +1,151 @@
 <template>
-    <div>
-        <Loader v-if="state.isPageLoading" />
-        <div class="flex flex-col sm:flex-row items-center space-x-0 sm:space-x-4 mb-6">
-          <embed
-            :src="pdfSrc"
-            type="application/pdf"
-            width="100%"
-            height="500px"
-            class="w-24 h-24 rounded-full border-4 border-green-500 mb-4 sm:mb-0"
-          />
-          <div class="text-center sm:text-left">
-            <h1 class="text-xl sm:text-2xl font-semibold text-gray-800">{{ profile?.full_name }}</h1>
-            <p class="text-sm sm:text-base text-gray-600">{{ profile?.address }}</p>
-            <p class="text-sm sm:text-base text-gray-600">{{ profile?.contactnumber }}</p>
-          </div>
-        </div>
-  
-        <!-- Text Before Tabs -->
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg sm:text-xl font-semibold text-gray-800">
-            Awardee Information
-          </h2>
-          
-          <!-- Wrap buttons in a div and push to the right -->
-          <div class="flex gap-2 ml-auto">
-            <button
-              type="button"
-              class="inline-flex items-center gap-x-1.5 rounded-md bg-green-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-green-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
-              @click="openDialog(true)"
-            >
-              Generate TOP (Current)
-            </button>
-            <button
-              type="button"
-              class="inline-flex items-center gap-x-1.5 rounded-md bg-green-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-green-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
-              @click="openDialog(false)"
-            >
-              Generate TOP (Arrears)
-            </button>
-          </div>
-        </div>
-        
-        <Modal :show="state.open">
-          <div class="w-full sm:w-1/2 bg-white px-4 py-5 sm:px-6 rounded-lg space-y-4">
-              <div
-                  class="border-b border-green-200 -ml-4 -mt-2 flex flex-wrap items-center justify-between sm:flex-nowrap">
-                  <div class="ml-2 mb-2">
-                      <h3 class="text-lg font-semibold text-green-900">
-                          OP Details
-                      </h3>
-                  </div>
-              </div>
-              <div>
-                <p class="text-sm font-medium text-gray-500">Name</p>
-                <p class="text-base text-gray-800 mt-1">
-                  {{ profile.full_name || '—' }}
-                </p>
-              </div>
-              <!-- Address -->
-              <div>
-                <p class="text-sm font-medium text-gray-500">Address</p>
-                <p class="text-base text-gray-800 mt-1">
-                  {{ profile.stallRentalDet.stallProfile.stallDescription || '—' }}
-                </p>
-              </div>
-              <form @submit.prevent="Generate" autocomplete="off">
-                  <FormLabel for="select_months" label="Month/s" />
-                  <FormMultiSelect :options="state.options" v-model="state.ledgerIdSelected" />
-                  <FormError :error="v$?.ledgerIdSelected?.$errors[0]?.$message.toString()" />
-                  <FormError :error="state.error?.errors?.ledgerIdSelected?.[0]" />
-                  <!-- Table of selected options -->
-                  <table class="w-full mt-4 table-auto text-sm text-left text-gray-700">
-                    <thead class="bg-green-100 text-green-700 uppercase text-xs tracking-wider">
-                      <tr>
-                        <th class="px-4 py-2 text-center">Date</th>
-                        <th class="px-4 py-2 text-center">Amount</th>
-                      </tr>
-                    </thead>
-                    <tbody class="divide-y divide-green-200">
-                      <template v-for="(id, index) in state.ledgerIdSelected" :key="id">
-                        <!-- Only show if there's an extension rate -->
-                        <tr
-                          v-if="getOption(id)?.extensionRate > 0"
-                          class="hover:bg-green-50 transition text-gray-500 text-sm"
-                        >
-                          <td class="px-4 py-2 text-center">Extension</td>
-                          <td class="px-4 py-2 text-center">
-                            {{
-                              new Intl.NumberFormat('en-PH', {
-                                style: 'currency',
-                                currency: 'PHP',
-                                minimumFractionDigits: 2,
-                              }).format(getOption(id)?.extensionRate)
-                            }}
-                          </td>
-                        </tr>
-                        <tr class="hover:bg-green-50 transition">
-                          <td class="px-4 py-2 text-center">
-                            {{ getOption(id)?.label }}
-                          </td>
-                          <td class="px-4 py-2 text-center">
-                            {{
-                              new Intl.NumberFormat('en-PH', {
-                                style: 'currency',
-                                currency: 'PHP',
-                                minimumFractionDigits: 2,
-                              }).format(getOption(id)?.amountBasic || 0)
-                            }}
-                          </td>
-                        </tr>
-                      </template>
-                      <tr class="bg-green-50 font-semibold text-green-800">
-                        <td colspan="1" class="px-4 py-3 text-right">Total:</td>
-                        <td class="px-4 py-3 text-center">
-                          {{
-                            new Intl.NumberFormat('en-PH', {
-                              style: 'currency',
-                              currency: 'PHP',
-                              minimumFractionDigits: 2,
-                            }).format(totalAmountBasic)
-                          }}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <!-- Wrap buttons in a flex container and align to right -->
-                  <div class="mt-4 flex justify-end gap-2">
-                    <FormButton
-                      type="button"
-                      @click="closedDialog"
-                      buttonStyle="white"
-                      class="px-3 py-1 text-sm"
-                    >
-                      Cancel
-                    </FormButton>
+  <div class="dark:text-white dark:bg-black px-4 sm:px-6 lg:px-8">
+    <Loader v-if="state.isPageLoading" />
 
-                    <FormButton
-                      type="submit"
-                      class="px-3 py-1 text-sm"
-                    >
-                      Generate
-                    </FormButton>
-                  </div>
-              </form>
-          </div>
-      </Modal>
+    <!-- Profile Section -->
+    <div class="flex flex-col sm:flex-row items-center sm:items-start sm:space-x-6 space-y-4 sm:space-y-0 mb-6">
+      <embed
+        :src="pdfSrc"
+        type="application/pdf"
+        class="w-full sm:w-32 h-32 rounded-lg border-4 border-green-500 object-contain"
+      />
+
+      <div class="text-center sm:text-left w-full">
+        <h1 class="text-xl sm:text-2xl font-semibold text-gray-800 dark:text-white">
+          {{ profile?.full_name }}
+        </h1>
+        <p class="text-sm sm:text-base text-gray-600 dark:text-white">{{ profile?.address }}</p>
+        <p class="text-sm sm:text-base text-gray-600 dark:text-white">{{ profile?.contactnumber }}</p>
+      </div>
     </div>
+
+    <!-- Heading & Buttons -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+      <h2 class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-white">
+        Awardee Information
+      </h2>
+      <div class="flex flex-wrap gap-2 sm:ml-auto">
+        <button
+          type="button"
+          class="inline-flex items-center gap-x-1.5 rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500"
+          @click="openDialog(true)"
+        >
+          Generate TOP (Current)
+        </button>
+        <button
+          type="button"
+          class="inline-flex items-center gap-x-1.5 rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500"
+          @click="openDialog(false)"
+        >
+          Generate TOP (Arrears)
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <Modal :show="state.open">
+      <div class="w-full max-w-2xl mx-auto bg-white px-4 py-5 sm:px-6 rounded-lg space-y-4">
+        <div class="border-b border-green-200 -ml-4 -mt-2 flex flex-wrap items-center justify-between sm:flex-nowrap">
+          <div class="ml-2 mb-2">
+            <h3 class="text-lg font-semibold text-green-900">OP Details</h3>
+          </div>
+        </div>
+
+        <div>
+          <p class="text-sm font-medium text-gray-500">Name</p>
+          <p class="text-base text-gray-800 mt-1">
+            {{ profile.full_name || '—' }}
+          </p>
+        </div>
+
+        <div>
+          <p class="text-sm font-medium text-gray-500">Address</p>
+          <p class="text-base text-gray-800 mt-1">
+            {{ profile.stallRentalDet.stallProfile.stallDescription || '—' }}
+          </p>
+        </div>
+
+        <form @submit.prevent="Generate" autocomplete="off">
+          <FormLabel for="select_months" label="Month/s" />
+          <FormMultiSelect :options="state.options" v-model="state.ledgerIdSelected" />
+          <FormError :error="v$?.ledgerIdSelected?.$errors[0]?.$message.toString()" />
+          <FormError :error="state.error?.errors?.ledgerIdSelected?.[0]" />
+
+          <!-- Table of selected options -->
+          <div class="overflow-x-auto">
+            <table class="w-full mt-4 table-auto text-sm text-left text-gray-700">
+              <thead class="bg-green-100 text-green-700 uppercase text-xs tracking-wider">
+                <tr>
+                  <th class="px-4 py-2 text-center">Date</th>
+                  <th class="px-4 py-2 text-center">Amount</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-green-200">
+                <template v-for="(id, index) in state.ledgerIdSelected" :key="id">
+                  <tr
+                    v-if="getOption(id)?.extensionRate > 0"
+                    class="hover:bg-green-50 transition text-gray-500 text-sm"
+                  >
+                    <td class="px-4 py-2 text-center">Extension</td>
+                    <td class="px-4 py-2 text-center">
+                      {{
+                        new Intl.NumberFormat('en-PH', {
+                          style: 'currency',
+                          currency: 'PHP',
+                          minimumFractionDigits: 2,
+                        }).format(getOption(id)?.extensionRate)
+                      }}
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-green-50 transition">
+                    <td class="px-4 py-2 text-center">
+                      {{ getOption(id)?.label }}
+                    </td>
+                    <td class="px-4 py-2 text-center">
+                      {{
+                        new Intl.NumberFormat('en-PH', {
+                          style: 'currency',
+                          currency: 'PHP',
+                          minimumFractionDigits: 2,
+                        }).format(getOption(id)?.amountBasic || 0)
+                      }}
+                    </td>
+                  </tr>
+                </template>
+                <tr class="bg-green-50 font-semibold text-green-800">
+                  <td class="px-4 py-3 text-right">Total:</td>
+                  <td class="px-4 py-3 text-center">
+                    {{
+                      new Intl.NumberFormat('en-PH', {
+                        style: 'currency',
+                        currency: 'PHP',
+                        minimumFractionDigits: 2,
+                      }).format(totalAmountBasic)
+                    }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-4 flex flex-wrap justify-end gap-2">
+            <FormButton
+              type="button"
+              @click="closedDialog"
+              buttonStyle="white"
+              class="px-3 py-1 text-sm"
+            >
+              Cancel
+            </FormButton>
+
+            <FormButton type="submit" class="px-3 py-1 text-sm">Generate</FormButton>
+          </div>
+        </form>
+      </div>
+    </Modal>
+  </div>
 </template>
+
 
 <script setup>
 
@@ -296,7 +295,6 @@ async function Generate() {
 }
 
 async function generateCurrentOP(awardee) {
-  console.log(user);
     try {
       state.isPageLoading = true;
       let params = {

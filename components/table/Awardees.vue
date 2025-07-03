@@ -31,10 +31,10 @@
                                     {{ awardee.ownerId }}
                                 </td>
                                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                    {{ awardee.full_name }}
+                                    {{ $capitalizeWords(awardee.full_name) }}
                                 </td>
                                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                    {{ awardee.stallDescription }}
+                                    {{ $capitalizeWords(awardee.stallDescription) }}
                                 </td>
                                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                     {{ awardee.stallNoId }}
@@ -55,9 +55,11 @@
     </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 
 import { awardeeService } from '@/components/api/AwardeeService'
+
+const { $capitalizeWords } = useNuxtApp()
 
 const state = reactive({
     isPageLoading: false

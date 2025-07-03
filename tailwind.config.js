@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     "./components/**/*.{js,vue,ts}",
     "./layouts/**/*.vue",
@@ -11,6 +12,11 @@ export default {
   ],
   theme: {
     extend: {
+      colors: {
+        nuxt: '#00DC82',
+        'nuxt-dark': '#00C76F',
+        'nuxt-bg': '#003F2E',
+      },
       height: {
         'large': '20rem',
         'half-screen': '50vh',

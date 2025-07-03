@@ -1,5 +1,10 @@
 <template>
-    <div class="min-h-screen bg-gray-100 p-4 sm:p-6">
+    <ButtonBack @click="goBack">
+        <span class="flex items-center justify-between">
+            <ArrowLeftIcon class="text-green-900 w-5 h-5 mr-2" /> Back
+        </span>
+    </ButtonBack>
+    <div class="min-h-screen bg-gray-100 p-4 sm:p-6 dark:text-white dark:bg-black">
     <Loader v-if="state.isPageLoading" />
       <div class="bg-white shadow-lg rounded-2xl p-4 sm:p-6">
         <!-- Profile Section -->
@@ -10,7 +15,7 @@
   
         <!-- Tab Content -->
         <div v-if="activeTab === 'stall'">
-            <div class="bg-white shadow-md rounded-xl p-4 border border-green-300">
+            <div class="bg-white shadow-md rounded-xl p-4 border border-green-300 dark:text-white dark:bg-black">
                 <!-- Header -->
                 <div class="flex items-center space-x-3 mb-3">
                     <div class="bg-green-500 p-2 rounded-md">
@@ -73,25 +78,6 @@
             </div>
         </div>
       </div>
-
-      <Modal :show="state.open">
-            <div class="w-full sm:w-1/4 bg-white px-4 py-5 sm:px-6 rounded-lg space-y-4">
-                <div
-                    class="border-b border-violet-200 -ml-4 -mt-2 flex flex-wrap items-center justify-between sm:flex-nowrap">
-                    <div class="ml-2 mb-2">
-                        <h3 class="text-lg font-semibold text-green-900">
-                            Choose Billing
-                        </h3>
-                    </div>
-                    <div class="ml-2 mb-2">
-                        <FormButton @click="closeDialog">
-                            <XMarkIcon class="h-4 w-4 font-semibold" />
-                        </FormButton>
-                    </div>
-                </div>
-                
-            </div>
-        </Modal>
     </div>
   </template>
   
@@ -136,12 +122,8 @@
   
   const activeTab = ref('stall');
 
-  function openDialog() {
-    state.open = true
-  }
-
-  function closeDialog() {
-      state.open = false
+  const goBack = () => {
+    window.history.back()
   }
 
   </script>

@@ -1,4 +1,9 @@
 <template>
+    <ButtonBack @click="goBack">
+        <span class="flex items-center justify-between">
+            <ArrowLeftIcon class="text-green-900 w-5 h-5 mr-2" /> Back
+        </span>
+    </ButtonBack>
     <div class="min-h-screen bg-gray-100 p-4 sm:p-6">
     <Loader v-if="state.isPageLoading" />
       <div class="bg-white shadow-lg rounded-2xl p-4 sm:p-6">
@@ -20,7 +25,7 @@
                     </div>
                     <h2 class="text-lg font-semibold text-gray-800">Transactions</h2>
                 </div>
-                <TableTransactions :transactions="state.transactions" @update:isPageLoading="handlePageLoading" />
+                <TableTransactions :awardee="state.awardee" :transactions="state.transactions" @update:isPageLoading="handlePageLoading" />
 
                 <Pagination v-if="state.transactions?.data?.length > 0" :data="state.transactions" @previous="previous" @next="next" />   
             </div>
@@ -29,11 +34,10 @@
     </div>
   </template>
   
-  <script setup lang="ts">
+  <script setup>
   import { ref } from 'vue';
   import { awardeeService } from '@/components/api/AwardeeService';
-//   import { ArrowLeftIcon } from '@heroicons/vue/24/outline';
-  // import moment from 'moment';
+  import { ArrowLeftIcon, XMarkIcon } from '@heroicons/vue/24/outline'
   
   let currentPage = 1
 
@@ -94,6 +98,10 @@
   async function next() {
       currentPage++
       fetch_transactions()
+  }
+
+  const goBack = () => {
+   window.history.back()
   }
   
   const activeTab = ref('stall');

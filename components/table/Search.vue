@@ -1,148 +1,121 @@
 <template>
-    <div class="bg-white flex items-center w-full flex-wrap border border-gray relative px-3 py-1 rounded-md">
-        <span class="flex items-center gap-x-1 absolute text-green-800 dark:text-green-800">
-            <FunnelIcon class="w-4 text-green-800" /> <span class="text-green-800">Filter</span>
-        </span>
-        <div class="flex flex-wrap flex-grow-0 ml-16">
-            <div v-for="(filter, index) in state.filters" :key="index"
-                class="bg-green-500 flex items-center justify-center text-white rounded-full text-sm pl-3 pr-2 mx-1">
-                {{ columnViewingFilter(filter.column) }}: {{ filter.value }}
-                <div class="cursor-pointer">
-                    <XCircleIcon class="h-4 m-1" @click="deleteFilter(index)" />
-                </div>
-            </div>
-        </div>
-        <input list="list" type="text" name="input" @keyup.enter="addFilter" @keyup.tab="addFilter"
-            v-model="state.searchInput" autocomplete="off" class="
-                    flex-grow
-                    text-black
-                    text-sm
-                    border-0
-                    border-b-gray-300
-                    outline-none
-                    focus:outline-none
-                    focus:ring-transparent
-                    focus:border-green-500
-                    py-1.5" />
-        <datalist id="list" class="appearance-none">
-            <span v-for="column in props.columnFilter" :key="column.index">
-                <span v-if="column.filters">
-                    <option v-for="filter in column.filters" :key="filter.index"
-                        :value="filterValue(column.column) + filter.value" />
-                </span>
-                <span v-else>
-                    <option :value="filterValue(column.column)" />
-                </span>
-            </span>
-        </datalist>
+  <div class="bg-white flex items-center w-full flex-wrap border border-gray relative px-3 py-1 rounded-md">
+    <span class="flex items-center gap-x-1 absolute text-green-800 dark:text-green-800">
+      <FunnelIcon class="w-4 text-green-800" />
+      <span class="text-green-800">Filter</span>
+    </span>
+
+    <div class="flex flex-wrap flex-grow-0 ml-16">
+      <div
+        v-for="(filter, index) in state.filters"
+        :key="index"
+        class="bg-green-500 flex items-center justify-center text-white rounded-full text-sm pl-3 pr-2 mx-1"
+      >
+        {{ columnViewingFilter(filter.column) }}: {{ filter.value }}
+        <XCircleIcon class="h-4 m-1 cursor-pointer" @click="deleteFilter(index)" />
+      </div>
     </div>
+
+    <input
+      list="list"
+      type="text"
+      v-model="state.searchInput"
+      @keyup.enter="addFilter"
+      @keyup.tab="addFilter"
+      autocomplete="off"
+      class="flex-grow text-black text-sm border-0 outline-none focus:outline-none focus:ring-transparent focus:border-green-500 py-1.5"
+    />
+
+    <datalist id="list">
+      <template v-for="column in props.columnFilter" :key="column.index">
+        <template v-if="column.filters">
+          <option
+            v-for="filter in column.filters"
+            :key="filter.index"
+            :value="filterValue(column.column) + filter.value"
+          />
+        </template>
+        <template v-else>
+          <option :value="filterValue(column.column)" />
+        </template>
+      </template>
+    </datalist>
+  </div>
 </template>
 
 <script setup>
-import {
-    FunnelIcon,
-    XCircleIcon,
-} from '@heroicons/vue/24/outline'
+import { FunnelIcon, XCircleIcon } from '@heroicons/vue/24/outline'
 
 const props = defineProps({
-    columnFilter: {
-        type: Object,
-        required: true,
-    },
-    dataFilter: {
-        type: Object,
-        required: false,
-    },
-})
-
-const state = reactive({
-    filters: [],
-    searchInput: null,
-    tableFilter: [],
+  columnFilter: {
+    type: Object,
+    required: true,
+  },
+  dataFilter: {
+    type: Object,
+    required: false,
+  },
 })
 
 const emit = defineEmits(['handleFilter'])
 
-watch(() => props.dataFilter, (newValue) => {
-    if (newValue != null) {
-        converToFilterValue(newValue)
-    }
+const state = reactive({
+  filters: [],
+  searchInput: '',
+  tableFilter: {},
+})
+
+watch(() => props.dataFilter, (newVal) => {
+  if (newVal) {
+    state.filters = Object.entries(newVal).map(([column, value]) => ({
+      column,
+      value,
+    }))
+    state.tableFilter = { ...newVal }
+  }
 })
 
 function addFilter(event) {
-    let input = event.target.value.split(': ')
-    if (input.length > 1 && event.target.value != '' && input[1].trim() != '') {
-        // remove date suggestion format on dates column filters
-        if (input[0].includes('(MM/DD/YYYY)')) {
-            input[0] = input[0].replace('(MM/DD/YYYY)', '')
-        }
+  const input = event.target.value.split(': ')
+  if (input.length > 1 && input[1].trim() !== '') {
+    let column = input[0].replace('(MM/DD/YYYY)', '').trim()
+    let value = input[1].trim()
 
-        // remove first if there is an existing value of filter
-        state.filters = state.filters.filter((data, index) => data.column !== input[0])
+    // Remove existing filter for the same column
+    state.filters = state.filters.filter((f) => f.column !== column)
 
-        // Add the new filter
-        state.filters.push({ 'column': input[0], 'value': input[1] })
-
-        // data to be used in table/sql filter
-        let tableFilter = { ...state.tableFilter }
-        tableFilter[convertToTableNaming(input[0])] = input[1]
-        state.tableFilter = tableFilter
-        state.searchInput = ''
-        emit('handleFilter', state.tableFilter)
-    }
-}
-
-function deleteFilter(key) {
-    var item = state.filters.find((item, index) => index == key)
-    state.filters = state.filters.filter((data, index) => index !== key)
-    delete state.tableFilter[convertToTableNaming(item.column)]
+    // Add new filter
+    state.filters.push({ column, value })
+    state.tableFilter[convertToTableNaming(column)] = value
+    state.searchInput = ''
     emit('handleFilter', state.tableFilter)
+  }
 }
 
+function deleteFilter(index) {
+  const item = state.filters[index]
+  state.filters.splice(index, 1)
+  delete state.tableFilter[convertToTableNaming(item.column)]
+  emit('handleFilter', state.tableFilter)
+}
 
 function filterValue(column) {
-    let string = column.replaceAll('_', ' ')
-    let wordList = string.split(" ")
-    for (var count = 0; count < wordList.length; count++) {
-        wordList[count] = wordList[count].charAt(0).toUpperCase() + wordList[count].slice(1)
-    }
-    string = wordList.join(" ")
-    if (string.includes('Date')) {
-        string = string + '(MM/DD/YYYY)'
-    }
-    return string + ": "
+  let label = column.replaceAll('_', ' ').replace(/\b\w/g, (l) => l.toUpperCase())
+  if (label.includes('Date')) label += '(MM/DD/YYYY)'
+  return `${label}: `
 }
 
 function convertToTableNaming(column) {
-    var string = column.replaceAll(' ', '_')
-    return string.toLowerCase()
-}
-
-function converToFilterValue(filterData) {
-    if (filterData) {
-        var dataKeys = Object.keys(filterData)
-        var final = dataKeys.map(function (x) {
-            return {
-                column: x,
-                value: filterData[x],
-            }
-        })
-        state.filters = final
-    }
+  return column.replaceAll(' ', '_').toLowerCase()
 }
 
 function columnViewingFilter(column) {
-    let string = column.replaceAll('_', ' ')
-    if (string.includes('(MM/DD/YYYY)')) {
-        string = string.replace('(MM/DD/YYYY)', '')
-    }
-    return string.charAt(0).toUpperCase() + string.slice(1)
+  return column.replaceAll('_', ' ').replace('(MM/DD/YYYY)', '').replace(/\b\w/, (l) => l.toUpperCase())
 }
-
 </script>
 
 <style scoped>
 input::-webkit-calendar-picker-indicator {
-    display: none;
+  display: none;
 }
 </style>

@@ -1,4 +1,9 @@
 <template>
+    <ButtonBack @click="goBack">
+        <span class="flex items-center justify-between">
+            <ArrowLeftIcon class="text-green-900 w-5 h-5 mr-2" /> Back
+        </span>
+    </ButtonBack>
     <div class="min-h-screen bg-gray-100 p-4 sm:p-6">
     <Loader v-if="state.isPageLoading" />
       <div class="bg-white shadow-lg rounded-2xl p-4 sm:p-6">
@@ -32,6 +37,7 @@
   <script setup lang="ts">
   import { ref } from 'vue';
   import { awardeeService } from '@/components/api/AwardeeService';
+  import { ArrowLeftIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 //   import { ArrowLeftIcon } from '@heroicons/vue/24/outline';
   // import moment from 'moment';
 
@@ -101,6 +107,9 @@ async function previous() {
 async function next() {
     currentPage++
     fetch_ledger()
+}
+const goBack = () => {
+  window.history.back()
 }
 
   </script>
