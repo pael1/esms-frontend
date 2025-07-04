@@ -8,7 +8,7 @@
     <Loader v-if="state.isPageLoading" />
       <div class="bg-white shadow-lg rounded-2xl p-4 sm:p-6">
         <!-- Profile Section -->
-        <ModulesAwardeeProfile :profile="state.awardee" />
+        <ModulesAwardeeProfile :profile="state.awardee" @newOPGenerated="onOpGenerated" />
   
         <!-- Tabs -->
         <ModulesAwardeeTabs :awardeeId="id" :routeName="$route.name" />
@@ -58,6 +58,12 @@
     fetch_profile();
     fetch_transactions();
   });
+
+  //refresh the table if theres new op generated
+  function onOpGenerated(data) {
+    // console.log(data)
+    fetch_transactions()
+  }
   
   async function fetch_profile() {
     state.isPageLoading = true;

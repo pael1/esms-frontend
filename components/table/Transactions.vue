@@ -10,30 +10,24 @@
                                     OP Ref ID
                                 </th>
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                    ORNumber
+                                    Date
+                                </th>
+                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                    Status
                                 </th>
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                    Month
-                                </th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                    OP Date
+                                    Action
                                 </th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 bg-white">
                             <tr v-for="transaction in props.transactions?.data" :key="transaction.id">
-                                <td class="whitespace-nowrap px-3 py-4 text-sm text-green-700">
-                                    <a
-                                        href="#"
-                                        @click.prevent="openOpModal(transaction)"
-                                        class="underline hover:text-green-900 transition"
-                                    >
-                                        {{ transaction.OPRefId }}
-                                    </a>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                                    {{ transaction.OPRefId }}
                                 </td>
-                                <!-- <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                    {{ transaction?.ORNum ? transaction.ORNum : "NOT YET PAID" }}
-                                </td> -->
+                                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                                    {{ transaction.opDate }}
+                                </td>
                                 <td class="whitespace-nowrap px-3 py-4 text-sm">
                                     <span
                                     :class="transaction.ORNum ? 'inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20' : 'inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20'"
@@ -42,10 +36,13 @@
                                     </span>
                                 </td>
                                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                    {{ transaction.purpose }}
-                                </td>
-                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                    {{ transaction.opDate }}
+                                    <button
+                                    type="button"
+                                    class="inline-flex items-center gap-x-1 rounded bg-green-600 px-2 py-1 text-xs font-medium text-white shadow-sm hover:bg-green-500"
+                                    @click="openOpModal(transaction)"
+                                    >
+                                        View
+                                    </button>
                                 </td>
                             </tr>
                         </tbody>
@@ -57,13 +54,18 @@
 
     <Modal :show="state.open">
         <div class="w-full sm:w-1/2 bg-white px-4 py-5 sm:px-6 rounded-lg space-y-4">
-            <div
-                class="border-b border-green-200 -ml-4 -mt-2 flex flex-wrap items-center justify-between sm:flex-nowrap">
-                <div class="ml-2 mb-2">
-                    <h3 class="text-lg font-semibold text-green-900">
-                        OP Details [{{ state.oprefId }}]
-                    </h3>
-                </div>
+            <div class="border-b border-green-200 -ml-4 -mt-2 flex flex-wrap items-center justify-between sm:flex-nowrap w-full px-4 py-2">
+                <h3 class="text-lg font-semibold text-green-900">
+                    OP Details [{{ state.oprefId }}]
+                </h3>
+
+                <button
+                    type="button"
+                    class="inline-flex items-center gap-x-1 rounded bg-green-600 px-2 py-1 text-xs font-medium text-white shadow-sm hover:bg-green-500"
+                    @click="openPDF(state.oprefId)"
+                >
+                    View TOP PDF
+                </button>
             </div>
             <div>
                 <p class="text-sm font-medium text-gray-500">Name</p>
@@ -136,6 +138,7 @@
 import { opService } from '@/components/api/OpService.ts';
 
 const { showError, showSuccess, showLoading, closeLoading } = useSweetLoading()
+const config = useRuntimeConfig()
 
 const state = reactive({
   open: false,
@@ -175,25 +178,16 @@ async function get_items(oprefid) {
 
 function closedDialog() {
   state.open = false
-  state.profile = {}
   state.items = []
   state.totalAmountBasic = 0
 }
 
-// Dummy function — you can replace this
-function getOption(id) {
-  return {
-    label: 'March 2024',
-    amountBasic: 1000,
-    extensionRate: 0
-  }
-}
+function openPDF(oprefId) {
+  if (!oprefId) return;
+  console.log(props.awardee);
 
-function calculateTotalAmount(ledgerIds) {
-  return ledgerIds.reduce((sum, id) => {
-    const option = getOption(id)
-    return sum + (option?.amountBasic || 0)
-  }, 0)
+  const url = `${config.public.apiPublicStorage}/ops/${props.awardee.ownerId}/${oprefId}.pdf`;
+  window.open(url, '_blank');
 }
 
 const props = defineProps({

@@ -13,35 +13,33 @@ select.decorated option:hover {
                 </div>
             </div>
             <div class="flex items-center justify-between">
-  <!-- Left side: select -->
-  <div class="flex items-center gap-x-2">
-    <select
-      v-model="state.user_data.sectionCode"
-      @change="fetchAwardees"
-      id="sectionCode"
-      class="border rounded px-2 py-1 decorated"
-    >
-      <option
-        class="block px-3 py-1 text-base leading-6 text-green-900"
-        v-for="type in state.sectionCodes"
-        :key="type.fieldValue"
-        :value="type.fieldValue"
-      >
-        {{ $capitalizeWords(type.fieldDescription) }}
-      </option>
-    </select>
-  </div>
-
-  <!-- Right side: TableSearch -->
-  <div>
-    <TableSearch
-      :columnFilter="state.columnFilter"
-      :dataFilter="state.dataFilter"
-      @handleFilter="handleFilter"
-    />
-  </div>
-</div>
-
+            <!-- Left side: select -->
+              <div class="flex items-center gap-x-2">
+                <select
+                  v-model="state.user_data.sectionCode"
+                  @change="fetchAwardees"
+                  id="sectionCode"
+                  class="border rounded px-2 py-1 decorated"
+                >
+                  <option
+                    class="block px-3 py-1 text-base leading-6 text-green-900"
+                    v-for="type in state.sectionCodes"
+                    :key="type.fieldValue"
+                    :value="type.fieldValue"
+                  >
+                    {{ $capitalizeWords(type.fieldDescription) }}
+                  </option>
+                </select>
+              </div>
+              <!-- Right side: TableSearch -->
+              <div>
+                <TableSearch
+                  :columnFilter="state.columnFilter"
+                  :dataFilter="state.dataFilter"
+                  @handleFilter="handleFilter"
+                />
+              </div>
+            </div>
             <TableAwardees :awardees="state.awardees.data" @update:isPageLoading="handlePageLoading" />
             <Pagination v-if="state.awardees?.data?.length > 0" :data="state.awardees" @previous="previous" @next="next" />
         </div>
@@ -49,12 +47,9 @@ select.decorated option:hover {
   </template>
   
   <script setup>
-//   import { ArrowDownIcon, ArrowUpIcon } from '@heroicons/vue/20/solid'
   import { awardeeService } from '@/components/api/AwardeeService'
   import { useUserStore } from '@/store/user'
   import { useParameterStore } from '@/store/parameter'
-  import { CursorArrowRaysIcon, EnvelopeOpenIcon, UsersIcon } from '@heroicons/vue/24/outline'
-  import { UserIcon, ScaleIcon, CakeIcon, PencilIcon, UserPlusIcon, PlusCircleIcon  } from '@heroicons/vue/20/solid'
 
   const { $capitalizeWords } = useNuxtApp()
 
@@ -102,7 +97,6 @@ select.decorated option:hover {
           console.log(params);
           const response = await awardeeService.getAwardees(params)
           if (response) {
-              console.log(response);
               state.awardees = response
           }
       } catch (error) {

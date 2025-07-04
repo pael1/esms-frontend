@@ -1,7 +1,5 @@
 <template>
   <div class="dark:text-white dark:bg-black px-4 sm:px-6 lg:px-8">
-    <Loader v-if="state.isPageLoading" />
-
     <!-- Profile Section -->
     <div class="flex flex-col sm:flex-row items-center sm:items-start sm:space-x-6 space-y-4 sm:space-y-0 mb-6">
       <embed
@@ -165,14 +163,13 @@ const router = useRouter();
 const id = router?.currentRoute?.value?.params?.id;
 
 const state = reactive({
-    isPageLoading: false,
     open: false,
     options: [],
     ledgerIdSelected: [],
 
 })
 
-const emit = defineEmits(['update:isPageLoading']);
+const emit = defineEmits(['newOPGenerated']);
 
 const props = defineProps({
     profile: {
@@ -210,7 +207,7 @@ const daysInEach = computed(() =>
 //get the base API files
 const config = useRuntimeConfig()
 const pdfSrc = computed(() => {
-  return `${config.public.apiPublicStorage}/${props.profile?.ownerId}/${props.profile?.attachIdPhoto}`
+  return `${config.public.apiPublicStorage}/profile_pic/${props.profile?.ownerId}/${props.profile?.attachIdPhoto}`
 })
 
 const getOption = (id) => {
@@ -287,6 +284,7 @@ async function Generate() {
             };
           }
           closeLoading()
+          emit('newOPGenerated', true)
           closedDialog()
       } catch (error) {
           showError('', error.message)
@@ -294,119 +292,75 @@ async function Generate() {
     }
 }
 
-async function generateCurrentOP(awardee) {
-    try {
-      state.isPageLoading = true;
+async function fetch_arrears() {
+  try {
       let params = {
-        name: awardee.full_name,
-        stallDesc: awardee.stallRentalDet.stallProfile.stallDescription,
-        stallNo: awardee.stallRentalDet.stallNo,
-        ownerId: awardee.ownerId,
-        marketCode: awardee.stallRentalDet.stallProfile.marketCode, 
-        extension: awardee.stallRentalDet.stallProfileViews.extensionRate,
-        signatoryId: awardee.stallRentalDet.stallProfile.signatory.signatoryId,
-        officeCode: awardee.stallRentalDet.stallProfile.officecode.officeCode,
-        postBy: user?.UserFirstName + ' ' +user?.UserLastName,
-      };
-      const response = await awardeeService.generateCurrentOP(params);
-
-      if (response) {
-        const blobContent = new Blob([response], { type: "application/pdf" });
-        const blobUrl = URL.createObjectURL(blobContent);
-        const iframe = document.createElement("iframe");
-        iframe.style.display = "none";
-        iframe.src = blobUrl;
-        document.body.appendChild(iframe);
-        iframe.onload = () => {
-          iframe.contentWindow.print();
-          iframe.onload = () => {
-            URL.revokeObjectURL(blobUrl);
-            document.body.removeChild(iframe);
-          };
-        };
+          ownerId: id,
       }
-      state.isPageLoading = false;
-    } catch (error) {
-      console.error("❌ Error generating OP:", error);
-      state.isPageLoading = false;
-    } 
-  }
+    const response = await awardeeService.getAwardeeProfileArrears(params)
 
-  async function fetch_arrears() {
-    state.isPageLoading = true;
-    try {
-        let params = {
-            page: 1,
-            ownerId: id,
-        }
-      const response = await awardeeService.getAwardeeProfileLedger(params)
+    if (response.data) {
+      //NOTE::: NO NEED NA NAKO ANG EXTENSION KAY COMPUTED NA SIYA SA AMOUNTBASIC
+      const givenMonth = parseInt(response.data.month) // e.g., 6 for June
+      const givenYear = parseInt(response.data.year)   // e.g., 2025
 
-      if (response.data) {
-        console.log(response.data)
-        //NOTE::: NO NEED NA NAKO ANG EXTENSION KAY COMPUTED NA SIYA SA AMOUNTBASIC
-        const givenMonth = parseInt(response.data.month) // e.g., 6 for June
-        const givenYear = parseInt(response.data.year)   // e.g., 2025
+      // Ensure month is 0-based for JS Date (Jan = 0)
+      const jsMonth = givenMonth - 1
 
-        // Ensure month is 0-based for JS Date (Jan = 0)
-        const jsMonth = givenMonth - 1
+      // Get number of days in the given month
+      const daysInMonth = new Date(givenYear, givenMonth, 0).getDate()
+      const extensionRatePerDay = props.profile.stallRentalDet.stallProfileViews.Total_extensionRate
+      const extensionRate = daysInMonth * extensionRatePerDay
 
-        // Get number of days in the given month
-        const daysInMonth = new Date(givenYear, givenMonth, 0).getDate()
-        const extensionRatePerDay = props.profile.stallRentalDet.stallProfileViews.Total_extensionRate
-        const extensionRate = daysInMonth * extensionRatePerDay
-
-        let options = response.data.map((item) => ({
-          value: item.stallOwnerAccountId,
-          label: item.date,
-          amountBasic: item.amountBasic,
-          extensionRate: extensionRate
-        }));
-
-        state.options = options
-      }
-    } catch (error) {
-      console.log(error);
-    }
-    state.isPageLoading = false;
-  }
-
-  async function fetch_current() {
-    state.isPageLoading = true;
-    const today = new Date()
-    const currentMonth = today.getMonth() // 0 = Jan, 1 = Feb, ..., 11 = Dec
-    const currentYear = today.getFullYear()
-
-    // If today's day < 20, use previous month
-    const targetDate = today.getDate() >= 21
-      ? new Date(currentYear, currentMonth + 1) // Next month
-      : new Date(currentYear, currentMonth)
-
-    const currentMonthYear = targetDate.toLocaleString('default', {
-      month: 'long',
-      year: 'numeric'
-    })
-    
-    // Convert 'June 2025' into a Date object for the 1st of the month
-    const date = new Date(currentMonthYear + ' 1') // June 1, 2025
-
-    const year = date.getFullYear()
-    const month = date.getMonth() + 1 // JS months are 0-based
-
-    // Get total days in the month
-    const daysInMonth = new Date(year, month, 0).getDate()
-    const ratePerDay = props.profile.stallRentalDet.stallProfileViews.RatePerDay
-    const ratePerMonth = parseFloat((daysInMonth * ratePerDay).toFixed(2))
-    const extensionRatePerDay = props.profile.stallRentalDet.stallProfileViews.Total_extensionRate
-    const extensionRate = daysInMonth * extensionRatePerDay
-    
-    state.options = [
-      { 
-        value: "current",
-        label: currentMonthYear,
-        amountBasic: ratePerMonth,
+      let options = response.data.map((item) => ({
+        value: item.stallOwnerAccountId,
+        label: item.date,
+        amountBasic: item.amountBasic,
         extensionRate: extensionRate
-      }
-    ]
-    state.isPageLoading = false;
+      }));
+
+      state.options = options
+    }
+  } catch (error) {
+    console.log(error);
   }
+}
+
+async function fetch_current() {
+  const today = new Date()
+  const currentMonth = today.getMonth() // 0 = Jan, 1 = Feb, ..., 11 = Dec
+  const currentYear = today.getFullYear()
+
+  // If today's day < 20, use previous month
+  const targetDate = today.getDate() >= 21
+    ? new Date(currentYear, currentMonth + 1) // Next month
+    : new Date(currentYear, currentMonth)
+
+  const currentMonthYear = targetDate.toLocaleString('default', {
+    month: 'long',
+    year: 'numeric'
+  })
+  
+  // Convert 'June 2025' into a Date object for the 1st of the month
+  const date = new Date(currentMonthYear + ' 1') // June 1, 2025
+
+  const year = date.getFullYear()
+  const month = date.getMonth() + 1 // JS months are 0-based
+
+  // Get total days in the month
+  const daysInMonth = new Date(year, month, 0).getDate()
+  const ratePerDay = props.profile.stallRentalDet.stallProfileViews.RatePerDay
+  const ratePerMonth = parseFloat((daysInMonth * ratePerDay).toFixed(2))
+  const extensionRatePerDay = props.profile.stallRentalDet.stallProfileViews.Total_extensionRate
+  const extensionRate = daysInMonth * extensionRatePerDay
+  
+  state.options = [
+    { 
+      value: "current",
+      label: currentMonthYear,
+      amountBasic: ratePerMonth,
+      extensionRate: extensionRate
+    }
+  ]
+}
 </script>

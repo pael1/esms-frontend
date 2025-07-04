@@ -13,14 +13,14 @@
                                     Month
                                 </th>
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                    Monthly
+                                    Amount
                                 </th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                <!-- <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                     Surcharge
                                 </th>
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                     Interest
-                                </th>
+                                </th> -->
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                     Status
                                 </th>
@@ -35,14 +35,14 @@
                                     {{ ledger.date }}
                                 </td>
                                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                    {{ ledger.amountBasic }}
+                                    {{ $formatPeso(ledger.amountBasic) }}
                                 </td>
-                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                <!-- <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                     {{ ledger.amountSurc }}
                                 </td>
                                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                     {{ ledger.amountInt }}
-                                </td>
+                                </td> -->
                                 <td class="whitespace-nowrap px-3 py-4 text-sm">
                                     <span
                                     :class="ledger.ORNum ? 'inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20' : 'inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20'"
@@ -67,4 +67,6 @@ const props = defineProps({
         required: true
     }
 })
+
+const { $formatPeso } = useNuxtApp()
 </script>
