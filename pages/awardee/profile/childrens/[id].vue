@@ -23,7 +23,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14c3.866 0 7 1.5 7 3.5v3H5v-3C5 15.5 8.134 14 12 14zm0-4a4 4 0 11-8 0 4 4 0 018 0z"></path>
                         </svg>
                     </div>
-                    <h2 class="text-lg font-semibold text-gray-800">Childrens</h2>
+                    <h2 class="text-lg font-semibold text-gray-800">Children</h2>
                 </div>
                 <TableChildrens :childrens="state.childrens" @update:isPageLoading="handlePageLoading" />
 

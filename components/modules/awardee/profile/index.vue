@@ -5,7 +5,7 @@
       <embed
         :src="pdfSrc"
         type="application/pdf"
-        class="w-full sm:w-32 h-32 rounded-lg border-4 border-green-500 object-contain"
+        class="w-full sm:w-32 h-32 rounded-lg border-4 border-green-300 object-contain"
       />
 
       <div class="text-center sm:text-left w-full">

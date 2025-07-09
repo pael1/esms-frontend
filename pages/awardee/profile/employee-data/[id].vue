@@ -23,7 +23,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 11h4.5a2.5 2.5 0 012.5 2.5V18a2 2 0 01-2 2H5a2 2 0 01-2-2v-4.5A2.5 2.5 0 015.5 11H10m4 0V9a2 2 0 00-2-2H8a2 2 0 00-2 2v2m8 0h-4m4 0h4"></path>
                         </svg>
                     </div>
-                    <h2 class="text-lg font-semibold text-gray-800">Employee's</h2>
+                    <h2 class="text-lg font-semibold text-gray-800">Employee</h2>
                 </div>
                 <TableEmployees :employees_data="state.employees_data" @update:isPageLoading="handlePageLoading" />
 

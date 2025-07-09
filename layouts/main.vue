@@ -24,7 +24,7 @@
                 </div>
               </TransitionChild>
               <!-- Sidebar component, swap this element with another sidebar if you like -->
-              <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-green-900 px-6 pb-4">
+              <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-100 px-6 pb-4">
                 <div class="flex h-16 items-center justify-center text-xl font-semibold text-green-100">
                   <img class="w-[4.5rem]" src="/public/images/logo_inside.png" alt="Your Company">
                 </div>
@@ -34,9 +34,9 @@
                       <ul role="list" class="-mx-2 space-y-1">
                         <li v-for="item in navigation" :key="item.name">
                           <NuxtLink :to="item.href" @click="sidebarOpen = false"
-                            :class="[item.activeRouteNames.includes($route.name) ? 'bg-gray-900 text-gray-100' : 'text-green-100 hover:bg-gray-900 hover:text-gray-100', 'group flex items-center gap-x-3 rounded-md p-2 py-2 text-lg font-semibold leading-6']">
+                            :class="[item.activeRouteNames.includes($route.name) ? 'bg-green-100 text-green-900' : 'text-green-900 hover:bg-green-100 hover:text-green-900', 'group flex items-center gap-x-3 rounded-md p-2 py-2 text-lg font-semibold leading-6']">
                             <component :is="item.icon"
-                              :class="[item.activeRouteNames.includes($route.name) ? 'text-gray-100' : 'text-gray-100 group-hover:text-gray-100', 'h-6 w-6 shrink-0']"
+                              :class="[item.activeRouteNames.includes($route.name) ? 'text-green-900' : 'text-green-900 group-hover:text-green-900', 'h-6 w-6 shrink-0']"
                               aria-hidden="true" />
                             {{ item.name }}
                           </NuxtLink>
@@ -55,7 +55,7 @@
     <!-- Static sidebar for desktop -->
     <div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col dark:text-white dark:bg-black">
       <!-- Sidebar component, swap this element with another sidebar if you like -->
-      <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-green-900 px-6 pb-4">
+      <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-100 px-6 pb-4">
         <div class="flex h-16 items-center justify-center text-xl font-semibold text-green-100">
           <img class="w-[4.5rem]" src="/public/images/logo_inside.png" alt="Your Company">
         </div>
@@ -64,14 +64,69 @@
           <ul role="list" class="flex flex-1 flex-col gap-y-7">
             <li>
               <ul role="list" class="-mx-2 space-y-1">
-                <li v-for="item in navigation" :key="item.name">
+                <!-- <li v-for="item in navigation" :key="item.name">
                   <NuxtLink :to="item.href" @click="sidebarOpen = false"
-                    :class="[item.activeRouteNames.includes($route.name) ? 'bg-gray-900 text-gray-100' : 'text-green-100 hover:bg-gray-900 hover:text-gray-100', 'group flex items-center gap-x-3 rounded-md p-2 py-2 text-lg font-semibold leading-6']">
+                    :class="[item.activeRouteNames.includes($route.name) ? 'bg-green-100 text-green-900' : 'text-gray-900 hover:bg-green-100 hover:text-green-900', 'group flex items-center gap-x-3 rounded-md p-2 py-2 text-lg font-semibold leading-6']">
                     <component :is="item.icon"
-                      :class="[item.activeRouteNames.includes($route.name) ? 'text-gray-100' : 'text-gray-100 group-hover:text-gray-100', 'h-6 w-6 shrink-0']"
+                      :class="[item.activeRouteNames.includes($route.name) ? 'text-green-900' : 'text-green-900 group-hover:text-green-900', 'h-6 w-6 shrink-0']"
                       aria-hidden="true" />
                     {{ item.name }}
                   </NuxtLink>
+                </li> -->
+                <li v-for="(item, index) in navigation" :key="item.name">
+                  <div>
+                    <div
+                      @click="item.children ? toggleSubmenu(index) : navigate(item.href)"
+                      class="group flex items-center gap-x-3 rounded-md p-2 py-2 text-lg font-semibold leading-6 cursor-pointer"
+                      :class="[
+                        item.activeRouteNames.includes($route.name)
+                          ? 'bg-green-100 text-green-900'
+                          : 'text-gray-900 hover:bg-green-100 hover:text-green-900'
+                      ]"
+                    >
+                      <component
+                        :is="item.icon"
+                        :class="[
+                          item.activeRouteNames.includes($route.name)
+                            ? 'text-green-900'
+                            : 'text-green-900 group-hover:text-green-900',
+                          'h-6 w-6 shrink-0'
+                        ]"
+                        aria-hidden="true"
+                      />
+                      <span>{{ item.name }}</span>
+                      <span v-if="item.children" class="ml-auto text-sm text-green-800">&#x25BC;</span>
+                    </div>
+
+                    <!-- Submenu -->
+                    <ul
+                      v-if="item.children && openSubmenus[index]"
+                      class="ml-10 mt-1 space-y-1"
+                    >
+                      <li v-for="sub in item.children" :key="sub.name">
+                        <NuxtLink
+                          :to="sub.href"
+                          @click="sidebarOpen = false"
+                          class="group flex items-center gap-x-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-green-100 hover:text-green-900"
+                          :class="{
+                            'bg-green-100 text-green-900': sub.activeRouteNames.includes($route.name),
+                          }"
+                        >
+                        <!-- <component
+                        :is="item.icon"
+                        :class="[
+                          item.activeRouteNames.includes($route.name)
+                            ? 'text-green-900'
+                            : 'text-green-900 group-hover:text-green-900',
+                          'h-6 w-6 shrink-0'
+                        ]"
+                        aria-hidden="true"
+                      /> -->
+                          {{ sub.name }}
+                        </NuxtLink>
+                      </li>
+                    </ul>
+                  </div>
                 </li>
               </ul>
             </li>
@@ -95,14 +150,14 @@
           <form class="relative flex flex-1 bg-white" action="#" method="GET">
             <label for="search-field" class="sr-only">Search</label>
           </form>
-          <button
+          <!-- <button
             @click="toggleTheme"
             class="rounded-full p-2 text-gray-500 hover:text-green-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
             :title="colorMode.preference === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
           >
             <span v-if="colorMode.preference === 'dark'">🌞</span>
             <span v-else>🌙</span>
-          </button>
+          </button> -->
           <div class="flex items-center gap-x-4 lg:gap-x-6">
             <!-- Profile dropdown -->
             <Menu as="div" class="relative">
@@ -164,25 +219,74 @@ import {
 } from '@headlessui/vue'
 import {
   Bars3Icon,
-  BellIcon,
-  DocumentDuplicateIcon,
-  FolderIcon,
+  ChartPieIcon,
   HomeIcon,
   UsersIcon,
-  XMarkIcon,
-  InboxIcon
+  XMarkIcon
 } from '@heroicons/vue/24/outline'
-import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
+import { ChevronDownIcon } from '@heroicons/vue/20/solid'
+
+const openSubmenus = ref({})
 
 const userStore = useUserStore()
 const user = userStore.getUser
 const route = useRouter()
 
-const colorMode = useColorMode()
-function toggleTheme() {
-  const newTheme = colorMode.preference === 'light' ? 'dark' : 'light'
-  colorMode.preference = newTheme
+const navigation = [
+  {
+    name: 'Dashboard',
+    href: '/dashboard',
+    icon: HomeIcon,
+    activeRouteNames: ['dashboard'],
+  },
+  {
+    name: 'Awardee', href: '/awardee', icon: UsersIcon, activeRouteNames: [
+        'awardee',
+        'awardee-profile-id',
+        'awardee-profile-files-id',
+        'awardee-profile-childrens-id',
+        'awardee-profile-employee-data-id',
+        'awardee-profile-transactions-id',
+        'awardee-profile-ledger-id',
+    ]
+  },
+  {
+    name: 'Reports',
+    icon: ChartPieIcon,
+    activeRouteNames: ['reports'],
+    children: [
+      { name: 'MasterList', href: '/reports/master-list', activeRouteNames: ['reports-master-list'] },
+      // { name: 'Monthly Collection', href: '/awardee/ledger', activeRouteNames: ['awardee-profile-ledger-id'] },
+    ]
+  },
+];
+
+// Auto-open submenu if current route matches any child
+onMounted(() => {
+  navigation.forEach((item, index) => {
+    if (item.children) {
+      const isChildActive = item.children.some(child =>
+        child.activeRouteNames.includes(route.name)
+      )
+      openSubmenus.value[index] = isChildActive
+    }
+  })
+})
+
+function toggleSubmenu(index) {
+  openSubmenus.value[index] = !openSubmenus.value[index]
 }
+
+function navigate(href) {
+  openSubmenus.value = {}
+  route.push(href)
+}
+
+// const colorMode = useColorMode()
+// function toggleTheme() {
+//   const newTheme = colorMode.preference === 'light' ? 'dark' : 'light'
+//   colorMode.preference = newTheme
+// }
 
 const state = reactive({
   error: null,
@@ -203,25 +307,6 @@ async function logoutUser() {
   }
   state.isPageLoading = false
 }
-
-const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: HomeIcon, activeRouteNames: ['dashboard'] },
-  {
-      name: 'Awardee', href: '/awardee', icon: UsersIcon, activeRouteNames: [
-          'awardee',
-          'awardee-profile-id',
-          'awardee-profile-files-id',
-          'awardee-profile-childrens-id',
-          'awardee-profile-employee-data-id',
-          'awardee-profile-transactions-id',
-          'awardee-profile-ledger-id',
-      ]
-  },
-]
-const userNavigation = [
-  { name: 'Your profile', href: '#' },
-  { name: 'Sign out', href: '#' },
-]
 
 const sidebarOpen = ref(false)
 </script>

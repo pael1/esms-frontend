@@ -33,8 +33,8 @@ const props = defineProps({
 const tabs = [
     { name: 'Stall', href: `/awardee/profile/${props.awardeeId}`, activeRouteNames: ['awardee-profile-id'] },
     { name: 'Files', href: `/awardee/profile/files/${props.awardeeId}`, activeRouteNames: ['awardee-profile-files-id'] },
-    { name: 'Childrens', href: `/awardee/profile/childrens/${props.awardeeId}`, activeRouteNames: ['awardee-profile-childrens-id'] },
-    { name: "Employee's Data", href: `/awardee/profile/employee-data/${props.awardeeId}`, activeRouteNames: ['awardee-profile-employee-data-id'] },
+    { name: 'Children', href: `/awardee/profile/childrens/${props.awardeeId}`, activeRouteNames: ['awardee-profile-childrens-id'] },
+    { name: "Employee", href: `/awardee/profile/employee-data/${props.awardeeId}`, activeRouteNames: ['awardee-profile-employee-data-id'] },
     { name: 'Transactions', href: `/awardee/profile/transactions/${props.awardeeId}`, activeRouteNames: ['awardee-profile-transactions-id'] },
     { name: 'Ledger', href: `/awardee/profile/ledger/${props.awardeeId}`, activeRouteNames: ['awardee-profile-ledger-id'] },
 ]

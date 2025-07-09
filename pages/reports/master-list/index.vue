@@ -4,7 +4,7 @@
             <Loader v-if="state.isPageLoading" />
             <div class="sm:flex sm:items-center p-2">
                 <div class="sm:flex-auto">
-                <h1 class="text-base font-semibold leading-6 text-gray-900">AWARDEE</h1>
+                <h1 class="text-base font-semibold leading-6 text-gray-900">MASTERLIST REPORT</h1>
                 </div>
             </div>
             <div class="flex items-center justify-between">
@@ -26,28 +26,28 @@
                   </option>
                 </select>
               </div>
-              <!-- Right side: TableSearch -->
               <div>
-                <!-- <TableSearch
-                  :columnFilter="state.columnFilter"
-                  :dataFilter="state.dataFilter"
-                  @handleFilter="handleFilter"
-                /> -->
-                <TableSearchSimple
-                  @handleFilter="handleFilter"
-                />
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-500 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-gray-400"
+                  @click="print()"
+                >
+                  Print
+                </button>
               </div>
             </div>
-            <TableAwardees :awardees="state.awardees.data" @update:isPageLoading="handlePageLoading" />
+            <TableReportsMasterlist :awardees="state.awardees.data" @update:isPageLoading="handlePageLoading" />
             <Pagination v-if="state.awardees?.data?.length > 0" :data="state.awardees" @previous="previous" @next="next" />
         </div>
     </div>
   </template>
   
   <script setup>
-  import { awardeeService } from '@/components/api/AwardeeService'
+  import { reportService } from '@/components/api/ReportService'
   import { useUserStore } from '@/store/user'
   import { useParameterStore } from '@/store/parameter'
+
+  const { showError, showSuccess, showLoading, closeLoading } = useSweetLoading()
 
   const { $capitalizeWords } = useNuxtApp()
 
@@ -70,11 +70,6 @@
         sectionCode: '01',
     },
     awardees: [],
-    dataFilter: [],
-    columnFilter: [
-        { column: 'First Name' },
-        { column: 'Last Name' },
-    ],
     sectionCodes: sectionCodes.data
   })
 
@@ -82,18 +77,22 @@
       fetchAwardees()
   })
 
+  function getMasterlistParams() {
+    return {
+      marketcode: state.user_data.marketcode,
+      type: state.user_data.stall_type,
+      section: state.user_data.sectionCode,
+    };
+  }
+
   async function fetchAwardees() {
       state.isPageLoading = true
       try {
           let params = {
-              page: currentPage,
-              marketcode: state.user_data.marketcode,
-              type: state.user_data.stall_type,
-              section: state.user_data.sectionCode,
-              ...state.dataFilter
+              ...getMasterlistParams(),
+              page: currentPage
           }
-          console.log(params);
-          const response = await awardeeService.getAwardees(params)
+          const response = await reportService.masterlist(params)
           if (response) {
               state.awardees = response
           }
@@ -103,25 +102,44 @@
       state.isPageLoading = false
   }
 
-  function handleFilter(value) {
-      currentPage = 1
-      state.dataFilter = value
-      console.log(state.dataFilter);
-      fetchAwardees()
-  }
-
   async function previous() {
     currentPage--
     fetchAwardees()
-}
+  }
 
-async function next() {
-    currentPage++
-    fetchAwardees()
-}
+  async function print() {
+      try {
+          showLoading('Generating', '');
+          let params = getMasterlistParams();
+          const response = await reportService.masterlist_print(params)
+          if (response) {
+            const blobContent = new Blob([response], { type: "application/pdf" });
+            const blobUrl = URL.createObjectURL(blobContent);
+            const iframe = document.createElement("iframe");
+            iframe.style.display = "none";
+            iframe.src = blobUrl;
+            document.body.appendChild(iframe);
+            iframe.onload = () => {
+              iframe.contentWindow.print();
+              iframe.onload = () => {
+                URL.revokeObjectURL(blobUrl);
+                document.body.removeChild(iframe);
+              };
+            };
+          }
+          closeLoading()
+      } catch (error) {
+          console.log(error)
+      }
+  }
 
-function handlePageLoading(isLoading) {
-    state.isPageLoading = isLoading;
-}
+  async function next() {
+      currentPage++
+      fetchAwardees()
+  }
+
+  function handlePageLoading(isLoading) {
+      state.isPageLoading = isLoading;
+  }
    
 </script>

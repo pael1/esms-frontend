@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white flex items-center w-full flex-wrap border border-gray relative px-3 py-1 rounded-md">
+  <div class="bg-white flex items-center w-full flex-wrap border border-green-300 relative px-3 py-1 rounded-md">
     <span class="flex items-center gap-x-1 absolute text-green-800 dark:text-green-800">
       <FunnelIcon class="w-4 text-green-800" />
       <span class="text-green-800">Filter</span>
