@@ -45,6 +45,11 @@ class AwardeeService extends BaseAPIService {
     async updateUser(params: object, uuid: any): Promise<any> {
         return await this.request(`/users/${uuid}`, 'PUT', params);
     }
+
+    //sync the unpaid op to our database
+    async sync_op(params: object): Promise<any> {
+        return await this.request(`/sync`, 'GET', params);
+    }
 }
 
 export const awardeeService = new AwardeeService();

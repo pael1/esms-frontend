@@ -95,7 +95,13 @@
                         aria-hidden="true"
                       />
                       <span>{{ item.name }}</span>
-                      <span v-if="item.children" class="ml-auto text-sm text-green-800">&#x25BC;</span>
+                      <ChevronRightIcon
+                        v-if="item.children"
+                        :class="[
+                          'ml-auto h-5 w-5 transform transition-transform duration-300',
+                          openSubmenus[index] ? 'rotate-90 text-green-800' : 'rotate-0 text-green-800'
+                        ]"
+                      />
                     </div>
 
                     <!-- Submenu -->
@@ -194,7 +200,7 @@
         </div>
       </div>
 
-      <main class="py-10">
+      <main>
         <div class="px-4 sm:px-6 lg:px-8 dark:text-white dark:bg-black">
           <slot />
         </div>
@@ -224,7 +230,7 @@ import {
   UsersIcon,
   XMarkIcon
 } from '@heroicons/vue/24/outline'
-import { ChevronDownIcon } from '@heroicons/vue/20/solid'
+import { ChevronRightIcon, ChevronDownIcon } from '@heroicons/vue/20/solid'
 
 const openSubmenus = ref({})
 

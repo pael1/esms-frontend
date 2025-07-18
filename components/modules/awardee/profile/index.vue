@@ -152,7 +152,7 @@ import { useVuelidate } from "@vuelidate/core"
 import { required, helpers } from '@vuelidate/validators'
 import { defineProps } from 'vue';
 import { useUserStore } from '@/store/user'
-import { computed } from 'vue'
+// import { computed } from 'vue'
 
 const { showError, showSuccess, showLoading, closeLoading } = useSweetLoading()
 
@@ -176,10 +176,10 @@ const props = defineProps({
         type: Object,
         required: true
     },
-    options: {
-        type: Object,
-        required: true
-    }
+    // options: {
+    //     type: Object,
+    //     required: true
+    // }
 })
 
 onMounted(() => {
@@ -231,9 +231,7 @@ function openDialog(isCurrent) {
     if(isCurrent){
       fetch_current()
     } else {
-      // showError("", "This feature is not yet ready")
       fetch_arrears()
-      // closedDialog()
     }
 }
 function closedDialog() {

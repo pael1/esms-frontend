@@ -17,11 +17,11 @@ export const useSweetLoading = () => {
         Swal.close()
     }
 
-    const showError = (title = 'Error', text = 'Something went wrong.') => {
+    const showError = (title = 'Error', html = 'Something went wrong.') => {
         Swal.fire({
             icon: 'error',
             title,
-            text,
+            html,
             confirmButtonColor: '#16A34A' // Tailwind green-500
         })
     }

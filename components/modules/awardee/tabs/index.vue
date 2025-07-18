@@ -37,5 +37,6 @@ const tabs = [
     { name: "Employee", href: `/awardee/profile/employee-data/${props.awardeeId}`, activeRouteNames: ['awardee-profile-employee-data-id'] },
     { name: 'Transactions', href: `/awardee/profile/transactions/${props.awardeeId}`, activeRouteNames: ['awardee-profile-transactions-id'] },
     { name: 'Ledger', href: `/awardee/profile/ledger/${props.awardeeId}`, activeRouteNames: ['awardee-profile-ledger-id'] },
+    { name: 'Sync Data', href: `/awardee/profile/sync-op/${props.awardeeId}`, activeRouteNames: ['awardee-profile-sync-op-id'] },
 ]
 </script>

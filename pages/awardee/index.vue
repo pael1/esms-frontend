@@ -62,6 +62,10 @@
       layout: 'main'
   })
 
+  useHead({
+    title: 'Awardee | eSMS'
+  })
+
   const state = reactive({
     isPageLoading: false,
     user_data: {

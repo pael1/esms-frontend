@@ -94,6 +94,10 @@
   definePageMeta({
     layout: 'main',
   });
+
+  useHead({
+    title: 'Profile | eSMS'
+  })
   
   const state = reactive({
     isPageLoading: false,

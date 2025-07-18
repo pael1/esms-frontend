@@ -62,6 +62,10 @@
       layout: 'main'
   })
 
+  useHead({
+    title: 'Masterlist Report | eSMS'
+  })
+
   const state = reactive({
     isPageLoading: false,
     user_data: {

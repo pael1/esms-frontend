@@ -8,7 +8,8 @@
     <Loader v-if="state.isPageLoading" />
       <div class="bg-white shadow-lg rounded-2xl p-4 sm:p-6">
         <!-- Profile Section -->
-        <ModulesAwardeeProfile :profile="state.awardee" :options="state.options" />
+        <!-- <ModulesAwardeeProfile :profile="state.awardee" :options="state.options" /> -->
+        <ModulesAwardeeProfile :profile="state.awardee" />
   
         <!-- Tabs -->
         <ModulesAwardeeTabs :awardeeId="id" :routeName="$route.name" />
@@ -86,10 +87,10 @@
       if (response.data) {
         console.log(response.data)
         state.ledger_datas = response;
-        state.options = response.data.map((item) => ({
-          value: item.stallOwnerAccountId,
-          label: item.date,
-        }));
+        // state.options = response.data.map((item) => ({
+        //   value: item.stallOwnerAccountId,
+        //   label: item.date,
+        // }));
       }
     } catch (error) {
       console.log(error);
