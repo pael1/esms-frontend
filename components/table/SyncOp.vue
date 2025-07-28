@@ -20,20 +20,20 @@
                         <tbody class="divide-y divide-gray-200 bg-white">
                             <!-- If there is data -->
                             <template v-if="props.data?.data?.length">
-                                <tr v-for="synce in props.data.data" :key="synce.id">
+                                <tr v-for="sync in props.data.data" :key="sync.id">
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                        {{ synce.ornumber }}
+                                        {{ sync.ornumber }}
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                        {{ synce.month_names.join(', ') }}
+                                        {{ sync.month_names.join(', ') }}
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm">
                                         <span
-                                            :class="synce.is_processed == '0' 
+                                            :class="sync.is_processed == '0' 
                                                 ? 'inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20' 
                                                 : 'inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20'"
                                         >
-                                            {{ synce.is_processed == '0' ? 'Processing' : 'Processed' }}
+                                            {{ sync.is_processed == '0' ? 'Processing' : 'Processed' }}
                                         </span>
                                     </td>
                                 </tr>
