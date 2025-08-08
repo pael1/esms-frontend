@@ -80,7 +80,7 @@
               </thead>
               <tbody class="divide-y divide-green-200">
                 <template v-for="(id, index) in state.ledgerIdSelected" :key="id">
-                  <tr
+                  <!-- <tr
                     v-if="getOption(id)?.extensionRate > 0"
                     class="hover:bg-green-50 transition text-gray-500 text-sm"
                   >
@@ -92,6 +92,36 @@
                           currency: 'PHP',
                           minimumFractionDigits: 2,
                         }).format(getOption(id)?.extensionRate)
+                      }}
+                    </td>
+                  </tr> -->
+                  <tr
+                    v-if="getOption(id)?.interest > 0"
+                    class="hover:bg-green-50 transition text-gray-500 text-sm"
+                  >
+                    <td class="px-4 py-2 text-center">{{ getOption(id)?.label }} - Interest ({{ getOption(id)?.monthsDelayed }} month/s)</td>
+                    <td class="px-4 py-2 text-center">
+                      {{
+                        new Intl.NumberFormat('en-PH', {
+                          style: 'currency',
+                          currency: 'PHP',
+                          minimumFractionDigits: 2,
+                        }).format(getOption(id)?.interest)
+                      }}
+                    </td>
+                  </tr>
+                  <tr
+                    v-if="getOption(id)?.surcharge > 0"
+                    class="hover:bg-green-50 transition text-gray-500 text-sm"
+                  >
+                    <td class="px-4 py-2 text-center">{{ getOption(id)?.label }} - Surcharge</td>
+                    <td class="px-4 py-2 text-center">
+                      {{
+                        new Intl.NumberFormat('en-PH', {
+                          style: 'currency',
+                          currency: 'PHP',
+                          minimumFractionDigits: 2,
+                        }).format(getOption(id)?.surcharge)
                       }}
                     </td>
                   </tr>
@@ -220,8 +250,10 @@ const totalAmountBasic = computed(() => {
 
     const amountBasic = parseFloat(match?.amountBasic) || 0;
     const extensionRate = parseFloat(match?.extensionRate) || 0;
+    const interest = parseFloat(match?.interest) || 0;
+    const surcharge = parseFloat(match?.surcharge) || 0;
 
-    return sum + amountBasic + extensionRate;
+    return sum + amountBasic + extensionRate + interest + surcharge;
   }, 0);
 });
 
@@ -253,13 +285,14 @@ async function Generate() {
     v$.value.$validate()
     if (!v$.value.$error) {
       const selectedObjects = getSelectedLedgerObjects()
+      console.log('Selected Objects:', selectedObjects)
       try {
         showLoading('Generating', '');
           let params = {
             name: props.profile.full_name,
             stallNo: props.profile.stallRentalDet.stallNo,
             ownerId: props.profile.ownerId,
-            extension: props.profile.stallRentalDet.stallProfileViews.Total_extensionRate,
+            extension: props.profile.stallRentalDet.stallProfile.Total_extensionRate,
             stallprofile: props.profile.stallRentalDet.stallProfile,
             items: JSON.stringify(selectedObjects),
             postBy: user?.UserFirstName + ' ' +user?.UserLastName,
@@ -299,22 +332,25 @@ async function fetch_arrears() {
 
     if (response.data) {
       //NOTE::: NO NEED NA NAKO ANG EXTENSION KAY COMPUTED NA SIYA SA AMOUNTBASIC
-      const givenMonth = parseInt(response.data.month) // e.g., 6 for June
-      const givenYear = parseInt(response.data.year)   // e.g., 2025
+      // const givenMonth = parseInt(response.data.month) // e.g., 6 for June
+      // const givenYear = parseInt(response.data.year)   // e.g., 2025
 
-      // Ensure month is 0-based for JS Date (Jan = 0)
-      const jsMonth = givenMonth - 1
+      // // Ensure month is 0-based for JS Date (Jan = 0)
+      // const jsMonth = givenMonth - 1
 
       // Get number of days in the given month
-      const daysInMonth = new Date(givenYear, givenMonth, 0).getDate()
-      const extensionRatePerDay = props.profile.stallRentalDet.stallProfileViews.Total_extensionRate
-      const extensionRate = daysInMonth * extensionRatePerDay
+      // const daysInMonth = new Date(givenYear, givenMonth, 0).getDate()
+      // const extensionRatePerDay = props.profile.stallRentalDet.stallProfile.Total_extensionRate
+      // const extensionRate = daysInMonth * extensionRatePerDay
 
       let options = response.data.map((item) => ({
         value: item.stallOwnerAccountId,
         label: item.date,
         amountBasic: item.amountBasic,
-        extensionRate: extensionRate
+        interest: item.interest,
+        surcharge: item.surcharge,
+        monthsDelayed: item.monthsDelayed,
+        // extensionRate: extensionRate
       }));
 
       state.options = options
@@ -347,9 +383,9 @@ async function fetch_current() {
 
   // Get total days in the month
   const daysInMonth = new Date(year, month, 0).getDate()
-  const ratePerDay = props.profile.stallRentalDet.stallProfileViews.RatePerDay
+  const ratePerDay = props.profile.stallRentalDet.stallProfile.TotalRatePerDay
   const ratePerMonth = parseFloat((daysInMonth * ratePerDay).toFixed(2))
-  const extensionRatePerDay = props.profile.stallRentalDet.stallProfileViews.Total_extensionRate
+  const extensionRatePerDay = props.profile.stallRentalDet.stallProfile.Total_extensionRate
   const extensionRate = daysInMonth * extensionRatePerDay
   
   state.options = [

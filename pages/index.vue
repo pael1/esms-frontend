@@ -75,14 +75,19 @@
     </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { authService } from '@/components/api/AuthService'
 import { useUserStore } from '@/store/user'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/outline'
 import { useVuelidate } from '@vuelidate/core'
 import { required, helpers } from '@vuelidate/validators'
+import { useParameterStore } from '@/store/parameter'
+import { useMarketcodeStore } from '@/store/marketcode'
+import { parameterService } from '~/components/api/ParameterService'
 
 const userStore = useUserStore()
+const parameterStore = useParameterStore()
+const marketStore = useMarketcodeStore()
 
 const state = reactive({
     username: null,
@@ -116,12 +121,15 @@ async function login() {
                 username: state.username,
                 password: state.password
             }
-            // console.log(params);
             const response = await authService.login(params)
-            // console.log(response);
             if (response.data) {
                 localStorage.setItem("_token", response.data.token)
                 userStore.setUser(response.data.user.user_detail)
+
+                //set user section and market code
+                fetchMarkets()  
+                fetchSectionCodes()  
+
                 await navigateTo(`/dashboard`)
             }
         } catch (error) {
@@ -129,6 +137,36 @@ async function login() {
         }
     }
     state.isPageLoading = false
+}
+
+async function fetchSectionCodes() {
+  try {
+    const response = await parameterService.getSectionCodes({ fieldId: 'SECTIONCODE' })
+    if (response) {
+        let options = response.data.map((item) => ({
+            value: item.fieldValue,
+            label: item.fieldDescription
+        }));
+        parameterStore.setSectionCode(options)
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function fetchMarkets() {
+  try {
+    const response = await parameterService.getMarkets({ fieldId: 'MARKETCODE' })
+    if (response) {
+        let options = response.data.map((item) => ({
+            value: item.fieldValue,
+            label: item.fieldDescription
+        }));
+        marketStore.setMarketCode(options)
+    }
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 function viewPassword() {

@@ -212,6 +212,7 @@
 <script setup>
 import { authService } from '@/components/api/AuthService'
 import { useUserStore } from '@/store/user'
+import { useParameterStore } from '@/store/parameter'
 import { ref } from 'vue'
 import {
   Dialog,
@@ -228,14 +229,20 @@ import {
   ChartPieIcon,
   HomeIcon,
   UsersIcon,
-  XMarkIcon
+  XMarkIcon,
+  DocumentMinusIcon
 } from '@heroicons/vue/24/outline'
 import { ChevronRightIcon, ChevronDownIcon } from '@heroicons/vue/20/solid'
+import { useMarketcodeStore } from '~/store/marketcode'
 
 const openSubmenus = ref({})
 
 const userStore = useUserStore()
 const user = userStore.getUser
+
+const parameterStore = useParameterStore()
+const marketStore = useMarketcodeStore()
+
 const route = useRouter()
 
 const navigation = [
@@ -263,6 +270,15 @@ const navigation = [
     children: [
       { name: 'MasterList', href: '/reports/master-list', activeRouteNames: ['reports-master-list'] },
       // { name: 'Monthly Collection', href: '/awardee/ledger', activeRouteNames: ['awardee-profile-ledger-id'] },
+    ]
+  },
+  {
+    name: 'Conversion',
+    icon: DocumentMinusIcon,
+    activeRouteNames: ['conversion'],
+    children: [
+      { name: 'Awardee', href: '/conversion/awardee', activeRouteNames: ['conversion-awardee'] },
+      { name: 'Stall', href: '/conversion/stall', activeRouteNames: ['conversion-stall'] },
     ]
   },
 ];
@@ -306,6 +322,8 @@ async function logoutUser() {
     if (response.message) {
       localStorage.removeItem('_token')
       userStore.resetUser()
+      parameterStore.resetSectionCode()
+      marketStore.resetMarketCode()
       await navigateTo(`/`)
     }
   } catch (error) {

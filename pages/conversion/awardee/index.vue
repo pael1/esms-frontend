@@ -8,26 +8,44 @@
                 </div>
             </div>
             <div class="flex items-center justify-between">
-            <!-- Left side: select -->
+              <!-- Left side: grouped selects -->
               <div class="flex items-center gap-x-2">
-                <div class="w-48">
-                  <FormSelect
-                    v-model="state.user_data.sectionCode"
-                    @update:modelValue="fetchAwardees"
-                    :options="state.sectionCodes"
-                  />
-                </div>
+                <select
+                  v-model="state.user_data.marketcode"
+                  @change="fetchAwardees"
+                  id="marketCode"
+                  class="border border-green-300 rounded px-2 py-1"
+                >
+                  <option
+                    class="block px-3 py-1 text-base leading-6 text-green-900"
+                    v-for="type in state.marketCodes"
+                    :key="type.fieldValue"
+                    :value="type.fieldValue"
+                  >
+                    {{ $capitalizeWords(type.fieldDescription) }}
+                  </option>
+                </select>
+
+                <select
+                  v-model="state.user_data.sectionCode"
+                  @change="fetchAwardees"
+                  id="sectionCode"
+                  class="border border-green-300 rounded px-2 py-1"
+                >
+                  <option
+                    class="block px-3 py-1 text-base leading-6 text-green-900"
+                    v-for="type in state.sectionCodes"
+                    :key="type.fieldValue"
+                    :value="type.fieldValue"
+                  >
+                    {{ $capitalizeWords(type.fieldDescription) }}
+                  </option>
+                </select>
               </div>
+
               <!-- Right side: TableSearch -->
               <div>
-                <!-- <TableSearch
-                  :columnFilter="state.columnFilter"
-                  :dataFilter="state.dataFilter"
-                  @handleFilter="handleFilter"
-                /> -->
-                <TableSearchSimple
-                  @handleFilter="handleFilter"
-                />
+                <TableSearchSimple @handleFilter="handleFilter" />
               </div>
             </div>
             <TableAwardees :awardees="state.awardees.data" @update:isPageLoading="handlePageLoading" />
@@ -49,6 +67,7 @@
   const useParameter = useParameterStore()
   const user = userStore.getUser
   const sectionCodes = useParameter.getSectionCode
+  const marketCodes = useParameter.getMarketCode
 
   definePageMeta({
       layout: 'main'
@@ -71,11 +90,13 @@
         { column: 'First Name' },
         { column: 'Last Name' },
     ],
-    sectionCodes: sectionCodes
+    sectionCodes: sectionCodes,
+    marketCodes: marketCodes
   })
 
   onMounted(() => {
       fetchAwardees()
+      console.log(state.marketCodes)
   })
 
   async function fetchAwardees() {

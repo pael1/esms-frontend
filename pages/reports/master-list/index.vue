@@ -10,7 +10,7 @@
             <div class="flex items-center justify-between">
             <!-- Left side: select -->
               <div class="flex items-center gap-x-2">
-                <select
+                <!-- <select
                   v-model="state.user_data.sectionCode"
                   @change="fetchAwardees"
                   id="sectionCode"
@@ -24,7 +24,14 @@
                   >
                     {{ $capitalizeWords(type.fieldDescription) }}
                   </option>
-                </select>
+                </select> -->
+                <div class="w-48">
+                  <FormSelect
+                    v-model="state.user_data.sectionCode"
+                    @update:modelValue="fetchAwardees"
+                    :options="state.sectionCodes"
+                  />
+                </div>
               </div>
               <div>
                 <button
@@ -74,7 +81,7 @@
         sectionCode: '01',
     },
     awardees: [],
-    sectionCodes: sectionCodes.data
+    sectionCodes: sectionCodes
   })
 
   onMounted(() => {

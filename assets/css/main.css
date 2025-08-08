@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.multiselect {
+    @apply border border-green-600 rounded-md text-green-900 text-sm !important;
+}
+
+.multiselect-dropdown {
+    @apply border border-green-600 rounded-md !important;
+}
+
+.multiselect-tag {
+    @apply bg-green-600 !important;
+}
+
+.multiselect.is-active {
+    box-shadow: none !important;
+    @apply border border-green-600 !important;
+}
+
+.multiselect-option.is-selected,
+.multiselect-option.is-selected.is-pointed {
+    @apply bg-green-600 !important;
+}

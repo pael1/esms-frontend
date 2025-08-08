@@ -1,6 +1,11 @@
 <template>
-    <Multiselect :close-on-select="true" :searchable="props.searchable" :options="props.options"
-        :canClear="props.canClear" />
+  <Multiselect
+    class="w-full"
+    :close-on-select="true"
+    :searchable="props.searchable"
+    :options="props.options"
+    :canClear="props.canClear"
+  />
 </template>
 
 <script setup lang="ts">

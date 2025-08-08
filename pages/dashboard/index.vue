@@ -1,31 +1,46 @@
 <template>
   <div class="px-4 sm:px-6 lg:px-8">
     <Loader v-if="state.isPageLoading" />
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-      <div
-        v-for="(chart, index) in chartCards1"
-        :key="index"
-        class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4"
-      >
-        <!-- Stat Title + Label -->
-        <div class="mb-2">
-          <h2 class="text-2xl font-extrabold text-gray-800 dark:text-white">
-            {{ chart.value }}
-          </h2>
-          <p class="text-sm text-gray-500 dark:text-gray-300">
-            {{ chart.label }}
-          </p>
-        </div>
-
-        <!-- Sparkline Chart -->
-        <ApexChart
-          type="line"
-          height="60"
-          :options="getSparkOptions(chart.color, chart.name)"
-          :series="[{ name: chart.name, data: chart.data }]"
-        />
-      </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mt-8">
+  <!-- Render only the first two cards (line charts) -->
+  <div
+    v-for="(chart, index) in chartCards1.slice(0, 2)"
+    :key="index"
+    class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4"
+  >
+    <!-- Stat Title + Label -->
+    <div class="mb-2">
+      <h2 class="text-2xl font-extrabold text-gray-800 dark:text-white">
+        {{ chart.value }}
+      </h2>
+      <p class="text-sm text-gray-500 dark:text-gray-300">
+        {{ chart.label }}
+      </p>
     </div>
+
+    <!-- Line Chart -->
+    <ApexChart
+      type="line"
+      height="60"
+      :options="getSparkOptions(chart.color, chart.name)"
+      :series="[{ name: chart.name, data: chart.data }]"
+    />
+  </div>
+</div>
+
+<!-- Pie chart on its own row -->
+<div class="mt-6">
+  <ApexChart
+    v-if="chartCards1[2]"
+    type="pie"
+    height="250"
+    :options="getPieOptions(chartCards1[2].label)"
+    :series="chartCards1[2].data"
+  />
+</div>
+
+
+
     <!-- <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
       <div
         v-for="(chart, index) in chartCards"
@@ -56,7 +71,6 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useParameterStore } from '@/store/parameter'
-import { parameterService } from '~/components/api/ParameterService'
 
 definePageMeta({ layout: 'main' })
 
@@ -64,7 +78,6 @@ useHead({
   title: 'Dashboard | eSMS'
 })
 
-const parameterStore = useParameterStore()
 
 const state = reactive({
   isPageLoading: false
@@ -114,27 +127,60 @@ const chartOptions = ref({
 
 const chartCards1 = ref([
   {
-    name: 'Sales',
-    label: 'Sales',
-    value: '$424,652',
-    color: '#60a5fa', // blue-400
+    type: 'line',
+    name: 'collections',
+    label: 'Collections (Line)',
+    value: '19,000',
+    color: '#60a5fa',
     data: [20, 40, 35, 50, 49, 60, 70]
   },
   {
-    name: 'Expenses',
-    label: 'Expenses',
-    value: '$23,000',
-    color: '#f87171', // red-400
-    data: [10, 30, 25, 40, 45, 50, 65]
+    type: 'pie',
+    name: 'sales',
+    label: 'Sales Breakdown',
+    value: '100%',
+    color: '#34d399',
+    data: [40, 30, 20, 10] // Pie slices
   },
   {
-    name: 'Profits',
-    label: 'Profits',
-    value: '$135,965',
-    color: '#3b82f6', // blue-500
-    data: [15, 25, 30, 35, 55, 65, 75]
+    type: 'line',
+    name: 'revenue',
+    label: 'Revenue (Line)',
+    value: '12,500',
+    color: '#f472b6',
+    data: [10, 20, 15, 25, 30, 35, 40]
   }
 ])
+
+// const getSparkOptions = (color, name) => ({
+//   chart: {
+//     sparkline: { enabled: true }
+//   },
+//   stroke: {
+//     curve: 'smooth',
+//     width: 2
+//   },
+//   colors: [color],
+//   tooltip: {
+//     enabled: false
+//   },
+//   xaxis: {
+//     crosshairs: { width: 1 }
+//   }
+// })
+
+const getPieOptions = (label) => ({
+  labels: ['Agdao', 'Bankerohan', 'Calinan', 'Toril', 'Mintal', 'Buhangin', 'Lasang'],
+  legend: {
+    position: 'bottom'
+  },
+  tooltip: {
+    y: {
+      formatter: val => `${val}%`
+    }
+  }
+})
+
 
 const getSparkOptions = (color, name) => ({
   chart: {
@@ -167,20 +213,20 @@ const getSparkOptions = (color, name) => ({
 
 // API calls
 onMounted(() => {
-  fetchSectionCodes()
+  // fetchSectionCodes()
   fetchChartData()
 })
 
-async function fetchSectionCodes() {
-  state.isPageLoading = true
-  try {
-    const response = await parameterService.getSectionCodes({ fieldId: 'SECTIONCODE' })
-    if (response) parameterStore.setSectionCode(response)
-  } catch (error) {
-    console.error(error)
-  }
-  state.isPageLoading = false
-}
+// async function fetchSectionCodes() {
+//   state.isPageLoading = true
+//   try {
+//     const response = await parameterService.getSectionCodes({ fieldId: 'SECTIONCODE' })
+//     if (response) parameterStore.setSectionCode(response)
+//   } catch (error) {
+//     console.error(error)
+//   }
+//   state.isPageLoading = false
+// }
 
 async function fetchChartData() {
   try {
