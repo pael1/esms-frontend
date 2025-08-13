@@ -2,10 +2,11 @@
     <div class="min-h-screen sm:p-3">
         <div class="bg-white">
             <Loader v-if="state.isPageLoading" />
+            <div class="py-3"></div>
             <div class="sm:flex sm:items-center p-2">
-                <div class="sm:flex-auto">
+                <!-- <div class="sm:flex-auto">
                 <h1 class="text-base font-semibold leading-6 text-gray-900">MASTERLIST REPORT</h1>
-                </div>
+                </div> -->
             </div>
             <div class="flex items-center justify-between">
             <!-- Left side: select -->

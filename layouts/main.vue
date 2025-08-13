@@ -153,9 +153,41 @@
         <div class="h-6 w-px bg-gray-900/10 lg:hidden" aria-hidden="true" />
 
         <div class="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-          <form class="relative flex flex-1 bg-white" action="#" method="GET">
-            <label for="search-field" class="sr-only">Search</label>
-          </form>
+          <div class="relative flex flex-1">
+            <!-- Breadcrumb -->
+            <ol class="flex items-center text-sm font-semibold uppercase">
+              <!-- Home -->
+              <li class="flex items-center">
+                <NuxtLink 
+                  to="/dashboard" 
+                  class="flex items-center text-green-600 hover:underline"
+                >
+                  <HomeIcon class="w-5 h-5 mr-1" /> <!-- Heroicons Home -->
+                </NuxtLink>
+              </li>
+
+              <!-- Other breadcrumbs -->
+              <li 
+                v-for="(crumb, index) in breadcrumbs" 
+                :key="index" 
+                class="flex items-center"
+              >
+                <span class="mx-2 text-gray-400 font-normal">/</span>
+                
+                <NuxtLink
+                  v-if="index < breadcrumbs.length - 1"
+                  :to="crumb.href"
+                  class="text-green-600"
+                >
+                  {{ crumb.label }}
+                </NuxtLink>
+
+                <span v-else class="text-green-800">
+                  {{ crumb.label }}
+                </span>
+              </li>
+            </ol>
+          </div>
           <!-- <button
             @click="toggleTheme"
             class="rounded-full p-2 text-gray-500 hover:text-green-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
@@ -244,6 +276,7 @@ const parameterStore = useParameterStore()
 const marketStore = useMarketcodeStore()
 
 const route = useRouter()
+const route1 = useRoute()
 
 const navigation = [
   {
@@ -291,6 +324,16 @@ onMounted(() => {
         child.activeRouteNames.includes(route.name)
       )
       openSubmenus.value[index] = isChildActive
+    }
+  })
+})
+
+// Generate breadcrumb array based on route path
+const breadcrumbs = computed(() => {
+  const segments = route1.path.split('/').filter(Boolean)
+  return segments.map((segment, idx) => {
+    return {
+      label: segment.charAt(0).toUpperCase() + segment.slice(1)
     }
   })
 })

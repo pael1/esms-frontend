@@ -141,7 +141,7 @@ async function login() {
 
 async function fetchSectionCodes() {
   try {
-    const response = await parameterService.getSectionCodes({ fieldId: 'SECTIONCODE' })
+    const response = await parameterService.getParameter({ fieldId: 'SECTIONCODE' })
     if (response) {
         let options = response.data.map((item) => ({
             value: item.fieldValue,

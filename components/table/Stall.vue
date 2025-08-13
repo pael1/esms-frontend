@@ -67,12 +67,13 @@
                                         </span>
                                     </td>
                                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                                        <button
+                                        <!-- <button
                                         @click="viewStall(stall.stallProfileId)"
                                         class="rounded-md bg-green-600 w-16 px-2.5 py-1 text-xs font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-green-500"
                                         >
                                         View
-                                        </button>
+                                        </button> -->
+                                        <FormButton type="submit" class="py-0.5 text-xs" @click="viewStall(stall.stallProfileId)">View</FormButton>
                                     </td>
                                 </tr>
                             </template>

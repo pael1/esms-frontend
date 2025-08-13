@@ -23,3 +23,8 @@
 .multiselect-option.is-selected.is-pointed {
     @apply bg-green-600 !important;
 }
+
+/* Hover on option */
+.multiselect-option:hover {
+    @apply bg-green-100 !important;
+}

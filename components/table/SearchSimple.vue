@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white flex items-center w-full border border-green-300 px-3 rounded-md">
+  <div class="bg-white flex items-center w-full border border-green-600 px-3 rounded-md">
     <span class="flex items-center gap-x-1 text-green-800">
       <FunnelIcon class="w-4 text-green-800" />
     </span>
@@ -9,7 +9,7 @@
       v-model="search"
       @keyup.enter="onSearch"
       placeholder="Enter name"
-      class="ml-4 flex-grow text-black text-sm border-0 outline-none focus:ring-transparent focus:border-green-500 py-1.5"
+      class="ml-4 flex-grow text-black text-sm border-0 outline-none focus:ring-transparent focus:border-green-500 py-1.5 h-[40px]"
     />
 
     <!-- Show clear button only if there's text -->

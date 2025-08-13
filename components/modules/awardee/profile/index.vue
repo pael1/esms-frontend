@@ -23,20 +23,22 @@
         Awardee Information
       </h2>
       <div class="flex flex-wrap gap-2 sm:ml-auto">
-        <button
+        <!-- <button
           type="button"
           class="inline-flex items-center gap-x-1.5 rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500"
           @click="openDialog(true)"
         >
           Generate TOP (Current)
-        </button>
-        <button
+        </button> -->
+        <!-- <button
           type="button"
           class="inline-flex items-center gap-x-1.5 rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500"
-          @click="openDialog(false)"
+          @click="openDialog()"
         >
-          Generate TOP (Arrears)
-        </button>
+          Generate TOP
+        </button> -->
+        <FormButton type="submit" class="px-3 py-1 text-sm" @click="openDialog()">Generate TOP</FormButton>
+
       </div>
     </div>
 
@@ -74,7 +76,7 @@
             <table class="w-full mt-4 table-auto text-sm text-left text-gray-700">
               <thead class="bg-green-100 text-green-700 uppercase text-xs tracking-wider">
                 <tr>
-                  <th class="px-4 py-2 text-center">Date</th>
+                  <th class="px-4 py-2 text-left">Description</th>
                   <th class="px-4 py-2 text-center">Amount</th>
                 </tr>
               </thead>
@@ -99,7 +101,7 @@
                     v-if="getOption(id)?.interest > 0"
                     class="hover:bg-green-50 transition text-gray-500 text-sm"
                   >
-                    <td class="px-4 py-2 text-center">{{ getOption(id)?.label }} - Interest ({{ getOption(id)?.monthsDelayed }} month/s)</td>
+                    <td class="px-4 py-2 text-left">{{ getOption(id)?.label }} - Interest ({{ getOption(id)?.monthsDelayed }} month/s)</td>
                     <td class="px-4 py-2 text-center">
                       {{
                         new Intl.NumberFormat('en-PH', {
@@ -114,7 +116,7 @@
                     v-if="getOption(id)?.surcharge > 0"
                     class="hover:bg-green-50 transition text-gray-500 text-sm"
                   >
-                    <td class="px-4 py-2 text-center">{{ getOption(id)?.label }} - Surcharge</td>
+                    <td class="px-4 py-2 text-left">{{ getOption(id)?.label }} - Surcharge</td>
                     <td class="px-4 py-2 text-center">
                       {{
                         new Intl.NumberFormat('en-PH', {
@@ -126,7 +128,7 @@
                     </td>
                   </tr>
                   <tr class="hover:bg-green-50 transition">
-                    <td class="px-4 py-2 text-center">
+                    <td class="px-4 py-2 text-left">
                       {{ getOption(id)?.label }}
                     </td>
                     <td class="px-4 py-2 text-center">
@@ -258,13 +260,13 @@ const totalAmountBasic = computed(() => {
 });
 
 
-function openDialog(isCurrent) {
+function openDialog() {
     state.open = true
-    if(isCurrent){
-      fetch_current()
-    } else {
+    // if(isCurrent){
+    //   fetch_current()
+    // } else {
       fetch_arrears()
-    }
+    // }
 }
 function closedDialog() {
     state.open = false
@@ -350,10 +352,17 @@ async function fetch_arrears() {
         interest: item.interest,
         surcharge: item.surcharge,
         monthsDelayed: item.monthsDelayed,
-        // extensionRate: extensionRate
       }));
 
-      state.options = options
+      // //current month is not included in arrears
+      let currentOption = await fetch_current()
+
+      state.options = [
+        currentOption,
+        ...options
+      ]
+
+      // state.options = options
     }
   } catch (error) {
     console.log(error);
@@ -388,13 +397,16 @@ async function fetch_current() {
   const extensionRatePerDay = props.profile.stallRentalDet.stallProfile.Total_extensionRate
   const extensionRate = daysInMonth * extensionRatePerDay
   
-  state.options = [
-    { 
+  // state.options = [
+  let option = { 
       value: "current",
       label: currentMonthYear,
       amountBasic: ratePerMonth,
-      extensionRate: extensionRate
+      interest: 0,
+      surcharge: 0,
+      monthsDelayed: 0,
     }
-  ]
+
+  return option;
 }
 </script>
