@@ -83,7 +83,7 @@
   
   <script setup>
   import { ref } from 'vue';
-  import { awardeeService } from '@/components/api/AwardeeService';
+  import { awardeeService } from '~/api/AwardeeService';
   import { PlusIcon } from '@heroicons/vue/20/solid'
   import { ArrowLeftIcon, XMarkIcon } from '@heroicons/vue/24/outline'
   const { showLoading, closeLoading } = useSweetLoading()

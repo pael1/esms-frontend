@@ -66,14 +66,23 @@
                                             {{ stall.status === null ? 'Available' : stall.awardee }}
                                         </span>
                                     </td>
-                                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                                        <!-- <button
-                                        @click="viewStall(stall.stallProfileId)"
-                                        class="rounded-md bg-green-600 w-16 px-2.5 py-1 text-xs font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-green-500"
-                                        >
-                                        View
-                                        </button> -->
-                                        <FormButton type="submit" class="py-0.5 text-xs" @click="viewStall(stall.stallProfileId)">View</FormButton>
+                                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-sm font-medium sm:pr-6">
+                                        <div class="flex justify-end gap-2">
+                                            <FormButton
+                                            type="button"
+                                            class="py-0.5 px-2 text-xs"
+                                            @click="viewStall(stall.stallProfileId, true)"
+                                            >
+                                            View
+                                            </FormButton>
+                                            <FormButton
+                                            type="button"
+                                            class="py-0.5 px-2 text-xs  bg-yellow-600 hover:bg-yellow-500"
+                                            @click="viewStall(stall.stallProfileId, false)"
+                                            >
+                                            Edit
+                                            </FormButton>
+                                        </div>
                                     </td>
                                 </tr>
                             </template>
@@ -106,8 +115,10 @@ const props = defineProps({
     }
 })
 
-async function viewStall(stall) {
-  console.log(stall)
+const emit = defineEmits(['viewStallClick'])
+
+async function viewStall(stall, isView) {
+    emit('viewStallClick', stall, isView)
 }
 
 const { $formatPeso } = useNuxtApp()

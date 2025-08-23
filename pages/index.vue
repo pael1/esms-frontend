@@ -76,14 +76,14 @@
 </template>
 
 <script setup>
-import { authService } from '@/components/api/AuthService'
+import { authService } from '~/api/AuthService'
 import { useUserStore } from '@/store/user'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/outline'
 import { useVuelidate } from '@vuelidate/core'
 import { required, helpers } from '@vuelidate/validators'
 import { useParameterStore } from '@/store/parameter'
 import { useMarketcodeStore } from '@/store/marketcode'
-import { parameterService } from '~/components/api/ParameterService'
+import { parameterService } from '~/api/ParameterService'
 
 const userStore = useUserStore()
 const parameterStore = useParameterStore()

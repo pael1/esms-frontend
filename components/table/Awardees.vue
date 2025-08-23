@@ -61,7 +61,7 @@
 <script setup>
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { awardeeService } from '@/components/api/AwardeeService'
+import { awardeeService } from '~/api/AwardeeService'
 
 const { $capitalizeWords } = useNuxtApp()
 const router = useRouter()

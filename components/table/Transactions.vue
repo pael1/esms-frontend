@@ -135,7 +135,7 @@
 </template>
 
 <script setup>
-import { opService } from '@/components/api/OpService.ts';
+import { opService } from '~/api/OpService';
 
 const { showError, showSuccess, showLoading, closeLoading } = useSweetLoading()
 const config = useRuntimeConfig()

@@ -179,7 +179,7 @@
 
 <script setup>
 
-import { awardeeService } from '@/components/api/AwardeeService';
+import { awardeeService } from '~/api/AwardeeService';
 import { useVuelidate } from "@vuelidate/core"
 import { required, helpers } from '@vuelidate/validators'
 import { defineProps } from 'vue';

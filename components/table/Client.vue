@@ -52,7 +52,7 @@
 </template>
 
 <script setup>
-import { clientService } from '../api/ClientService';
+import { clientService } from '../../api/ClientService';
 
 const state = reactive({
     isPageLoading: false

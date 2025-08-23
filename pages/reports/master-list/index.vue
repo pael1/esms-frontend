@@ -51,7 +51,7 @@
   </template>
   
   <script setup>
-  import { reportService } from '@/components/api/ReportService'
+  import { reportService } from '~/api/ReportService'
   import { useUserStore } from '@/store/user'
   import { useParameterStore } from '@/store/parameter'
 

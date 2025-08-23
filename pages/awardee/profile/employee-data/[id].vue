@@ -36,7 +36,7 @@
   
   <script setup lang="ts">
   import { ref } from 'vue';
-  import { awardeeService } from '@/components/api/AwardeeService';
+  import { awardeeService } from '~/api/AwardeeService';
   import { ArrowLeftIcon } from '@heroicons/vue/24/outline';
   // import moment from 'moment';
 

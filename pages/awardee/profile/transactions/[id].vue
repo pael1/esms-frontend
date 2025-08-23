@@ -36,7 +36,7 @@
   
   <script setup>
   import { ref } from 'vue';
-  import { awardeeService } from '@/components/api/AwardeeService';
+  import { awardeeService } from '~/api/AwardeeService';
   import { ArrowLeftIcon, XMarkIcon } from '@heroicons/vue/24/outline'
   
   let currentPage = 1

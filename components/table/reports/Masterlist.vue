@@ -75,7 +75,7 @@
 
 <script setup>
 
-import { awardeeService } from '@/components/api/AwardeeService'
+import { awardeeService } from '~/api/AwardeeService'
 
 const { $capitalizeWords } = useNuxtApp()
 

@@ -8,7 +8,7 @@
       type="text"
       v-model="search"
       @keyup.enter="onSearch"
-      placeholder="Enter name"
+      :placeholder="placeholder"
       class="ml-4 flex-grow text-black text-sm border-0 outline-none focus:ring-transparent focus:border-green-500 py-1.5 h-[40px]"
     />
 
@@ -25,6 +25,13 @@
 </template>
 <script setup>
 import { FunnelIcon } from '@heroicons/vue/24/outline'
+
+const props = defineProps({
+    placeholder: {
+        type: String,
+        required: true
+    }
+})
 
 const emit = defineEmits(['handleFilter'])
 

@@ -4,31 +4,20 @@
             <Loader v-if="state.isPageLoading" />
             <div class="py-3"></div>
             <div class="sm:flex sm:items-center p-2">
-                <!-- <div class="sm:flex-auto">
-                <h1 class="text-base font-semibold leading-6 text-gray-900">AWARDEE</h1>
-                </div> -->
             </div>
-            <div class="flex items-center justify-between">
-            <!-- Left side: select -->
-              <div class="flex items-center gap-x-2">
-                <div class="w-48">
-                  <FormSelect
-                    v-model="state.user_data.sectionCode"
-                    @update:modelValue="fetchAwardees"
-                    :options="state.sectionCodes"
-                  />
-                </div>
-              </div>
-              <!-- Right side: TableSearch -->
-              <div>
-                <!-- <TableSearch
-                  :columnFilter="state.columnFilter"
-                  :dataFilter="state.dataFilter"
-                  @handleFilter="handleFilter"
-                /> -->
-                <TableSearchSimple
-                  @handleFilter="handleFilter"
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <!-- Left side: select -->
+              <div class="sm:w-48 w-full">
+                <FormSelect
+                  v-model="state.user_data.sectionCode"
+                  @update:modelValue="fetchAwardees"
+                  :options="state.sectionCodes"
                 />
+              </div>
+
+              <!-- Right side: TableSearch -->
+              <div class="w-full sm:w-auto">
+                <TableSearchSimple @handleFilter="handleFilter" :placeholder="'Enter Name'" />
               </div>
             </div>
             <TableAwardees :awardees="state.awardees.data" @update:isPageLoading="handlePageLoading" />
@@ -38,7 +27,7 @@
   </template>
   
   <script setup>
-  import { awardeeService } from '@/components/api/AwardeeService'
+  import { awardeeService } from '~/api/AwardeeService'
   import { useUserStore } from '@/store/user'
   import { useParameterStore } from '@/store/parameter'
 

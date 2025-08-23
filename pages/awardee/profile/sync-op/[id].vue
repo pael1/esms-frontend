@@ -92,8 +92,8 @@
   
   <script setup>
   import { ref } from 'vue';
-  import { awardeeService } from '@/components/api/AwardeeService';
-  import { syncService } from '@/components/api/SyncService';
+  import { awardeeService } from '~/api/AwardeeService';
+  import { syncService } from '~/api/SyncService';
   import { ArrowLeftIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 
   const { showError, showSuccess, showLoading, closeLoading } = useSweetLoading()

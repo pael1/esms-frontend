@@ -55,7 +55,7 @@
   </template>
   
   <script setup>
-  import { awardeeService } from '@/components/api/AwardeeService'
+  import { awardeeService } from '~/api/AwardeeService'
   import { useUserStore } from '@/store/user'
   import { useParameterStore } from '@/store/parameter'
 
