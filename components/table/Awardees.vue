@@ -66,9 +66,9 @@ import { awardeeService } from '~/api/AwardeeService'
 const { $capitalizeWords } = useNuxtApp()
 const router = useRouter()
 
-const state = reactive({
-  isPageLoading: false,
-})
+// const state = reactive({
+//   isPageLoading: false,
+// })
 
 const props = defineProps({
   awardees: {
@@ -77,20 +77,20 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['update:isPageLoading'])
+// const emit = defineEmits(['update:isPageLoading'])
 
 async function view_profile(ownerId) {
   try {
-    state.isPageLoading = true
-    emit('update:isPageLoading', state.isPageLoading)
+    // state.isPageLoading = true
+    // emit('update:isPageLoading', state.isPageLoading)
 
     // Optionally: await awardeeService.getAwardeeProfile(ownerId)
     await router.push(`/awardee/profile/${ownerId}`)
   } catch (error) {
     console.error(error)
   } finally {
-    state.isPageLoading = false
-    emit('update:isPageLoading', state.isPageLoading)
+    // state.isPageLoading = false
+    // emit('update:isPageLoading', state.isPageLoading)
   }
 }
 </script>

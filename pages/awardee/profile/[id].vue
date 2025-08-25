@@ -5,7 +5,7 @@
         </span>
     </ButtonBack>
     <div class="min-h-screen p-4 sm:p-6 dark:text-white dark:bg-black">
-    <Loader v-if="state.isPageLoading" />
+    <Loader v-if="$loading.state.isPageLoading" />
       <div class="bg-white shadow-lg rounded-2xl p-4 sm:p-6">
         <!-- Profile Section -->
         <ModulesAwardeeProfile :profile="state.awardee"/>
@@ -90,6 +90,9 @@
   
   const router = useRouter();
   const id = router?.currentRoute?.value?.params?.id;
+
+  //global loading
+  const { $loading } = useNuxtApp()
   
   definePageMeta({
     layout: 'main',
@@ -100,7 +103,7 @@
   })
   
   const state = reactive({
-    isPageLoading: false,
+    // isPageLoading: false,
     awardee: null,
     open: false,
     awardee_id: id,
@@ -111,7 +114,7 @@
   });
   
   async function fetch_awardee_profile() {
-    state.isPageLoading = true;
+    $loading.start();
     try {
       const response = await awardeeService.getAwardeeProfile(id);
       if (response.data) {
@@ -121,7 +124,7 @@
     } catch (error) {
       console.log(error);
     }
-    state.isPageLoading = false;
+    $loading.stop();
   }
   
   const activeTab = ref('stall');

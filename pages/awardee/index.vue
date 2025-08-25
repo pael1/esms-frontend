@@ -1,7 +1,7 @@
 <template>
     <div class="min-h-screen sm:p-3">
         <div class="bg-white">
-            <Loader v-if="state.isPageLoading" />
+            <Loader v-if="$loading.state.isPageLoading" />
             <div class="py-3"></div>
             <div class="sm:flex sm:items-center p-2">
             </div>
@@ -20,7 +20,8 @@
                 <TableSearchSimple @handleFilter="handleFilter" :placeholder="'Enter Name'" />
               </div>
             </div>
-            <TableAwardees :awardees="state.awardees.data" @update:isPageLoading="handlePageLoading" />
+            <!-- <TableAwardees :awardees="state.awardees.data" @update:isPageLoading="handlePageLoading" /> -->
+            <TableAwardees :awardees="state.awardees.data" />
             <Pagination v-if="state.awardees?.data?.length > 0" :data="state.awardees" @previous="previous" @next="next" />
         </div>
     </div>
@@ -39,6 +40,9 @@
   const useParameter = useParameterStore()
   const user = userStore.getUser
   const sectionCodes = useParameter.getSectionCode
+
+    //global loading
+  const { $loading } = useNuxtApp()
 
   definePageMeta({
       layout: 'main'
@@ -69,7 +73,7 @@
   })
 
   async function fetchAwardees() {
-      state.isPageLoading = true
+      $loading.start()
       try {
           let params = {
               page: currentPage,
@@ -81,12 +85,13 @@
           console.log(params);
           const response = await awardeeService.getAwardees(params)
           if (response) {
+            console.log(response)
               state.awardees = response
           }
       } catch (error) {
           console.log(error)
       }
-      state.isPageLoading = false
+      $loading.stop()
   }
 
   function handleFilter(value) {
@@ -106,8 +111,8 @@ async function next() {
     fetchAwardees()
 }
 
-function handlePageLoading(isLoading) {
-    state.isPageLoading = isLoading;
-}
+// function handlePageLoading(isLoading) {
+//     state.isPageLoading = isLoading;
+// }
    
 </script>

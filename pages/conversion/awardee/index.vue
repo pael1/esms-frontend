@@ -2,50 +2,32 @@
     <div class="min-h-screen sm:p-3">
         <div class="bg-white">
             <Loader v-if="state.isPageLoading" />
-            <div class="sm:flex sm:items-center p-2">
-                <div class="sm:flex-auto">
-                <h1 class="text-base font-semibold leading-6 text-gray-900">AWARDEE</h1>
-                </div>
+            <div class="py-3"></div>
+            <div class="sm:flex sm:items-center sm:justify-end p-2">
+              <FormButton type="submit" class="text-sm" @click="registerAwardee()">Create Awardee</FormButton>
             </div>
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <!-- Left side: grouped selects -->
-              <div class="flex items-center gap-x-2">
-                <select
-                  v-model="state.user_data.marketcode"
-                  @change="fetchAwardees"
-                  id="marketCode"
-                  class="border border-green-300 rounded px-2 py-1"
-                >
-                  <option
-                    class="block px-3 py-1 text-base leading-6 text-green-900"
-                    v-for="type in state.marketCodes"
-                    :key="type.fieldValue"
-                    :value="type.fieldValue"
-                  >
-                    {{ $capitalizeWords(type.fieldDescription) }}
-                  </option>
-                </select>
-
-                <select
-                  v-model="state.user_data.sectionCode"
-                  @change="fetchAwardees"
-                  id="sectionCode"
-                  class="border border-green-300 rounded px-2 py-1"
-                >
-                  <option
-                    class="block px-3 py-1 text-base leading-6 text-green-900"
-                    v-for="type in state.sectionCodes"
-                    :key="type.fieldValue"
-                    :value="type.fieldValue"
-                  >
-                    {{ $capitalizeWords(type.fieldDescription) }}
-                  </option>
-                </select>
+              <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-x-2 w-full sm:w-auto">
+                <div class="w-full sm:w-44">
+                  <FormSelect
+                    v-model="state.user_data.marketcode"
+                    @update:modelValue="fetchAwardees"
+                    :options="state.marketCodes"
+                  />
+                </div>
+                <div class="w-full sm:w-64">
+                  <FormSelect
+                    v-model="state.user_data.sectionCode"
+                    @update:modelValue="fetchAwardees"
+                    :options="state.sectionCodes"
+                  />
+                </div>
               </div>
 
               <!-- Right side: TableSearch -->
-              <div>
-                <TableSearchSimple @handleFilter="handleFilter" />
+              <div class="w-full sm:w-auto">
+                <TableSearchSimple @handleFilter="handleFilter" :placeholder="'Enter Name'" />
               </div>
             </div>
             <TableAwardees :awardees="state.awardees.data" @update:isPageLoading="handlePageLoading" />
@@ -58,23 +40,26 @@
   import { awardeeService } from '~/api/AwardeeService'
   import { useUserStore } from '@/store/user'
   import { useParameterStore } from '@/store/parameter'
+  import { useMarketcodeStore } from '@/store/marketcode'
+  import { useRouter } from 'vue-router'
 
-  const { $capitalizeWords } = useNuxtApp()
 
   let currentPage = 1
 
   const userStore = useUserStore()
   const useParameter = useParameterStore()
+  const useMarketCode = useMarketcodeStore()
   const user = userStore.getUser
   const sectionCodes = useParameter.getSectionCode
-  const marketCodes = useParameter.getMarketCode
+  const marketCodes = useMarketCode.getMarketCode
+  const router = useRouter()
 
   definePageMeta({
       layout: 'main'
   })
 
   useHead({
-    title: 'Awardee | eSMS'
+    title: 'Conversion Awardee List | eSMS'
   })
 
   const state = reactive({
@@ -86,17 +71,12 @@
     },
     awardees: [],
     dataFilter: [],
-    columnFilter: [
-        { column: 'First Name' },
-        { column: 'Last Name' },
-    ],
     sectionCodes: sectionCodes,
-    marketCodes: marketCodes
+    marketCodes: marketCodes,
   })
 
   onMounted(() => {
       fetchAwardees()
-      console.log(state.marketCodes)
   })
 
   async function fetchAwardees() {
@@ -139,6 +119,10 @@ async function next() {
 
 function handlePageLoading(isLoading) {
     state.isPageLoading = isLoading;
+}
+
+function registerAwardee() {
+    router.push('/conversion/awardee/create')
 }
    
 </script>

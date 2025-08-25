@@ -266,6 +266,7 @@ import {
 } from '@heroicons/vue/24/outline'
 import { ChevronRightIcon, ChevronDownIcon } from '@heroicons/vue/20/solid'
 import { useMarketcodeStore } from '~/store/marketcode'
+import NProgress from 'nprogress'
 
 const openSubmenus = ref({})
 
@@ -359,7 +360,7 @@ const state = reactive({
 })
 
 async function logoutUser() {
-  state.isPageLoading = true
+  NProgress.start()
   try {
     const response = await authService.logout()
     if (response.message) {
@@ -372,7 +373,7 @@ async function logoutUser() {
   } catch (error) {
     state.error = error
   }
-  state.isPageLoading = false
+  NProgress.done()
 }
 
 const sidebarOpen = ref(false)

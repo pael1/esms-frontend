@@ -28,3 +28,8 @@
 .multiselect-option:hover {
     @apply bg-green-100 !important;
 }
+
+#nprogress .bar {
+  @apply bg-green-500 !important;
+}
+

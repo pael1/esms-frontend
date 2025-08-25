@@ -2,6 +2,10 @@ import BaseAPIService from "./BaseAPIService";
 
 class AwardeeService extends BaseAPIService {
 
+    async create(params: object): Promise<any> {
+        return await this.request(`/awardees`, 'POST', params);
+    }
+
     async getAwardees(params: object): Promise<any> {
         return await this.request(`/awardees`, 'GET', params);
     }

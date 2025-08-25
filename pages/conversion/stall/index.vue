@@ -2,10 +2,10 @@
   <Toaster richColors position="top-right" />
     <div class="min-h-screen sm:p-3">
         <div class="bg-white">
-            <Loader v-if="state.isPageLoading" />
+            <Loader v-if="$loading.state.isPageLoading" />
             <div class="py-3"></div>
             <div class="sm:flex sm:items-center sm:justify-end p-2">
-              <FormButton type="submit" class="text-sm" @click="openDialog()">Add Stall</FormButton>
+              <FormButton type="submit" class="text-sm" @click="addStallDialog()">Create Stall</FormButton>
             </div>
 
             <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -32,8 +32,8 @@
                 <TableSearchSimple @handleFilter="handleFilter" :placeholder="'Enter Stall ID'" />
               </div>
             </div>
-            <TableStall :stalls="state.stalls.data" @viewStallClick="viewStall" />
-            <Pagination v-if="state.stalls?.data?.length > 0" :data="state.stalls" @previous="previous" @next="next" />
+            <TableStall :stalls="state.stalls" @viewStallClick="viewStall" />
+            <Pagination v-if="state.stalls?.length > 0" :data="state.stalls" @previous="previous" @next="next" />
         </div>
     </div>
 
@@ -263,7 +263,6 @@
   import { Toaster, toast } from 'vue-sonner'
   import 'vue-sonner/style.css'
 
-
   const { $capitalizeWords } = useNuxtApp()
   const { showError, showSuccess, showLoading, closeLoading } = useSweetLoading()
 
@@ -276,16 +275,18 @@
   const sectionCodes = useParameter.getSectionCode
   const marketCodes = useMarketCode.getMarketCode
 
+  //global loading
+  const { $loading } = useNuxtApp()
+
   definePageMeta({
       layout: 'main'
   })
 
   useHead({
-    title: 'Stall | eSMS'
+    title: 'Conversion Stall List | eSMS'
   })
 
   const state = reactive({
-    isPageLoading: false,
     form: {
       type: null, 
       market: null,
@@ -343,13 +344,14 @@
   //ed nof static data
 
   function getSubSection(selectedSection) {
-    console.log(selectedSection)
     subSection(selectedSection);
   }
 
-  function openDialog() {
+  function addStallDialog() {
+    $loading.start()
     //load datas
     loadParameters()
+    $loading.stop()
 
     //open modal
     state.open = true
@@ -374,12 +376,8 @@
       fetchStalls()
   }
 
-  function handlePageLoading(isLoading) {
-      state.isPageLoading = isLoading;
-  }
-
   async function addStall() {
-    state.isPageLoading = true
+    $loading.start()
       try {
         // showLoading('Saving', '');
           let params = {
@@ -412,11 +410,11 @@
           })
           showError('', errorMessages.join('<br>'))
       }
-      state.isPageLoading = false
+      $loading.stop()
   }
 
   async function fetchStalls() {
-      state.isPageLoading = true
+      $loading.start()
       try {
           let params = {
               page: currentPage,
@@ -427,17 +425,17 @@
           }
           const response = await stallService.getStalls(params)
           if (response) {
-              state.stalls = response
+              state.stalls = response.data
           }
       } catch (error) {
           console.log(error)
       }
-      state.isPageLoading = false
+      $loading.stop()
   }
 
   //emit functions
   async function viewStall(stallId, isView) { 
-    state.isPageLoading = true
+    $loading.start()
 
     //load datas
     loadParameters()
@@ -456,9 +454,9 @@
           section: response.data.section_id ?? null,
           sub_section: response.data.sub_section_id ?? null,
           building: response.data.building_id ?? null,
-          cfsi: response.data.cfsi ?? '',
+          cfsi: response.data.CFSI ?? '',
           class: response.data.stallClass ?? null,
-          stall_id: response.data.stallNoId ?? '',
+          stall_id: response.data.stall_no_id ?? '',
           extension: response.data.stall_id_ext ?? null,
           area: response.data.stallArea ?? '',
           area_extension: response.data.StallAreaExt ?? ''
@@ -467,12 +465,12 @@
     } catch (error) {
       console.log(error);
     }
-    state.isPageLoading = false;
+    $loading.stop()
     state.openViewDialog = true;
   } 
 
   async function updateStall() {
-    state.isPageLoading = true
+    $loading.start()
       try {
         // showLoading('Saving', '');
           let params = {
@@ -493,7 +491,9 @@
           const response = await stallService.updateStall(params, id)
           if (response) {
               fetchStalls()
-              state.isPageLoading = false
+              $loading.stop()
+
+              state.openViewDialog = false
               toast.success('Stall updated successfully')
           }
         // clearForm()
@@ -514,12 +514,120 @@
   //end of emit functions
 
   //parameter
-  function loadParameters() {
-    fetchTypes()
-    fetchMArkets()
-    fetchSections()
-    fetchBuildings()
-    fetchInfluences()
+  // function loadParameters() {
+  //   fetchTypes()
+  //   fetchMArkets()
+  //   fetchSections()
+  //   fetchBuildings()
+  //   fetchInfluences()
+  // }
+
+  // async function fetchTypes() {
+  //   try {
+  //     let params = {
+  //       fieldId: 'STALLTYPE'
+  //     }
+  //     const response = await parameterService.getParameter(params)
+  //     if (response) {
+  //         let options = response.data.map((item) => ({
+  //             value: item.fieldDescription,
+  //             label: item.fieldDescription
+  //         }));
+  //         state.parameter.types = options;
+  //     }
+  //   } catch (error) {
+  //     console.error(error)
+  //   }
+  // }
+  // async function fetchMArkets() {
+  //   try {
+  //     let params = {
+  //       fieldId: 'MARKETCODE'
+  //     }
+  //     const response = await parameterService.getParameter(params)
+  //     if (response) {
+  //         let options = response.data.map((item) => ({
+  //             value: item.fieldValue,
+  //             label: item.fieldDescription
+  //         }));
+  //         state.parameter.markets = options;
+  //     }
+  //   } catch (error) {
+  //     console.error(error)
+  //   }
+  // }
+  // async function fetchSections() {
+  //   try {
+  //     let params = {
+  //       fieldId: 'SECTIONCODE'
+  //     }
+  //     const response = await parameterService.getParameter(params)
+  //     if (response) {
+  //         let options = response.data.map((item) => ({
+  //             value: item.fieldValue,
+  //             label: item.fieldDescription
+  //         }));
+  //         state.parameter.sections = options;
+  //     }
+  //   } catch (error) {
+  //     console.error(error)
+  //   }
+  // }
+  // async function fetchBuildings() {
+  //   try {
+  //     let params = {
+  //       fieldId: 'STRUCTCODE'
+  //     }
+  //     const response = await parameterService.getParameter(params)
+  //     if (response) {
+  //         let options = response.data.map((item) => ({
+  //             value: item.fieldValue,
+  //             label: item.fieldDescription
+  //         }));
+  //         state.parameter.buildings = options;
+  //     }
+  //   } catch (error) {
+  //     console.error(error)
+  //   }
+  // }
+  // //influence
+  // async function fetchInfluences() {
+  //   try {
+  //     let params = {
+  //       fieldId: 'CFSI'
+  //     }
+  //     const response = await parameterService.getParameter(params)
+  //     if (response) {
+  //         let options = response.data.map((item) => ({
+  //             value: item.fieldValue,
+  //             label: item.fieldDescription
+  //         }));
+  //         // Add default placeholder at the top
+  //         // options.unshift({ value: '0', label: 'COMMON STALL' })  
+  //         state.parameter.cfsi = options;
+  //     }
+  //   } catch (error) {
+  //     console.error(error)
+  //   }
+  // }
+  async function subSection(section) {
+    try {
+      let params = {
+        fieldId: 'SERIESCODE',
+        section_id: section
+      }
+      const response = await parameterService.getSubSection(params)
+      if (response) {
+        console.log(response)
+          let options = response.data.map((item) => ({
+              value: item.fieldValue,
+              label: item.fieldDescription
+          }));
+          state.parameter.sub_sections = options;
+      }
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   async function fetchTypes() {
@@ -539,58 +647,7 @@
       console.error(error)
     }
   }
-  async function fetchMArkets() {
-    try {
-      let params = {
-        fieldId: 'MARKETCODE'
-      }
-      const response = await parameterService.getParameter(params)
-      if (response) {
-          let options = response.data.map((item) => ({
-              value: item.fieldValue,
-              label: item.fieldDescription
-          }));
-          state.parameter.markets = options;
-      }
-    } catch (error) {
-      console.error(error)
-    }
-  }
-  async function fetchSections() {
-    try {
-      let params = {
-        fieldId: 'SECTIONCODE'
-      }
-      const response = await parameterService.getParameter(params)
-      if (response) {
-          let options = response.data.map((item) => ({
-              value: item.fieldValue,
-              label: item.fieldDescription
-          }));
-          state.parameter.sections = options;
-      }
-    } catch (error) {
-      console.error(error)
-    }
-  }
-  async function fetchBuildings() {
-    try {
-      let params = {
-        fieldId: 'STRUCTCODE'
-      }
-      const response = await parameterService.getParameter(params)
-      if (response) {
-          let options = response.data.map((item) => ({
-              value: item.fieldValue,
-              label: item.fieldDescription
-          }));
-          state.parameter.buildings = options;
-      }
-    } catch (error) {
-      console.error(error)
-    }
-  }
-  //influence
+
   async function fetchInfluences() {
     try {
       let params = {
@@ -599,35 +656,37 @@
       const response = await parameterService.getParameter(params)
       if (response) {
           let options = response.data.map((item) => ({
-              value: item.fieldValue,
+              value: item.fieldDescription,
               label: item.fieldDescription
           }));
-          // Add default placeholder at the top
-          // options.unshift({ value: '0', label: 'COMMON STALL' })  
           state.parameter.cfsi = options;
       }
     } catch (error) {
       console.error(error)
     }
   }
-  async function subSection(section) {
+
+  async function fetchParameter(fieldId, stateKey) {
     try {
-      let params = {
-        fieldId: 'SERIESCODE',
-        section_id: section
-      }
-      const response = await parameterService.getSubSection(params)
+      const response = await parameterService.getParameter({ fieldId })
       if (response) {
-        console.log(response)
-          let options = response.data.map((item) => ({
-              value: item.fieldValue,
-              label: item.fieldDescription
-          }));
-          state.parameter.sub_sections = options;
+        const options = response.data.map((item) => ({
+          value: item.fieldValue, // fallback
+          label: item.fieldDescription,
+        }))
+        state.parameter[stateKey] = options
       }
     } catch (error) {
-      console.error(error)
+      console.error(`Failed to fetch ${fieldId}`, error)
     }
+  }
+
+  function loadParameters() {
+    fetchTypes()
+    fetchParameter('MARKETCODE', 'markets')
+    fetchParameter('SECTIONCODE', 'sections')
+    fetchParameter('STRUCTCODE', 'buildings')
+    fetchInfluences()
   }
   //end of parameter
    

@@ -1,6 +1,6 @@
 <template>
     <div class="flex h-screen flex-1">
-        <Loader v-if="state.isPageLoading" />
+        <Loader v-if="$loading.state.isPageLoading" />
         <div class="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24 bg-white">
             <div class="flex flex-col min-h-full">
                 <div class="mx-auto w-full max-w-sm lg:w-96 flex-grow">
@@ -84,10 +84,14 @@ import { required, helpers } from '@vuelidate/validators'
 import { useParameterStore } from '@/store/parameter'
 import { useMarketcodeStore } from '@/store/marketcode'
 import { parameterService } from '~/api/ParameterService'
+import NProgress from 'nprogress'
 
 const userStore = useUserStore()
 const parameterStore = useParameterStore()
 const marketStore = useMarketcodeStore()
+
+//global loading
+const { $loading } = useNuxtApp()
 
 const state = reactive({
     username: null,
@@ -95,7 +99,7 @@ const state = reactive({
     showPassword: false,
     type: 'password',
     error: null,
-    isPageLoading: false,
+    // isPageLoading: false,
 })
 
 const rules = computed(() => {
@@ -115,7 +119,7 @@ async function login() {
     state.error = null
     v$.value.$validate()
     if (!v$.value.$error) {
-        state.isPageLoading = true
+        $loading.start()
         try {
             let params = {
                 username: state.username,
@@ -135,8 +139,8 @@ async function login() {
         } catch (error) {
             state.error = error
         }
+        $loading.stop()
     }
-    state.isPageLoading = false
 }
 
 async function fetchSectionCodes() {
