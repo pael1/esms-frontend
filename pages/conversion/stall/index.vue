@@ -178,7 +178,7 @@
               <div class="text-start">
                 <FormLabel for="section" label="Section" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.section" :options="state.parameter.sections" @change="getSubSection($event)" :d />
+                  <FormSelect v-model="state.form.section" :options="state.parameter.sections" @change="getSubSection($event)" :disabled="!state.isEdit" />
                 </div>
               </div>
             </div>
@@ -286,20 +286,23 @@
     title: 'Conversion Stall List | eSMS'
   })
 
+  //default form for easy reset
+  const defaultForm = {
+    type: null, 
+    market: null,
+    section: null,
+    sub_section: null,
+    building: null,
+    cfsi: null,
+    class: null,
+    stall_id: null,
+    extension: null,
+    area: null,
+    area_extension: null,
+  }
+
   const state = reactive({
-    form: {
-      type: null, 
-      market: null,
-      section: null,
-      sub_section: null,
-      building: null,
-      cfsi: null,
-      class: null,
-      stall_id: null,
-      extension: null,
-      area: null,
-      area_extension: null,
-    },
+    form: { ...defaultForm },
     stallProfileId: null,
     user_data: {
         marketcode: user.MarketCode,
@@ -352,7 +355,7 @@
     //load datas
     loadParameters()
     $loading.stop()
-
+    Object.assign(state.form, defaultForm)
     //open modal
     state.open = true
   }

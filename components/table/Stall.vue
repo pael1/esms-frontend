@@ -21,9 +21,9 @@
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                     Location
                                 </th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                <!-- <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                     Rate per Day
-                                </th>
+                                </th> -->
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                     Awardee Name
                                 </th>
@@ -51,9 +51,9 @@
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                         {{ $capitalizeWords(stall.CFSI?.trim() || 'Common') }}
                                     </td>
-                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                    <!-- <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                         {{ stall.ratePerDay }}
-                                    </td>
+                                    </td> -->
                                     <!-- <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                         {{ stall.awardee }}
                                     </td> -->
