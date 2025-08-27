@@ -136,13 +136,13 @@
           <!-- Employee Name (2 cols) -->
           <div class="md:col-span-2">
             <label class="block text-sm font-medium mb-1">Employee Name</label>
-            <FormText v-model="employee.name" />
+            <FormText v-model="employee.employeeName" />
           </div>
 
           <!-- Birthdate (1 col) -->
           <div class="md:col-span-1">
             <label class="block text-sm font-medium mb-1">Birthdate</label>
-            <FormDate v-model="employee.birthdate" />
+            <FormDate v-model="employee.dateOfBirth" />
           </div>
 
           <!-- Age (1 col) -->
@@ -350,8 +350,8 @@ function removeChild(index) {
 // Add employee row
 function addEmployee() {
   state.form.employees.push({
-    name: '',
-    birthdate: '',
+    employeeName: '',
+    dateOfBirth: '',
     age: '',
     address: ''
   })
