@@ -26,7 +26,7 @@
               <!-- Sidebar component, swap this element with another sidebar if you like -->
               <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-100 px-6 pb-4">
                 <div class="flex h-16 items-center justify-center text-xl font-semibold text-green-100">
-                  <img class="w-[4.5rem]" src="/public/images/logo_inside.png" alt="Your Company">
+                  <img class="w-[90px]" src="/public/images/logo2.png" alt="Your Company">
                 </div>
                 <nav class="flex flex-1 flex-col">
                   <ul role="list" class="flex flex-1 flex-col gap-y-7">
@@ -57,7 +57,7 @@
       <!-- Sidebar component, swap this element with another sidebar if you like -->
       <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-100 px-6 pb-4">
         <div class="flex h-16 items-center justify-center text-xl font-semibold text-green-100">
-          <img class="w-[4.5rem]" src="/public/images/logo_inside.png" alt="Your Company">
+          <img class="w-[90px]" src="/public/images/logo2.png" alt="Your Company">
         </div>
 
         <nav class="flex flex-1 flex-col">

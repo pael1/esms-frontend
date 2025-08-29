@@ -7,7 +7,7 @@
                     <div>
                         <div class="flex justify-center">
                             <NuxtLink to="/" class="text-green-400 hover:text-green-500">
-                                <img class="w-28" src="/public/images/logo.png" alt="Your Company">
+                                <img class="w-[150px]" src="/public/images/logo2.png" alt="Your Company">
                             </NuxtLink>
                         </div>
                         <div class="flex justify-center">

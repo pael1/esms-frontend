@@ -5,29 +5,45 @@
           autocomplete="off">
     <!-- Profile Photo -->
       <div class="flex justify-center">
-        <div class="text-center">
-          <label for="profile-upload" class="relative w-48 h-48 mx-auto block cursor-pointer">
-            <img
-              v-if="previewUrl"
-              :src="previewUrl"
-              alt="Profile Preview"
-              class="w-48 h-48 object-cover border shadow rounded-lg" 
-            />
+        <div class="text-center relative">
+          <label
+            v-if="!previewUrl"
+            for="profile-upload"
+            class="relative w-[150px] h-[150px] mx-auto block cursor-pointer"
+          >
             <div
-              v-else
-              class="w-48 h-48 flex items-center justify-center bg-gray-100 border text-gray-400 shadow rounded-lg"
+              class="w-[150px] h-[150px] flex items-center justify-center bg-gray-100 border text-gray-400 shadow rounded-lg"
             >
-              No Image
+              Select Image
             </div>
           </label>
+
+          <!-- Image Preview -->
+          <div v-else class="relative w-[150px] h-[150px] mx-auto">
+            <img
+              :src="previewUrl"
+              alt="Profile Preview"
+              class="w-full h-full object-cover border shadow rounded-lg"
+            />
+            <!-- Remove Button -->
+            <button
+              type="button"
+              @click="removeImage"
+              class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow hover:bg-red-600"
+            >
+              ✕
+            </button>
+          </div>
+
+          <!-- Hidden Input -->
           <input
             id="profile-upload"
             type="file"
             accept="image/*"
             class="hidden"
+            ref="fileInput"
             @change="onFileChange"
           />
-          <p class="text-sm text-gray-500 mt-2">Add Profile</p>
         </div>
       </div>
 
@@ -186,7 +202,7 @@
               :key="index"
               class="flex items-center justify-between"
             >
-              <span>{{ file.name }} ({{ file.type }})</span>
+              <span>{{ file.filePath }} ({{ file.attachFileType }})</span>
               <button
                 type="button"
                 class="text-red-600 hover:underline text-xs"
@@ -325,12 +341,20 @@ const state = reactive({
 })
 
 const previewUrl = ref(null)
+const fileInput = ref(null)
 
 function onFileChange(event) {
   const file = event.target.files?.[0]
   if (file) {
     state.form.attachIdPhoto = file.name
     previewUrl.value = URL.createObjectURL(file)
+  }
+}
+
+function removeImage() {
+  previewUrl.value = null
+  if (fileInput.value) {
+    fileInput.value.value = "" // reset input so user can re-upload same file
   }
 }
 
@@ -384,9 +408,10 @@ function onFileUploadChange(e) {
 function attachFile() {
   if (!state.form.selectedFile) return
   state.form.files.push({
-    name: state.form.selectedFile.name,
-    type: state.form.selectedFileType
+    filePath: state.form.selectedFile,
+    attachFileType: state.form.selectedFileType
   })
+  console.log(state.form.files)
   state.form.selectedFile = null
   document.getElementById('file-upload').value = '' // reset input
 }
@@ -399,7 +424,10 @@ function removeFile(index) {
 async function addStallForm() {
   // state.isPageLoading = true
   try {
-    let params = state.form
+    const formData = objectToFormData(state.form)
+
+    // let params = state.form
+    let params = formData
     const response = await awardeeService.create(params)
     if (response.data) {
       showSuccess('Success', 'Awardee saved successfully!')
@@ -415,4 +443,31 @@ async function addStallForm() {
   }
   // state.isPageLoading = false
 }
+
+//format the object form before sending to backend to FormData since it contains file object
+function objectToFormData(obj, form = new FormData(), namespace = '') {
+  for (let key in obj) {
+    if (!obj.hasOwnProperty(key)) continue
+    const formKey = namespace ? `${namespace}[${key}]` : key
+    const value = obj[key]
+
+    if (value instanceof File) {
+      form.append(formKey, value)
+    } else if (Array.isArray(value)) {
+      value.forEach((v, i) => {
+        if (typeof v === 'object' && !(v instanceof File)) {
+          objectToFormData(v, form, `${formKey}[${i}]`)
+        } else {
+          form.append(`${formKey}[${i}]`, v)
+        }
+      })
+    } else if (typeof value === 'object' && value !== null) {
+      objectToFormData(value, form, formKey)
+    } else {
+      form.append(formKey, value ?? '')
+    }
+  }
+  return form
+}
+
 </script>
