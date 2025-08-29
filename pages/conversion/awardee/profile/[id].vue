@@ -243,49 +243,6 @@
         </div>
       </div>
 
-      <!-- Business Information -->
-      <div class="bg-white shadow-lg rounded-lg p-6 space-y-6">
-        <h3 class="text-xl font-semibold border-b pb-2">Business Information</h3>
-
-        <!-- Row 1 -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-sm font-medium mb-1">Contract Start Date</label>
-            <FormDate v-model="state.form.contractStartDate" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Period of Contract</label>
-            <FormText v-model="state.form.periodOfContract" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Business ID</label>
-            <FormText v-model="state.form.businessId" />
-          </div>
-        </div>
-
-        <!-- Row 2 -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-sm font-medium mb-1">Business Plate No.</label>
-            <FormText v-model="state.form.businessPlateNo" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Bus. Started (YYYY-MM-DD)</label>
-            <FormDate v-model="state.form.businessStarted" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Capital</label>
-            <FormText v-model="state.form.capital" type="number" />
-          </div>
-        </div>
-
-        <!-- Row 3 -->
-        <div>
-          <label class="block text-sm font-medium mb-1">Line of Business/es</label>
-          <FormTextArea v-model="state.form.lineOfBusiness" rows="2" />
-        </div>
-      </div>
-
       <!-- Submit -->
       <div class="pt-4 flex justify-end">
         <FormButton type="submit" class="px-3 py-1 text-sm">
@@ -339,6 +296,33 @@ const state = reactive({
     lineOfBusiness: ''
   },
 })
+
+const router = useRouter();
+const id = router?.currentRoute?.value?.params?.id;
+
+onMounted(async () => {
+  fetch_awardee_profile();
+})
+
+async function fetch_awardee_profile() {
+  // $loading.start();
+  try {
+    const response = await awardeeService.getAwardeeProfile(id);
+    if (response.data) {
+       const data = response.data
+      // populate form
+      Object.assign(state.form, data)
+
+      // Profile photo preview (if file path exists in DB)
+      if (data.attachIdPhoto) {
+        previewUrl.value = `/storage/${data.attachIdPhoto}` // if stored in storage/app/public
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  // $loading.stop();
+}
 
 const previewUrl = ref(null)
 const fileInput = ref(null)

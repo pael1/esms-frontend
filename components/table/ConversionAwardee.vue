@@ -55,7 +55,6 @@
 <script setup>
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { awardeeService } from '~/api/AwardeeService'
 
 const { $capitalizeWords } = useNuxtApp()
 const router = useRouter()
@@ -73,7 +72,7 @@ const props = defineProps({
 
 async function view_profile(ownerId) {
   try {
-    await router.push(`/awardee/profile/${ownerId}`)
+    await router.push(`/conversion/awardee/profile/${ownerId}`)
   } catch (error) {
     console.error(error)
   }

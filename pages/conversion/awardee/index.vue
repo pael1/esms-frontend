@@ -30,7 +30,7 @@
                 <TableSearchSimple @handleFilter="handleFilter" :placeholder="'Enter Name'" />
               </div>
             </div>
-            <TableAwardees :awardees="state.awardees.data" @update:isPageLoading="handlePageLoading" />
+            <TableConversionAwardee :awardees="state.awardees.data" />
             <Pagination v-if="state.awardees?.data?.length > 0" :data="state.awardees" @previous="previous" @next="next" />
         </div>
     </div>
@@ -115,10 +115,6 @@
 async function next() {
     currentPage++
     fetchAwardees()
-}
-
-function handlePageLoading(isLoading) {
-    state.isPageLoading = isLoading;
 }
 
 function registerAwardee() {
