@@ -107,7 +107,7 @@
         <h3 class="text-xl font-semibold border-b pb-2">Children</h3>
 
         <div v-if="state.form.children.length === 0" class="text-sm text-gray-500 italic py-2">
-          Sorry, no record found.
+          Sorry, no new children have been added.
         </div>
 
         <!-- List of Children -->
@@ -140,7 +140,7 @@
         <h3 class="text-xl font-semibold border-b pb-2">Employees Data</h3>
 
         <div v-if="state.form.employees.length === 0" class="text-sm text-gray-500 italic py-2">
-          Sorry, no record found.
+          Sorry, no new employee have been added.
         </div>
 
         <!-- List of Employees -->
@@ -194,7 +194,7 @@
         <!-- File List -->
         <div class="border rounded-lg bg-yellow-50 p-3 text-gray-600">
           <p v-if="state.form.files.length === 0" class="text-sm italic">
-            Sorry, no file found.
+            Sorry, no new file have been added.
           </p>
           <ul v-else class="text-sm space-y-2">
             <li
