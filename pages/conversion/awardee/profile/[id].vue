@@ -1,7 +1,8 @@
 <template>
+  <Toaster richColors position="top-right" />
   <div class="max-w-5xl mx-auto space-y-6 my-10">
     <Loader v-if="state.isPageLoading" />
-    <form @submit.prevent="addStallForm"
+    <form @submit.prevent="awardeeUpdateForm"
           autocomplete="off">
     <!-- Profile Photo -->
       <div class="flex justify-center">
@@ -106,7 +107,21 @@
       <div class="bg-white shadow-lg rounded-lg p-6 space-y-4">
         <h3 class="text-xl font-semibold border-b pb-2">Children</h3>
 
-        <div v-if="state.form.children.length === 0" class="text-sm text-gray-500 italic py-2">
+        <div>
+          <TableChildrens
+            v-if="state.childrens.length > 0"
+            :childrens="state.childrens"
+            :can-remove="true"
+            @remove="deleteChild"
+          />
+
+          <div v-else class="text-sm bg-yellow-50 p-3 text-gray-500 italic rounded-md">
+            Sorry, no children found.
+          </div>
+        </div>
+        <!-- <Pagination v-if="state.childrens?.data?.length > 0" :data="state.childrens" @previous="previous" @next="next" />    -->
+
+        <div v-if="state.form.children.length === 0" class="text-sm bg-yellow-50 p-3 text-gray-500 italic py-2">
           Sorry, no new children have been added.
         </div>
 
@@ -124,22 +139,31 @@
             <label class="block text-sm font-medium mb-1">Birthdate</label>
             <FormDate v-model="child.childBDate" />
           </div>
-          <FormButton type="submit" class="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600" @click="removeChild(index)">
-            Remove
-          </FormButton>
+          <FormButton type="button" size="sm" class="px-3 py-2" buttonStyle="red" @click="removeChild">Remove</FormButton>
         </div>
 
         <!-- Add Child Button -->
-        <FormButton type="button" class="px-3 py-1 text-sm" @click="addChild">
-            Add Child
-        </FormButton>
+        <FormButton type="button" size="sm" buttonStyle="green" @click="addChild">Add Child</FormButton>
       </div>
 
       <!-- Employees Data Box -->
       <div class="bg-white shadow-lg rounded-lg p-6 space-y-4">
         <h3 class="text-xl font-semibold border-b pb-2">Employees Data</h3>
 
-        <div v-if="state.form.employees.length === 0" class="text-sm text-gray-500 italic py-2">
+        <div>
+          <TableEmployees
+            v-if="state.employees.length > 0"
+            :employees_data="state.employees"
+            :can-remove="true"
+            @remove="deleteEmployee"
+          />
+
+          <div v-else class="text-sm bg-yellow-50 p-3 text-gray-500 italic rounded-md">
+            Sorry, no employee found.
+          </div>
+        </div>
+
+        <div v-if="state.form.employees.length === 0" class="text-sm bg-yellow-50 p-3 text-gray-500 italic py-2">
           Sorry, no new employee have been added.
         </div>
 
@@ -182,17 +206,28 @@
         </div>
 
         <!-- Add Employee Button -->
-        <FormButton type="button" class="px-3 py-1 text-sm" @click="addEmployee">
-          Add Employee
-        </FormButton>
+        <FormButton type="button" size="sm" buttonStyle="green" @click="addEmployee">Add Employee</FormButton>
       </div>
 
       <!-- Stall Owner Files -->
       <div class="bg-white shadow-lg rounded-lg p-6 space-y-4">
         <h3 class="text-xl font-semibold border-b pb-2">Stall Owner Files</h3>
 
+        <div>
+          <TableFiles
+            v-if="state.files.length > 0"
+            :files="state.files"
+            :can-remove="true"
+            @remove="deleteFile"
+          />
+
+          <div v-else class="text-sm bg-yellow-50 p-3 text-gray-500 italic rounded-md">
+            Sorry, no file found.
+          </div>
+        </div>
+
         <!-- File List -->
-        <div class="border rounded-lg bg-yellow-50 p-3 text-gray-600">
+        <div class="border rounded-lg bg-yellow-50 p-3 bg-yellow-50 p-3 text-gray-600">
           <p v-if="state.form.files.length === 0" class="text-sm italic">
             Sorry, no new file have been added.
           </p>
@@ -245,9 +280,10 @@
 
       <!-- Submit -->
       <div class="pt-4 flex justify-end">
-        <FormButton type="submit" class="px-3 py-1 text-sm">
+        <!-- <FormButton type="submit" class="px-3 py-1 text-sm">
           Save
-        </FormButton>
+        </FormButton> -->
+        <FormButton type="submit" size="md" buttonStyle="green">Update</FormButton>
       </div>
     </form>
   </div>
@@ -256,8 +292,13 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { awardeeService } from '~/api/AwardeeService'
+import { childrenService } from '~/api/ChildrenService';
+import { employeeService } from '~/api/EmployeeService';
+import { fileService } from '~/api/FileService';
+import { Toaster, toast } from 'vue-sonner'
+import 'vue-sonner/style.css'
 
-const { showError, showSuccess } = useSweetLoading()
+const { showError, showSuccess, showConfirm } = useSweetLoading()
 
 definePageMeta({
   layout: 'main'
@@ -295,6 +336,9 @@ const state = reactive({
     capital: '',
     lineOfBusiness: ''
   },
+  childrens: [],
+  employees: [],
+  files: [],
 })
 
 const router = useRouter();
@@ -302,6 +346,9 @@ const id = router?.currentRoute?.value?.params?.id;
 
 onMounted(async () => {
   fetch_awardee_profile();
+  fetchChildrens();
+  fetchEmployees();
+  fetchFiles();
 })
 
 async function fetch_awardee_profile() {
@@ -322,6 +369,64 @@ async function fetch_awardee_profile() {
     console.log(error);
   }
   // $loading.stop();
+}
+
+//childrens
+async function fetchChildrens() {
+  state.isPageLoading = true;
+  try {
+    let params = {
+        // page: currentPage,
+        ownerId: id,
+    }
+    const response = await childrenService.getAwardeeChildrens(params);
+    if (response.data) {
+      state.childrens = response.data;
+      console.log(state.childrens);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  state.isPageLoading = false;
+}
+
+//employees
+async function fetchEmployees() {
+  state.isPageLoading = true;
+  try {
+    let params = {
+        // page: currentPage,
+        ownerId: id,
+    }
+    const response = await employeeService.getEmployees(params);
+    if (response.data) {
+      state.employees = response.data;
+      console.log(state.employees);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  state.isPageLoading = false;
+}
+
+//files
+async function fetchFiles() {
+  state.isPageLoading = true;
+  try {
+    let params = {
+        // page: currentPage,
+        ownerId: id,
+    }
+    const response = await fileService.getFiles(params);
+    console.log(response);
+    if (response.data) {
+      state.files = response.data;
+      console.log(state.files);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  state.isPageLoading = false;
 }
 
 const previewUrl = ref(null)
@@ -355,6 +460,22 @@ function removeChild(index) {
   state.form.children.splice(index, 1)
 }
 
+//remove child by id
+async function deleteChild(childId) {
+  const confirmed = await showConfirm('Delete Child?', 'This will remove the child permanently.')
+  if (!confirmed) return
+
+  try {
+    const response = await childrenService.delete(childId);
+    if (response) {
+      fetchChildrens() // refresh list
+      toast.success('Child deleted successfully')
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 // Add employee row
 function addEmployee() {
   state.form.employees.push({
@@ -368,6 +489,22 @@ function addEmployee() {
 // Remove employee row
 function removeEmployee(index) {
   state.form.employees.splice(index, 1)
+}
+
+//remove employee by id
+async function deleteEmployee(employeeId) {
+  const confirmed = await showConfirm('Delete Employee?', 'This will remove the employee permanently.')
+  if (!confirmed) return
+
+  try {
+    const response = await employeeService.delete(employeeId);
+    if (response) {
+      fetchEmployees() // refresh list
+      toast.success('Employee deleted successfully')
+    }
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 // Static options
@@ -403,27 +540,48 @@ function attachFile() {
 function removeFile(index) {
   state.form.files.splice(index, 1)
 }
+
+//remove file by id
+async function deleteFile(fileId) {
+  const confirmed = await showConfirm('Delete File?', 'This will remove the file permanently.')
+  if (!confirmed) return
+
+  try {
+    const response = await fileService.delete(fileId);
+    if (response) {
+      fetchFiles() // refresh list
+      toast.success('File deleted successfully')
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
 //end files
 
-async function addStallForm() {
+async function awardeeUpdateForm() {
   // state.isPageLoading = true
   try {
     const formData = objectToFormData(state.form)
 
     // let params = state.form
     let params = formData
-    const response = await awardeeService.create(params)
+    console.log(state.form)
+    console.log(params)
+
+    const response = await awardeeService.update(params, id)
+    console.log(response)
     if (response.data) {
-      showSuccess('Success', 'Awardee saved successfully!')
+      showSuccess('Success', 'Awardee updated successfully!')
     }
   } catch (error) {
     let errorMessages = []
-    Object.entries(error.errors).forEach(([field, messages]) => {
-      messages.forEach((message) => {
-        errorMessages.push(`${field}: ${message}`)
-      })
-    })
-    showError('', errorMessages.join('<br>'))
+    console.log(error)
+    // Object.entries(error.errors).forEach(([field, messages]) => {
+    //   messages.forEach((message) => {
+    //     errorMessages.push(`${field}: ${message}`)
+    //   })
+    // })
+    // showError('', errorMessages.join('<br>'))
   }
   // state.isPageLoading = false
 }

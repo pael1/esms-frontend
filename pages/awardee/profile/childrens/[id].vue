@@ -37,6 +37,7 @@
   <script setup lang="ts">
   import { ref } from 'vue';
   import { awardeeService } from '~/api/AwardeeService';
+  import { childrenService } from '~/api/ChildrenService';
   import { ArrowLeftIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 
   let currentPage = 1
@@ -79,7 +80,7 @@
           page: currentPage,
           ownerId: id,
       }
-      const response = await awardeeService.getAwardeeChildrens(params);
+      const response = await childrenService.getAwardeeChildrens(params);
       if (response.data) {
         state.childrens = response.data;
       }

@@ -32,7 +32,7 @@
                     {{ awardee.stallNoId }}
                   </td>
                   <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                    <FormButton type="submit" class="py-0.5 text-xs" @click="view_profile(awardee.ownerId)">View</FormButton>
+                    <FormButton type="submit" class="py-0.5 text-xs bg-yellow-600 hover:bg-yellow-500" @click="view_profile(awardee.ownerId)">Edit</FormButton>
                   </td>
                 </tr>
               </template>

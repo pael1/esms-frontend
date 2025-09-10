@@ -6,6 +6,10 @@ class AwardeeService extends BaseAPIService {
         return await this.request(`/awardees`, 'POST', params);
     }
 
+    async update(params: object, id: any): Promise<any> {
+        return await this.request(`/awardees/${id}`, 'PUT', params);
+    }
+
     async getAwardees(params: object): Promise<any> {
         return await this.request(`/awardees`, 'GET', params);
     }
@@ -26,9 +30,9 @@ class AwardeeService extends BaseAPIService {
         return await this.request(`/ledgers/data/arrears`, 'GET', params);
     }
 
-    async getAwardeeChildrens(params: object): Promise<any> {
-        return await this.request(`/childrens`, 'GET', params);
-    }
+    // async getAwardeeChildrens(params: object): Promise<any> {
+    //     return await this.request(`/childrens`, 'GET', params);
+    // }
 
     async getAwardeeTransactions(params: object): Promise<any> {
         return await this.request(`/awardees/transactions/${params.ownerId}`, 'GET', params);
@@ -38,9 +42,9 @@ class AwardeeService extends BaseAPIService {
         return await this.request(`/awardees/files/${params.ownerId}`, 'GET', params);
     }
 
-    async getAwardeeEmployeesData(params: object): Promise<any> {
-        return await this.request(`/awardees/employees-data/${params.ownerId}`, 'GET', params);
-    }
+    // async getAwardeeEmployeesData(params: object): Promise<any> {
+    //     return await this.request(`/awardees/employees-data/${params.ownerId}`, 'GET', params);
+    // }
 
     async createUser(params: object): Promise<any> {
         return await this.request(`/users`, 'POST', params);

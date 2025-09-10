@@ -37,6 +37,7 @@
   <script setup lang="ts">
   import { ref } from 'vue';
   import { awardeeService } from '~/api/AwardeeService';
+  import { employeeService } from '~/api/EmployeeService';
   import { ArrowLeftIcon } from '@heroicons/vue/24/outline';
   // import moment from 'moment';
 
@@ -81,7 +82,7 @@
           page: currentPage,
           ownerId: id,
       }
-      const response = await awardeeService.getAwardeeEmployeesData(params);
+      const response = await employeeService.getEmployees(params);
       if (response.data) {
         console.log(response.data)
         state.employees_data = response.data;

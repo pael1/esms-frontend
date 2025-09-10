@@ -1,7 +1,7 @@
 <template>
   <div class="max-w-5xl mx-auto space-y-6 my-10">
     <Loader v-if="state.isPageLoading" />
-    <form @submit.prevent="addStallForm"
+    <form @submit.prevent="awardeeAddForm"
           autocomplete="off">
     <!-- Profile Photo -->
       <div class="flex justify-center">
@@ -244,11 +244,9 @@
       </div>
 
       <!-- Business Information -->
-      <div class="bg-white shadow-lg rounded-lg p-6 space-y-6">
+      <!-- <div class="bg-white shadow-lg rounded-lg p-6 space-y-6">
         <h3 class="text-xl font-semibold border-b pb-2">Business Information</h3>
 
-        <!-- Row 1 -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block text-sm font-medium mb-1">Contract Start Date</label>
             <FormDate v-model="state.form.contractStartDate" />
@@ -262,8 +260,6 @@
             <FormText v-model="state.form.businessId" />
           </div>
         </div>
-
-        <!-- Row 2 -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block text-sm font-medium mb-1">Business Plate No.</label>
@@ -278,13 +274,11 @@
             <FormText v-model="state.form.capital" type="number" />
           </div>
         </div>
-
-        <!-- Row 3 -->
         <div>
           <label class="block text-sm font-medium mb-1">Line of Business/es</label>
           <FormTextArea v-model="state.form.lineOfBusiness" rows="2" />
         </div>
-      </div>
+      </div> -->
 
       <!-- Submit -->
       <div class="pt-4 flex justify-end">
@@ -421,7 +415,7 @@ function removeFile(index) {
 }
 //end files
 
-async function addStallForm() {
+async function awardeeAddForm() {
   // state.isPageLoading = true
   try {
     const formData = objectToFormData(state.form)

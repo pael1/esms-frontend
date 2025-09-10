@@ -44,6 +44,25 @@ export const useSweetLoading = () => {
         })
     }
 
+    const showConfirm = async (
+        title = 'Are you sure?',
+        text = 'This action cannot be undone.',
+        confirmText = 'Yes',
+        cancelText = 'Cancel'
+    ): Promise<boolean> => {
+        const result = await Swal.fire({
+            title,
+            text,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#16A34A',
+            cancelButtonColor: '#d33',
+            confirmButtonText: confirmText,
+            cancelButtonText: cancelText
+        })
+        return result.isConfirmed
+    }
+
     const withLoading = async <T>(
         callback: () => Promise<T>,
         title?: string,
@@ -64,6 +83,7 @@ export const useSweetLoading = () => {
         withLoading,
         showError,
         showWarning,
-        showSuccess
+        showSuccess,
+        showConfirm
     }
 }
