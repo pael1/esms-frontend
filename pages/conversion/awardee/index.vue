@@ -10,18 +10,18 @@
               <!-- Left side: grouped selects -->
               <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-x-2 w-full sm:w-auto">
                 <div class="w-full sm:w-44">
-                  <FormSelect
+                  <!-- <FormSelect
                     v-model="state.user_data.marketcode"
                     @update:modelValue="fetchAwardees"
                     :options="state.marketCodes"
-                  />
+                  /> -->
                 </div>
                 <div class="w-full sm:w-64">
-                  <FormSelect
+                  <!-- <FormSelect
                     v-model="state.user_data.sectionCode"
                     @update:modelValue="fetchAwardees"
                     :options="state.sectionCodes"
-                  />
+                  /> -->
                 </div>
               </div>
 
@@ -90,7 +90,7 @@
               ...state.dataFilter
           }
           console.log(params);
-          const response = await awardeeService.getAwardees(params)
+          const response = await awardeeService.getStallOwner(params)
           if (response) {
               state.awardees = response
           }

@@ -227,7 +227,7 @@
         </div>
 
         <!-- File List -->
-        <div class="border rounded-lg bg-yellow-50 p-3 bg-yellow-50 p-3 text-gray-600">
+        <div class="border rounded-lg bg-yellow-50 p-3 text-gray-600">
           <p v-if="state.form.files.length === 0" class="text-sm italic">
             Sorry, no new file have been added.
           </p>
@@ -565,11 +565,8 @@ async function awardeeUpdateForm() {
 
     // let params = state.form
     let params = formData
-    console.log(state.form)
-    console.log(params)
 
     const response = await awardeeService.update(params, id)
-    console.log(response)
     if (response.data) {
       showSuccess('Success', 'Awardee updated successfully!')
     }
