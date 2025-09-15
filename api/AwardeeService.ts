@@ -6,8 +6,24 @@ class AwardeeService extends BaseAPIService {
         return await this.request(`/awardees`, 'POST', params);
     }
 
+    // async update(params: object, id: any): Promise<any> {
+    //     return await this.request(`/awardees/${id}`, 'PUT', params);
+    // }
+
     async update(params: object, id: any): Promise<any> {
-        return await this.request(`/awardees/${id}`, 'PUT', params);
+        let config = {}
+
+        // If params is FormData, adjust headers + method override
+        if (params instanceof FormData) {
+            params.append('_method', 'PUT') // Laravel will treat it as PUT
+            config = {
+            headers: { 'Content-Type': 'multipart/form-data' }
+            }
+            return await this.request(`/awardees/${id}`, 'POST', params, config)
+        }
+
+        // Otherwise, send JSON normally
+        return await this.request(`/awardees/${id}`, 'PUT', params)
     }
 
     async getAwardees(params: object): Promise<any> {
