@@ -356,14 +356,15 @@ async function fetch_awardee_profile() {
   try {
     const response = await awardeeService.getAwardeeProfile(id);
     if (response.data) {
-       const data = response.data
+      const data = response.data
       // populate form
       Object.assign(state.form, data)
-
       // Profile photo preview (if file path exists in DB)
       if (data.attachIdPhoto) {
         previewUrl.value = `/storage/${data.attachIdPhoto}` // if stored in storage/app/public
       }
+
+      console.log("preview ", previewUrl.value);
     }
   } catch (error) {
     console.log(error);
@@ -382,7 +383,6 @@ async function fetchChildrens() {
     const response = await childrenService.getAwardeeChildrens(params);
     if (response.data) {
       state.childrens = response.data;
-      console.log(state.childrens);
     }
   } catch (error) {
     console.log(error);
@@ -401,7 +401,6 @@ async function fetchEmployees() {
     const response = await employeeService.getEmployees(params);
     if (response.data) {
       state.employees = response.data;
-      console.log(state.employees);
     }
   } catch (error) {
     console.log(error);
@@ -418,10 +417,8 @@ async function fetchFiles() {
         ownerId: id,
     }
     const response = await fileService.getFiles(params);
-    console.log(response);
     if (response.data) {
       state.files = response.data;
-      console.log(state.files);
     }
   } catch (error) {
     console.log(error);
