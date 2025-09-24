@@ -360,6 +360,10 @@ async function fetch_awardee_profile() {
       // populate form
       Object.assign(state.form, data)
       // Profile photo preview (if file path exists in DB)
+      //dapat isame nako sa pag view sa awardee profile
+      // const pdfSrc = computed(() => {
+      //   return `${config.public.apiPublicStorage}/profile_pic/${props.profile?.ownerId}/${props.profile?.attachIdPhoto}`
+      // })
       if (data.attachIdPhoto) {
         previewUrl.value = `/storage/${data.attachIdPhoto}` // if stored in storage/app/public
       }
