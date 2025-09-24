@@ -298,7 +298,7 @@ import { fileService } from '~/api/FileService';
 import { Toaster, toast } from 'vue-sonner'
 import 'vue-sonner/style.css'
 
-const { showError, showSuccess, showConfirm } = useSweetLoading()
+const { showError, showSuccess, showConfirm, showConfirmOkay } = useSweetLoading()
 
 definePageMeta({
   layout: 'main'
@@ -567,18 +567,20 @@ async function awardeeUpdateForm() {
     let params = formData
 
     const response = await awardeeService.update(params, id)
-    if (response.data) {
-      showSuccess('Success', 'Awardee updated successfully!')
+    if (response) {
+      const confirmed = await showConfirmOkay('Success', 'Awardee updated successfully.')
+      if (!confirmed) return
+      window.location.reload()
     }
   } catch (error) {
     let errorMessages = []
     console.log(error)
-    // Object.entries(error.errors).forEach(([field, messages]) => {
-    //   messages.forEach((message) => {
-    //     errorMessages.push(`${field}: ${message}`)
-    //   })
-    // })
-    // showError('', errorMessages.join('<br>'))
+    Object.entries(error.errors).forEach(([field, messages]) => {
+      messages.forEach((message) => {
+        errorMessages.push(`${field}: ${message}`)
+      })
+    })
+    showError('', errorMessages.join('<br>'))
   }
   // state.isPageLoading = false
 }

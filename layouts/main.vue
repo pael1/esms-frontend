@@ -267,6 +267,7 @@ import {
 import { ChevronRightIcon, ChevronDownIcon } from '@heroicons/vue/20/solid'
 import { useMarketcodeStore } from '~/store/marketcode'
 import NProgress from 'nprogress'
+import { useIdle } from '~/composables/useIdle'
 
 const openSubmenus = ref({})
 
@@ -278,6 +279,8 @@ const marketStore = useMarketcodeStore()
 
 const route = useRouter()
 const route1 = useRoute()
+
+const { setup, cleanup } = useIdle(60 * 60 * 1000)
 
 const navigation = [
   {
@@ -319,6 +322,7 @@ const navigation = [
 
 // Auto-open submenu if current route matches any child
 onMounted(() => {
+  setup() // Start idle timer
   navigation.forEach((item, index) => {
     if (item.children) {
       const isChildActive = item.children.some(child =>
@@ -327,6 +331,10 @@ onMounted(() => {
       openSubmenus.value[index] = isChildActive
     }
   })
+})
+
+onBeforeUnmount(() => {
+  cleanup()
 })
 
 // Generate breadcrumb array based on route path

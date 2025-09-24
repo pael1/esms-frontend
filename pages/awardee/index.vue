@@ -6,13 +6,22 @@
             <div class="sm:flex sm:items-center p-2">
             </div>
             <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <!-- Left side: select -->
-              <div class="sm:w-48 w-full">
-                <FormSelect
-                  v-model="state.user_data.sectionCode"
-                  @update:modelValue="fetchAwardees"
-                  :options="state.sectionCodes"
-                />
+              <!-- Left side: grouped selects -->
+              <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-x-2 w-full sm:w-auto">
+                <div class="w-full sm:w-44">
+                  <FormSelect
+                    v-model="state.user_data.marketcode"
+                    @update:modelValue="fetchAwardees"
+                    :options="state.marketCodes"
+                  />
+                </div>
+                <div class="w-full sm:w-64">
+                  <FormSelect
+                    v-model="state.user_data.sectionCode"
+                    @update:modelValue="fetchAwardees"
+                    :options="state.sectionCodes"
+                  />
+                </div>
               </div>
 
               <!-- Right side: TableSearch -->
@@ -31,6 +40,7 @@
   import { awardeeService } from '~/api/AwardeeService'
   import { useUserStore } from '@/store/user'
   import { useParameterStore } from '@/store/parameter'
+  import { useMarketcodeStore } from '@/store/marketcode'
 
   const { $capitalizeWords } = useNuxtApp()
 
@@ -38,10 +48,19 @@
 
   const userStore = useUserStore()
   const useParameter = useParameterStore()
+  const useMarketCode = useMarketcodeStore()
   const user = userStore.getUser
   const sectionCodes = useParameter.getSectionCode
+  let marketCodes = useMarketCode.getMarketCode
 
-    //global loading
+  //default marketcode
+  let marketcode = '07'
+  //if user is admin only show all marketcodes else show only marketcode for specific user
+  if (user.MarketCode != '99') {
+    marketCodes = marketCodes.filter((m) => m.value === user.MarketCode)
+    marketcode = user.MarketCode
+  }
+  //global loading
   const { $loading } = useNuxtApp()
 
   definePageMeta({
@@ -55,7 +74,7 @@
   const state = reactive({
     isPageLoading: false,
     user_data: {
-        marketcode: user.MarketCode,
+        marketcode: marketcode,
         stall_type: 'regular',
         sectionCode: '01',
     },
@@ -65,10 +84,12 @@
         { column: 'First Name' },
         { column: 'Last Name' },
     ],
-    sectionCodes: sectionCodes
+    sectionCodes: sectionCodes,
+    marketCodes: marketCodes,
   })
 
   onMounted(() => {
+    console.log(state.user_data.marketcode);
       fetchAwardees()
   })
 
@@ -85,7 +106,6 @@
           console.log(params);
           const response = await awardeeService.getAwardees(params)
           if (response) {
-            console.log(response)
               state.awardees = response
           }
       } catch (error) {
