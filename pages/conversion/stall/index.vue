@@ -273,7 +273,15 @@
   const useMarketCode = useMarketcodeStore()
   const user = userStore.getUser
   const sectionCodes = useParameter.getSectionCode
-  const marketCodes = useMarketCode.getMarketCode
+  let marketCodes = useMarketCode.getMarketCode
+
+  //default marketcode
+  let userMarketcode = '07'
+  //if user is admin only show all marketcodes else show only marketcode for specific user
+  if (user.MarketCode != '99') {
+    marketCodes = marketCodes.filter((m) => m.value === user.MarketCode)
+    userMarketcode = user.MarketCode
+  }
 
   //global loading
   const { $loading } = useNuxtApp()
@@ -305,7 +313,7 @@
     form: { ...defaultForm },
     stallProfileId: null,
     user_data: {
-        marketcode: user.MarketCode,
+        marketcode: userMarketcode,
         stall_type: 'regular',
         sectionCode: '01',
     },

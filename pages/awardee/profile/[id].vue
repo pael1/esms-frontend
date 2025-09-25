@@ -4,7 +4,7 @@
             <ArrowLeftIcon class="text-green-900 w-5 h-5 mr-2" /> Back
         </span>
     </ButtonBack>
-    <div class="min-h-screen p-4 sm:p-6 dark:text-white dark:bg-black">
+    <div class="min-h-screen p-4 sm:p-6">
     <Loader v-if="$loading.state.isPageLoading" />
       <div class="bg-white shadow-lg rounded-2xl p-4 sm:p-6">
         <!-- Profile Section -->
@@ -15,7 +15,7 @@
   
         <!-- Tab Content -->
         <div v-if="activeTab === 'stall'">
-            <div class="bg-white shadow-md rounded-xl p-4 border border-green-300 dark:text-white dark:bg-black">
+            <div class="bg-white shadow-md rounded-xl p-4 border border-green-300">
                 <!-- Header -->
                 <div class="flex items-center space-x-3 mb-3">
                     <div class="bg-green-500 p-2 rounded-md">

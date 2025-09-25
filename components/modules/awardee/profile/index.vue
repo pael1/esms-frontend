@@ -1,5 +1,5 @@
 <template>
-  <div class="dark:text-white dark:bg-black px-4 sm:px-6 lg:px-8">
+  <div class="px-4 sm:px-6 lg:px-8">
     <!-- Profile Section -->
     <div class="flex flex-col sm:flex-row items-center sm:items-start sm:space-x-6 space-y-4 sm:space-y-0 mb-6">
       <embed

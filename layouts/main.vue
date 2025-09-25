@@ -1,5 +1,5 @@
 <template>
-  <div class="dark:text-white dark:bg-black">
+  <div class="">
     <TransitionRoot as="template" :show="sidebarOpen">
       <Dialog class="relative z-50 lg:hidden" @close="sidebarOpen = false">
         <TransitionChild as="template" enter="transition-opacity ease-linear duration-300" enter-from="opacity-0"
@@ -32,7 +32,7 @@
                   <ul role="list" class="flex flex-1 flex-col gap-y-7">
                     <li>
                       <ul role="list" class="-mx-2 space-y-1">
-                        <li v-for="item in navigation" :key="item.name">
+                        <li v-for="item in navigation" :key="item.name" v-if="shouldShow(item)">
                           <NuxtLink :to="item.href" @click="sidebarOpen = false"
                             :class="[item.activeRouteNames.includes($route.name) ? 'bg-green-100 text-green-900' : 'text-green-900 hover:bg-green-100 hover:text-green-900', 'group flex items-center gap-x-3 rounded-md p-2 py-2 text-lg font-semibold leading-6']">
                             <component :is="item.icon"
@@ -53,7 +53,7 @@
     </TransitionRoot>
 
     <!-- Static sidebar for desktop -->
-    <div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col dark:text-white dark:bg-black">
+    <div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col ">
       <!-- Sidebar component, swap this element with another sidebar if you like -->
       <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-100 px-6 pb-4">
         <div class="flex h-16 items-center justify-center text-xl font-semibold text-green-100">
@@ -73,7 +73,7 @@
                     {{ item.name }}
                   </NuxtLink>
                 </li> -->
-                <li v-for="(item, index) in navigation" :key="item.name">
+                <li v-for="(item, index) in navigation" :key="item.name" v-if="shouldShow(item)">
                   <div>
                     <div
                       @click="item.children ? toggleSubmenu(index) : navigate(item.href)"
@@ -141,7 +141,7 @@
       </div>
     </div>
 
-    <div class="lg:pl-72 dark:text-white dark:bg-black">
+    <div class="lg:pl-72 ">
       <div
         class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
         <button type="button" class="-m-2.5 p-2.5 text-gray-700 lg:hidden" @click="sidebarOpen = true">
@@ -233,7 +233,7 @@
       </div>
 
       <main>
-        <div class="px-4 sm:px-6 lg:px-8 dark:text-white dark:bg-black">
+        <div class="px-4 sm:px-6 lg:px-8 ">
           <slot />
         </div>
       </main>
@@ -315,7 +315,8 @@ const navigation = [
     activeRouteNames: ['conversion'],
     children: [
       { name: 'Awardee', href: '/conversion/awardee', activeRouteNames: ['conversion-awardee'] },
-      { name: 'Stall', href: '/conversion/stall', activeRouteNames: ['conversion-stall'] },
+      { name: 'Stall Profile', href: '/conversion/stall', activeRouteNames: ['conversion-stall'] },
+      { name: 'Rental', href: '/conversion/rental', activeRouteNames: ['conversion-rental'] },
     ]
   },
 ];
@@ -382,6 +383,16 @@ async function logoutUser() {
     state.error = error
   }
   NProgress.done()
+}
+
+function shouldShow(item) {
+  console.log('Checking visibility for:', item)
+  // Example: hide Conversion if user.marketCode !== '99'
+  // if (item.name === 'Conversion') {
+  //   return false
+  // }
+
+  return true
 }
 
 const sidebarOpen = ref(false)

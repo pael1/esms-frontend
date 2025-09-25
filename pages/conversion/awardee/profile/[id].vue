@@ -299,6 +299,7 @@ import { Toaster, toast } from 'vue-sonner'
 import 'vue-sonner/style.css'
 
 const { showError, showSuccess, showConfirm, showConfirmOkay } = useSweetLoading()
+const config = useRuntimeConfig()
 
 definePageMeta({
   layout: 'main'
@@ -360,12 +361,8 @@ async function fetch_awardee_profile() {
       // populate form
       Object.assign(state.form, data)
       // Profile photo preview (if file path exists in DB)
-      //dapat isame nako sa pag view sa awardee profile
-      // const pdfSrc = computed(() => {
-      //   return `${config.public.apiPublicStorage}/profile_pic/${props.profile?.ownerId}/${props.profile?.attachIdPhoto}`
-      // })
       if (data.attachIdPhoto) {
-        previewUrl.value = `/storage/${data.attachIdPhoto}` // if stored in storage/app/public
+        previewUrl.value = `${config.public.apiPublicStorage}/${data.attachIdPhoto}` // if stored in storage/app/public
       }
 
       console.log("preview ", previewUrl.value);
@@ -562,10 +559,12 @@ async function deleteFile(fileId) {
 async function awardeeUpdateForm() {
   // state.isPageLoading = true
   try {
-    const formData = objectToFormData(state.form)
+    // const formData = objectToFormData(state.form)
+    const formData = buildFormData(state.form)
 
     // let params = state.form
     let params = formData
+    console.log("params ", state.form);
 
     const response = await awardeeService.update(params, id)
     if (response) {
@@ -587,29 +586,58 @@ async function awardeeUpdateForm() {
 }
 
 //format the object form before sending to backend to FormData since it contains file object
-function objectToFormData(obj, form = new FormData(), namespace = '') {
-  for (let key in obj) {
-    if (!obj.hasOwnProperty(key)) continue
-    const formKey = namespace ? `${namespace}[${key}]` : key
-    const value = obj[key]
+// function objectToFormData(obj, form = new FormData(), namespace = '') {
+//   for (let key in obj) {
+//     if (!obj.hasOwnProperty(key)) continue
+//     const formKey = namespace ? `${namespace}[${key}]` : key
+//     const value = obj[key]
 
-    if (value instanceof File) {
-      form.append(formKey, value)
-    } else if (Array.isArray(value)) {
-      value.forEach((v, i) => {
-        if (typeof v === 'object' && !(v instanceof File)) {
-          objectToFormData(v, form, `${formKey}[${i}]`)
-        } else {
-          form.append(`${formKey}[${i}]`, v)
-        }
+//     if (value instanceof File) {
+//       form.append(formKey, value)
+//     } else if (Array.isArray(value)) {
+//       value.forEach((v, i) => {
+//         if (typeof v === 'object' && !(v instanceof File)) {
+//           objectToFormData(v, form, `${formKey}[${i}]`)
+//         } else {
+//           form.append(`${formKey}[${i}]`, v)
+//         }
+//       })
+//     } else if (typeof value === 'object' && value !== null) {
+//       objectToFormData(value, form, formKey)
+//     } else {
+//       form.append(formKey, value ?? '')
+//     }
+//   }
+//   return form
+// }
+
+function buildFormData(form) {
+  const formData = new FormData()
+
+  Object.keys(form).forEach(key => {
+    const value = form[key]
+
+    // ✅ Skip unchanged file paths (strings from DB)
+    if (key === 'attachIdPhoto') {
+      if (value instanceof File) {
+        formData.append(key, value) // only if it's a real File
+      }
+    } 
+    // ✅ Handle array objects (children, employees, files, etc.)
+    else if (Array.isArray(value)) {
+      value.forEach((item, i) => {
+        Object.keys(item).forEach(subKey => {
+          formData.append(`${key}[${i}][${subKey}]`, item[subKey])
+        })
       })
-    } else if (typeof value === 'object' && value !== null) {
-      objectToFormData(value, form, formKey)
-    } else {
-      form.append(formKey, value ?? '')
+    } 
+    else {
+      formData.append(key, value ?? '')
     }
-  }
-  return form
+  })
+
+  return formData
 }
+
 
 </script>

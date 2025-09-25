@@ -54,11 +54,11 @@
   let marketCodes = useMarketCode.getMarketCode
 
   //default marketcode
-  let marketcode = '07'
+  let userMarketcode = '07'
   //if user is admin only show all marketcodes else show only marketcode for specific user
   if (user.MarketCode != '99') {
     marketCodes = marketCodes.filter((m) => m.value === user.MarketCode)
-    marketcode = user.MarketCode
+    userMarketcode = user.MarketCode
   }
   //global loading
   const { $loading } = useNuxtApp()
@@ -74,7 +74,7 @@
   const state = reactive({
     isPageLoading: false,
     user_data: {
-        marketcode: marketcode,
+        marketcode: userMarketcode,
         stall_type: 'regular',
         sectionCode: '01',
     },
