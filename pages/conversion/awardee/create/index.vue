@@ -294,7 +294,7 @@
 import { reactive, ref } from 'vue'
 import { awardeeService } from '~/api/AwardeeService'
 
-const { showError, showSuccess } = useSweetLoading()
+const { showError, showSuccess, showConfirmOkay } = useSweetLoading()
 
 definePageMeta({
   layout: 'main'
@@ -419,12 +419,14 @@ async function awardeeAddForm() {
   // state.isPageLoading = true
   try {
     const formData = objectToFormData(state.form)
-
+    //mo gana ra ang rules sa laravel basta state.form akoang gamiton pero pag formdata dli mo gana
     // let params = state.form
     let params = formData
     const response = await awardeeService.create(params)
-    if (response.data) {
-      showSuccess('Success', 'Awardee saved successfully!')
+    if (response) {
+      const confirmed = await showConfirmOkay('Success', 'Awardee saved successfully.')
+      if (!confirmed) return
+      window.location.reload()
     }
   } catch (error) {
     let errorMessages = []
@@ -463,5 +465,18 @@ function objectToFormData(obj, form = new FormData(), namespace = '') {
   }
   return form
 }
+
+function objectToFormData1(obj) {
+  const formData = new FormData()
+  Object.keys(obj).forEach(key => {
+    if (Array.isArray(obj[key])) {
+      obj[key].forEach((val, i) => formData.append(`${key}[${i}]`, val))
+    } else {
+      formData.append(key, obj[key] ?? '')
+    }
+  })
+  return formData
+}
+
 
 </script>

@@ -16,10 +16,7 @@ class AwardeeService extends BaseAPIService {
         // If params is FormData, adjust headers + method override
         if (params instanceof FormData) {
             params.append('_method', 'PUT') // Laravel will treat it as PUT
-            config = {
-            headers: { 'Content-Type': 'multipart/form-data' }
-            }
-            return await this.request(`/awardees/${id}`, 'POST', params, config)
+            return await this.request(`/awardees/${id}`, 'POST', params)
         }
 
         // Otherwise, send JSON normally

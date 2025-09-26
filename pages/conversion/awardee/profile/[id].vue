@@ -564,7 +564,6 @@ async function awardeeUpdateForm() {
 
     // let params = state.form
     let params = formData
-    console.log("params ", state.form);
 
     const response = await awardeeService.update(params, id)
     if (response) {
