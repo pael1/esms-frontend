@@ -390,20 +390,7 @@
   async function addStall() {
     $loading.start()
       try {
-        // showLoading('Saving', '');
-          let params = {
-              area: state.form.area,
-              area_extension: state.form.area_extension,
-              building: state.form.building,
-              cfsi: state.form.cfsi,
-              class: state.form.class,
-              extension: state.form.extension,
-              market: state.form.market,
-              section: state.form.section,
-              stall_id: state.form.stall_id,
-              sub_section: state.form.sub_section,
-              type: state.form.type,
-          }
+          let params = state.form;
           const response = await stallService.addData(params)
           if (response) {
               fetchStalls()
@@ -484,19 +471,20 @@
     $loading.start()
       try {
         // showLoading('Saving', '');
-          let params = {
-              area: state.form.area,
-              area_extension: state.form.area_extension,
-              building: state.form.building,
-              cfsi: state.form.cfsi,
-              class: state.form.class,
-              extension: state.form.extension,
-              market: state.form.market,
-              section: state.form.section,
-              stall_id: state.form.stall_id,
-              sub_section: state.form.sub_section,
-              type: state.form.type,
-          }
+          // let params = {
+          //     area: state.form.area,
+          //     area_extension: state.form.area_extension,
+          //     building: state.form.building,
+          //     cfsi: state.form.cfsi,
+          //     class: state.form.class,
+          //     extension: state.form.extension,
+          //     market: state.form.market,
+          //     section: state.form.section,
+          //     stall_id: state.form.stall_id,
+          //     sub_section: state.form.sub_section,
+          //     type: state.form.type,
+          // }
+          let params = state.form;
           let id = state.stallProfileId;
           
           const response = await stallService.updateStall(params, id)
@@ -509,13 +497,14 @@
           }
         // clearForm()
       } catch (error) {
+        console.log(error)
         let errorMessages = []
-          Object.entries(error.errors).forEach(([field, messages]) => {
-            messages.forEach((message) => {
-              errorMessages.push(`${field}: ${message}`)
-            })
-          })
-          showError('', errorMessages.join('<br>'))
+          // Object.entries(error.errors).forEach(([field, messages]) => {
+          //   messages.forEach((message) => {
+          //     errorMessages.push(`${field}: ${message}`)
+          //   })
+          // })
+          // showError('', errorMessages.join('<br>'))
       }
   }
 

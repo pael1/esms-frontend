@@ -15,7 +15,13 @@ class StallService extends BaseAPIService {
     }
 
     async updateStall(params: object, id: any): Promise<any> {
-        return await this.request(`/stalls/${id}`, 'PUT', params);
+        // return await this.request(`/stalls/${id}`, 'PUT', params);
+        const form = new FormData()
+        for (const [key, value] of Object.entries(params)) {
+            form.append(key, value as any)
+        }
+        form.append('_method', 'PUT')
+        return await this.request(`/stalls/${id}`, 'POST', form)
     }
 }
 
