@@ -1,0 +1,22 @@
+import BaseAPIService from "./BaseAPIService";
+
+class StallOwnerService extends BaseAPIService {
+
+    async create(params: object): Promise<any> {
+        return await this.request(`/stallowner`, 'POST', params);
+    }
+
+    async update(params: object, id: any): Promise<any> {
+        
+        // If params is FormData, adjust headers + method override
+        if (params instanceof FormData) {
+            params.append('_method', 'PUT') // Laravel will treat it as PUT
+            return await this.request(`/stallowner/${id}`, 'POST', params)
+        }
+
+        // Otherwise, send JSON normally
+        return await this.request(`/stallowner/${id}`, 'PUT', params)
+    }
+}
+
+export const stallOwnerService = new StallOwnerService();

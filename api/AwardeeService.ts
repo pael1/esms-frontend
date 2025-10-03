@@ -11,8 +11,7 @@ class AwardeeService extends BaseAPIService {
     // }
 
     async update(params: object, id: any): Promise<any> {
-        let config = {}
-
+        
         // If params is FormData, adjust headers + method override
         if (params instanceof FormData) {
             params.append('_method', 'PUT') // Laravel will treat it as PUT

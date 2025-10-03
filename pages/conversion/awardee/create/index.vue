@@ -34,6 +34,7 @@
               ✕
             </button>
           </div>
+          <span class="text-red-500">{{ state.errors.attachIdPhoto }}</span>
 
           <!-- Hidden Input -->
           <input
@@ -56,10 +57,12 @@
           <div>
             <label class="block text-sm font-medium mb-1">Owner Last Name</label>
             <FormText v-model="state.form.lastname" />
+            <span class="text-red-500">{{ state.errors.lastname }}</span>
           </div>
           <div>
             <label class="block text-sm font-medium mb-1">Owner First Name</label>
             <FormText v-model="state.form.firstname" />
+            <span class="text-red-500">{{ state.errors.firstname }}</span>
           </div>
           <div>
             <label class="block text-sm font-medium mb-1">Owner Middle Initial</label>
@@ -67,15 +70,16 @@
           </div>
         </div>
 
-        <!-- Contact + Civil Status -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium mb-1">Contact Number</label>
-            <FormText v-model="state.form.contactnumber" />
+            <FormText v-model="state.form.contactnumber" maxlength="11"/>
+            <span class="text-red-500">{{ state.errors.contactnumber }}</span>
           </div>
           <div>
             <label class="block text-sm font-medium mb-1">Civil Status</label>
             <FormSelect v-model="state.form.civilStatus" :options="civilStatusOptions" />
+            <span class="text-red-500">{{ state.errors.civilStatus }}</span>
           </div>
         </div>
 
@@ -83,6 +87,7 @@
         <div>
           <label class="block text-sm font-medium mb-1">Home Address</label>
           <FormTextArea v-model="state.form.address" rows="2" />
+          <span class="text-red-500">{{ state.errors.address }}</span>
         </div>
 
         <!-- Spouse Info -->
@@ -293,6 +298,8 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { awardeeService } from '~/api/AwardeeService'
+import { stallOwnerService } from '~/api/StallOwnerService'
+import * as yup from "yup";
 
 const { showError, showSuccess, showConfirmOkay } = useSweetLoading()
 
@@ -317,21 +324,22 @@ const state = reactive({
     spouseMidint: '',
     attachIdPhoto: null,
     contactnumber: '',
-    children: [], // ✅ children array
-    employees: [],   // ✅ employees array
-    files: [],                // ✅ file list
-    selectedFile: null,       // ✅ temp selected file
-    selectedFileType: 'CONTRACT', // ✅ dropdown default
+    children: [], // children array
+    employees: [],   // employees array
+    files: [],                // file list
+    selectedFile: null,       // temp selected file
+    selectedFileType: 'CONTRACT', // dropdown default
 
-    // ✅ Business info fields
-    contractStartDate: '',
-    periodOfContract: '',
-    businessId: '',
-    businessPlateNo: '',
-    businessStarted: '',
-    capital: '',
-    lineOfBusiness: ''
+    // Business info fields
+    // contractStartDate: '',
+    // periodOfContract: '',
+    // businessId: '',
+    // businessPlateNo: '',
+    // businessStarted: '',
+    // capital: '',
+    // lineOfBusiness: ''
   },
+  errors: {} // validation errors
 })
 
 const previewUrl = ref(null)
@@ -415,30 +423,117 @@ function removeFile(index) {
 }
 //end files
 
+// Define form schema
+const FILE_SIZE = 2 * 1024 * 1024; // 2MB
+const SUPPORTED_FORMATS = ["image/jpeg", "image/png", "image/jpg"];
+
+const awardeeSchema = yup.object({
+  lastname: yup.string().required("Lastname is required"),
+  firstname: yup.string().required("Firstname is required"),
+  midinit: yup.string().nullable(), // optional
+  civilStatus: yup.string().required("Civil status is required"),
+  address: yup.string().required("Address is required"),
+  spouseLastname: yup.string().nullable(),
+  spouseFirstname: yup.string().nullable(),
+  spouseMidint: yup.string().nullable(),
+  contactnumber: yup
+    .string()
+    .required("Contact number is required")
+    .matches(/^[0-9]+$/, "Contact number must be numbers only")
+    .min(11, "Contact number must be at least 11 digits")
+    .max(11, "Contact number must not exceed 11 digits"),
+  attachIdPhoto: yup
+    .mixed()
+    .required("ID Photo is required")
+    .test("fileSize", "File too large (max 2MB)", (file) => {
+      return !file || (file && file.size <= FILE_SIZE);
+    })
+    .test("fileType", "Unsupported file format", (file) => {
+      return !file || (file && SUPPORTED_FORMATS.includes(file.type));
+    }),
+});
+
+// async function awardeeAddForm() {
+//   try {
+//     // Validate state.form before sending
+//     await awardeeSchema.validate(state.form, { abortEarly: false });
+
+//     const formData = objectToFormData(state.form);
+//     let params = formData;
+
+//     const response = await awardeeService.create(params);
+//     if (response) {
+//       const confirmed = await showConfirmOkay("Success", "Awardee saved successfully.");
+//       if (!confirmed) return;
+//       window.location.reload();
+//     }
+//   } catch (error) {
+//     let errorMessages = [];
+
+//     if (error.name === "ValidationError") {
+//       // Handle frontend validation errors
+//       error.inner.forEach((err) => {
+//         errorMessages.push(err.message);
+//       });
+//       showError("", errorMessages.join("<br>"));
+//     } else {
+//       // Handle backend/Laravel validation errors
+//       if (error.errors) {
+//         Object.entries(error.errors).forEach(([field, messages]) => {
+//           messages.forEach((message) => {
+//             errorMessages.push(`${field}: ${message}`);
+//           });
+//         });
+//         showError("Server Validation", errorMessages.join("<br>"));
+//       } else {
+//         showError("", error.message || "An error occurred while saving the awardee.");
+//       }
+//     }
+//   }
+// }
+
 async function awardeeAddForm() {
-  // state.isPageLoading = true
   try {
-    const formData = objectToFormData(state.form)
-    //mo gana ra ang rules sa laravel basta state.form akoang gamiton pero pag formdata dli mo gana
-    // let params = state.form
-    let params = formData
-    const response = await awardeeService.create(params)
+    state.errors = {}; // reset errors
+
+    // frontend validation
+    await awardeeSchema.validate(state.form, { abortEarly: false });
+
+    // prepare formData
+    const formData = objectToFormData(state.form);
+
+    const response = await stallOwnerService.create(formData);
     if (response) {
-      const confirmed = await showConfirmOkay('Success', 'Awardee saved successfully.')
-      if (!confirmed) return
-      window.location.reload()
+      const confirmed = await showConfirmOkay("Success", "Awardee saved successfully.");
+      if (!confirmed) return;
+      window.location.reload();
     }
   } catch (error) {
-    let errorMessages = []
-    Object.entries(error.errors).forEach(([field, messages]) => {
-      messages.forEach((message) => {
-        errorMessages.push(`${field}: ${message}`)
-      })
-    })
-    showError('', errorMessages.join('<br>'))
+    state.errors = {}; // clear old errors
+    let errorMessages = [];
+
+    if (error.name === "ValidationError") {
+      // Yup validation errors
+      error.inner.forEach((err) => {
+        if (!state.errors[err.path]) {
+          state.errors[err.path] = err.message;
+        }
+        errorMessages.push(err.message);
+      });
+      showError("Validation Failed", errorMessages.join("<br>"));
+    } else if (error.errors) {
+      // Laravel backend validation errors
+      Object.entries(error.errors).forEach(([field, messages]) => {
+        state.errors[field] = messages[0]; // first error
+        messages.forEach((msg) => errorMessages.push(`${field}: ${msg}`));
+      });
+      showError("Server Validation", errorMessages.join("<br>"));
+    } else {
+      showError("", error.message || "An error occurred while saving the awardee.");
+    }
   }
-  // state.isPageLoading = false
 }
+
 
 //format the object form before sending to backend to FormData since it contains file object
 function objectToFormData(obj, form = new FormData(), namespace = '') {
@@ -465,18 +560,5 @@ function objectToFormData(obj, form = new FormData(), namespace = '') {
   }
   return form
 }
-
-function objectToFormData1(obj) {
-  const formData = new FormData()
-  Object.keys(obj).forEach(key => {
-    if (Array.isArray(obj[key])) {
-      obj[key].forEach((val, i) => formData.append(`${key}[${i}]`, val))
-    } else {
-      formData.append(key, obj[key] ?? '')
-    }
-  })
-  return formData
-}
-
 
 </script>

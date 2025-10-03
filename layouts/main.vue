@@ -32,7 +32,7 @@
                   <ul role="list" class="flex flex-1 flex-col gap-y-7">
                     <li>
                       <ul role="list" class="-mx-2 space-y-1">
-                        <li v-for="item in navigation" :key="item.name" v-if="shouldShow(item)">
+                        <li v-for="item in filteredNavigation" :key="item.name">
                           <NuxtLink :to="item.href" @click="sidebarOpen = false"
                             :class="[item.activeRouteNames.includes($route.name) ? 'bg-green-100 text-green-900' : 'text-green-900 hover:bg-green-100 hover:text-green-900', 'group flex items-center gap-x-3 rounded-md p-2 py-2 text-lg font-semibold leading-6']">
                             <component :is="item.icon"
@@ -64,7 +64,7 @@
           <ul role="list" class="flex flex-1 flex-col gap-y-7">
             <li>
               <ul role="list" class="-mx-2 space-y-1">
-                <!-- <li v-for="item in navigation" :key="item.name">
+                <!-- <li v-for="item in filteredNavigation" :key="item.name">
                   <NuxtLink :to="item.href" @click="sidebarOpen = false"
                     :class="[item.activeRouteNames.includes($route.name) ? 'bg-green-100 text-green-900' : 'text-gray-900 hover:bg-green-100 hover:text-green-900', 'group flex items-center gap-x-3 rounded-md p-2 py-2 text-lg font-semibold leading-6']">
                     <component :is="item.icon"
@@ -73,7 +73,7 @@
                     {{ item.name }}
                   </NuxtLink>
                 </li> -->
-                <li v-for="(item, index) in navigation" :key="item.name" v-if="shouldShow(item)">
+                <li v-for="(item, index) in filteredNavigation" :key="item.name">
                   <div>
                     <div
                       @click="item.children ? toggleSubmenu(index) : navigate(item.href)"
@@ -118,16 +118,6 @@
                             'bg-green-100 text-green-900': sub.activeRouteNames.includes($route.name),
                           }"
                         >
-                        <!-- <component
-                        :is="item.icon"
-                        :class="[
-                          item.activeRouteNames.includes($route.name)
-                            ? 'text-green-900'
-                            : 'text-green-900 group-hover:text-green-900',
-                          'h-6 w-6 shrink-0'
-                        ]"
-                        aria-hidden="true"
-                      /> -->
                           {{ sub.name }}
                         </NuxtLink>
                       </li>
@@ -348,6 +338,18 @@ const breadcrumbs = computed(() => {
   })
 })
 
+//submenu filtered
+const filteredNavigation = computed(() =>
+  navigation.filter(item => {
+    if (!item) return false
+    if (item.name === 'Conversion' && user.MarketCode !== '00' && user.MarketCode !== '99') {
+      return false
+    } 
+
+    return true
+  })
+)
+
 function toggleSubmenu(index) {
   openSubmenus.value[index] = !openSubmenus.value[index]
 }
@@ -383,16 +385,6 @@ async function logoutUser() {
     state.error = error
   }
   NProgress.done()
-}
-
-function shouldShow(item) {
-  console.log('Checking visibility for:', item)
-  // Example: hide Conversion if user.marketCode !== '99'
-  // if (item.name === 'Conversion') {
-  //   return false
-  // }
-
-  return true
 }
 
 const sidebarOpen = ref(false)

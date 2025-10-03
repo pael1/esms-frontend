@@ -21,7 +21,13 @@
             <tbody class="divide-y divide-gray-200 bg-white">
               <tr v-for="file in props.files" :key="file.stallOwnerFileId">
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                  {{ file.stallOwnerFileId }}
+                  <a 
+                    :href="`${$config.public.apiPublicStorage}/${file.filePath}`" 
+                    target="_blank" 
+                    class="text-green-600 hover:underline"
+                  >
+                    {{ file.attachFileType }} - {{ file.stallOwnerFileId }}
+                  </a>
                 </td>
                 <td v-if="props.canRemove" class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-right">
                     <FormButton type="button" size="sm" buttonStyle="red" @click="$emit('remove', file.stallOwnerFileId)">Delete</FormButton>

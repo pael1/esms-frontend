@@ -35,6 +35,7 @@
               ✕
             </button>
           </div>
+          <span class="text-red-500">{{ state.errors.attachIdPhoto }}</span>
 
           <!-- Hidden Input -->
           <input
@@ -57,10 +58,12 @@
           <div>
             <label class="block text-sm font-medium mb-1">Owner Last Name</label>
             <FormText v-model="state.form.lastname" />
+            <span class="text-red-500">{{ state.errors.lastname }}</span>
           </div>
           <div>
             <label class="block text-sm font-medium mb-1">Owner First Name</label>
             <FormText v-model="state.form.firstname" />
+            <span class="text-red-500">{{ state.errors.firstname }}</span>
           </div>
           <div>
             <label class="block text-sm font-medium mb-1">Owner Middle Initial</label>
@@ -72,11 +75,13 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium mb-1">Contact Number</label>
-            <FormText v-model="state.form.contactnumber" />
+            <FormText v-model="state.form.contactnumber" maxlength="11"/>
+            <span class="text-red-500">{{ state.errors.contactnumber }}</span>
           </div>
           <div>
             <label class="block text-sm font-medium mb-1">Civil Status</label>
             <FormSelect v-model="state.form.civilStatus" :options="civilStatusOptions" />
+            <span class="text-red-500">{{ state.errors.civilStatus }}</span>
           </div>
         </div>
 
@@ -84,6 +89,7 @@
         <div>
           <label class="block text-sm font-medium mb-1">Home Address</label>
           <FormTextArea v-model="state.form.address" rows="2" />
+          <span class="text-red-500">{{ state.errors.address }}</span>
         </div>
 
         <!-- Spouse Info -->
@@ -292,11 +298,13 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { awardeeService } from '~/api/AwardeeService'
+import { stallOwnerService } from '~/api/StallOwnerService'
 import { childrenService } from '~/api/ChildrenService';
 import { employeeService } from '~/api/EmployeeService';
 import { fileService } from '~/api/FileService';
 import { Toaster, toast } from 'vue-sonner'
 import 'vue-sonner/style.css'
+import * as yup from "yup";
 
 const { showError, showSuccess, showConfirm, showConfirmOkay } = useSweetLoading()
 const config = useRuntimeConfig()
@@ -322,24 +330,25 @@ const state = reactive({
     spouseMidint: '',
     attachIdPhoto: null,
     contactnumber: '',
-    children: [], // ✅ children array
-    employees: [],   // ✅ employees array
-    files: [],                // ✅ file list
-    selectedFile: null,       // ✅ temp selected file
-    selectedFileType: 'CONTRACT', // ✅ dropdown default
+    children: [], // children array
+    employees: [],   // employees array
+    files: [],                // file list
+    selectedFile: null,       // temp selected file
+    selectedFileType: 'CONTRACT', // dropdown default
 
-    // ✅ Business info fields
-    contractStartDate: '',
-    periodOfContract: '',
-    businessId: '',
-    businessPlateNo: '',
-    businessStarted: '',
-    capital: '',
-    lineOfBusiness: ''
+    // Business info fields
+    // contractStartDate: '',
+    // periodOfContract: '',
+    // businessId: '',
+    // businessPlateNo: '',
+    // businessStarted: '',
+    // capital: '',
+    // lineOfBusiness: ''
   },
   childrens: [],
   employees: [],
   files: [],
+  errors: {}, // validation errors
 })
 
 const router = useRouter();
@@ -442,6 +451,7 @@ function removeImage() {
   previewUrl.value = null
   if (fileInput.value) {
     fileInput.value.value = "" // reset input so user can re-upload same file
+    state.form.attachIdPhoto = null
   }
 }
 
@@ -556,16 +566,41 @@ async function deleteFile(fileId) {
 }
 //end files
 
+// Define form schema
+const FILE_SIZE = 2 * 1024 * 1024; // 2MB
+const SUPPORTED_FORMATS = ["image/jpeg", "image/png", "image/jpg"];
+
+const awardeeSchema = yup.object({
+  lastname: yup.string().required("Lastname is required"),
+  firstname: yup.string().required("Firstname is required"),
+  midinit: yup.string().nullable(), // optional
+  civilStatus: yup.string().required("Civil status is required"),
+  address: yup.string().required("Address is required"),
+  spouseLastname: yup.string().nullable(),
+  spouseFirstname: yup.string().nullable(),
+  spouseMidint: yup.string().nullable(),
+  contactnumber: yup
+    .string()
+    .required("Contact number is required")
+    .matches(/^[0-9]+$/, "Contact number must be numbers only")
+    .min(11, "Contact number must be at least 11 digits")
+    .max(11, "Contact number must not exceed 11 digits"),
+  attachIdPhoto: yup
+    .mixed()
+    .required("ID Photo is required")
+});
+
 async function awardeeUpdateForm() {
   // state.isPageLoading = true
   try {
-    // const formData = objectToFormData(state.form)
-    const formData = buildFormData(state.form)
+    // Validate state.form before sending
+    await awardeeSchema.validate(state.form, { abortEarly: false });
 
+    const formData = buildFormData(state.form)
     // let params = state.form
     let params = formData
 
-    const response = await awardeeService.update(params, id)
+    const response = await stallOwnerService.update(params, id)
     if (response) {
       const confirmed = await showConfirmOkay('Success', 'Awardee updated successfully.')
       if (!confirmed) return
@@ -573,42 +608,29 @@ async function awardeeUpdateForm() {
     }
   } catch (error) {
     let errorMessages = []
-    console.log(error)
-    Object.entries(error.errors).forEach(([field, messages]) => {
-      messages.forEach((message) => {
-        errorMessages.push(`${field}: ${message}`)
-      })
-    })
-    showError('', errorMessages.join('<br>'))
+    state.errors = {}; // clear old errors
+    if (error.name === "ValidationError") {
+      // Yup validation errors
+      error.inner.forEach((err) => {
+        if (!state.errors[err.path]) {
+          state.errors[err.path] = err.message;
+        }
+        errorMessages.push(err.message);
+      });
+      showError("Validation Failed", errorMessages.join("<br>"));
+    } else if (error.errors) {
+      // Laravel backend validation errors
+      Object.entries(error.errors).forEach(([field, messages]) => {
+        state.errors[field] = messages[0]; // first error
+        messages.forEach((msg) => errorMessages.push(`${field}: ${msg}`));
+      });
+      showError("Server Validation", errorMessages.join("<br>"));
+    } else {
+      showError("", error.message || "An error occurred while saving the awardee.");
+    }
   }
   // state.isPageLoading = false
 }
-
-//format the object form before sending to backend to FormData since it contains file object
-// function objectToFormData(obj, form = new FormData(), namespace = '') {
-//   for (let key in obj) {
-//     if (!obj.hasOwnProperty(key)) continue
-//     const formKey = namespace ? `${namespace}[${key}]` : key
-//     const value = obj[key]
-
-//     if (value instanceof File) {
-//       form.append(formKey, value)
-//     } else if (Array.isArray(value)) {
-//       value.forEach((v, i) => {
-//         if (typeof v === 'object' && !(v instanceof File)) {
-//           objectToFormData(v, form, `${formKey}[${i}]`)
-//         } else {
-//           form.append(`${formKey}[${i}]`, v)
-//         }
-//       })
-//     } else if (typeof value === 'object' && value !== null) {
-//       objectToFormData(value, form, formKey)
-//     } else {
-//       form.append(formKey, value ?? '')
-//     }
-//   }
-//   return form
-// }
 
 function buildFormData(form) {
   const formData = new FormData()
@@ -616,13 +638,17 @@ function buildFormData(form) {
   Object.keys(form).forEach(key => {
     const value = form[key]
 
-    // ✅ Skip unchanged file paths (strings from DB)
+    // Skip unchanged file paths (strings from DB)
     if (key === 'attachIdPhoto') {
       if (value instanceof File) {
         formData.append(key, value) // only if it's a real File
       }
+      
+      if (value === null) {
+        formData.append(key, '') // to remove existing photo
+      } 
     } 
-    // ✅ Handle array objects (children, employees, files, etc.)
+    // Handle array objects (children, employees, files, etc.)
     else if (Array.isArray(value)) {
       value.forEach((item, i) => {
         Object.keys(item).forEach(subKey => {
