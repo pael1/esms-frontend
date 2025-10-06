@@ -66,7 +66,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium mb-1">Owner Middle Initial</label>
-            <FormText v-model="state.form.midinit" />
+            <FormText v-model="state.form.midinit" maxlength="1"/>
           </div>
         </div>
 
@@ -430,7 +430,10 @@ const SUPPORTED_FORMATS = ["image/jpeg", "image/png", "image/jpg"];
 const awardeeSchema = yup.object({
   lastname: yup.string().required("Lastname is required"),
   firstname: yup.string().required("Firstname is required"),
-  midinit: yup.string().nullable(), // optional
+  midinit: yup
+  .string().nullable()
+  .min(1, "Middle Initial must be at least 1 character")
+  .max(1, "Middle Initial must not exceed 1 character"),
   civilStatus: yup.string().required("Civil status is required"),
   address: yup.string().required("Address is required"),
   spouseLastname: yup.string().nullable(),
