@@ -207,14 +207,24 @@
               :key="index"
               class="flex items-center justify-between"
             >
-              <span>{{ file.filePath }} ({{ file.attachFileType }})</span>
-              <button
+              <a
+                :href="file.filePath"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-blue-600 hover:underline"
+              >
+                <span>{{ file.fileName }} - {{ file.attachFileType }}</span>
+              </a>
+              <!-- <button
                 type="button"
                 class="text-red-600 hover:underline text-xs"
                 @click="removeFile(index)"
               >
                 Remove
-              </button>
+              </button> -->
+              <FormButton type="button" class="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600" @click="removeFile(index)">
+                Remove
+            </FormButton>
             </li>
           </ul>
         </div>
@@ -409,9 +419,12 @@ function onFileUploadChange(e) {
 
 function attachFile() {
   if (!state.form.selectedFile) return
+
+  const file = state.form.selectedFile;
   state.form.files.push({
-    filePath: state.form.selectedFile,
-    attachFileType: state.form.selectedFileType
+    filePath: URL.createObjectURL(file), // for preview if needed
+    attachFileType: state.form.selectedFileType,
+    fileName: file.name
   })
   console.log(state.form.files)
   state.form.selectedFile = null
