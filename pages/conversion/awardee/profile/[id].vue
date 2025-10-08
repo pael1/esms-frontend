@@ -526,7 +526,7 @@ const civilStatusOptions = [
 const fileTypes = [
   { label: 'CONTRACT', value: 'CONTRACT' },
   { label: 'PHOTO', value: 'PHOTO' },
-  { label: 'OTHERS', value: 'WIDOWED' },
+  { label: 'OTHERS', value: 'OTHERS' },
 ]
 
 //files
