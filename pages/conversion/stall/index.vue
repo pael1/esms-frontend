@@ -499,12 +499,12 @@
       } catch (error) {
         console.log(error)
         let errorMessages = []
-          // Object.entries(error.errors).forEach(([field, messages]) => {
-          //   messages.forEach((message) => {
-          //     errorMessages.push(`${field}: ${message}`)
-          //   })
-          // })
-          // showError('', errorMessages.join('<br>'))
+          Object.entries(error.errors).forEach(([field, messages]) => {
+            messages.forEach((message) => {
+              errorMessages.push(`${field}: ${message}`)
+            })
+          })
+          showError('', errorMessages.join('<br>'))
       }
   }
 

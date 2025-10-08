@@ -7,7 +7,10 @@ class FileService extends BaseAPIService {
     }
 
     async delete(id: any): Promise<any> {
-        return await this.request(`/files/${id}`, 'DELETE');
+        const formData = new FormData();
+        formData.append('_method', 'DELETE');
+        return await this.request(`/files/${id}`, 'POST', formData);
+        // return await this.request(`/files/${id}`, 'DELETE');
     }
 }
 

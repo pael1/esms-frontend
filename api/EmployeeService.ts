@@ -7,7 +7,10 @@ class EmployeeService extends BaseAPIService {
     }
 
     async delete(id: any): Promise<any> {
-        return await this.request(`/employees/${id}`, 'DELETE');
+        const formData = new FormData();
+        formData.append('_method', 'DELETE');
+        return await this.request(`/employees/${id}`, 'POST', formData);
+        // return await this.request(`/employees/${id}`, 'DELETE');
     }
 }
 
