@@ -89,10 +89,11 @@
               section: state.user_data.sectionCode,
               ...state.dataFilter
           }
-          console.log(params);
+          
           const response = await awardeeService.getStallOwner(params)
           if (response) {
               state.awardees = response
+              console.log(state.awardees);
           }
       } catch (error) {
           console.log(error)

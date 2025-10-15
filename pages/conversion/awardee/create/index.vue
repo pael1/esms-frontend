@@ -383,14 +383,47 @@ function removeChild(index) {
   state.form.children.splice(index, 1)
 }
 
-// Add employee row
+// // Add employee row
+// function addEmployee() {
+//   state.form.employees.push({
+//     employeeName: '',
+//     dateOfBirth: '',
+//     age: '',
+//     address: ''
+//   })
+// }
+// Add new employee
 function addEmployee() {
-  state.form.employees.push({
+  const newEmployee = reactive({
     employeeName: '',
     dateOfBirth: '',
     age: '',
     address: ''
   })
+
+  // Watch for birthdate changes in this new employee
+  watch(
+    () => newEmployee.dateOfBirth,
+    (newDate) => {
+      if (!newDate) {
+        newEmployee.age = ''
+        return
+      }
+
+      const today = new Date()
+      const birthDate = new Date(newDate)
+      let age = today.getFullYear() - birthDate.getFullYear()
+      const monthDiff = today.getMonth() - birthDate.getMonth()
+
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--
+      }
+
+      newEmployee.age = age
+    }
+  )
+
+  state.form.employees.push(newEmployee)
 }
 
 // Remove employee row

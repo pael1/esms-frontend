@@ -304,7 +304,7 @@ const navigation = [
     icon: DocumentMinusIcon,
     activeRouteNames: ['conversion'],
     children: [
-      { name: 'Awardee', href: '/conversion/awardee', activeRouteNames: ['conversion-awardee'] },
+      { name: 'Stall Owner', href: '/conversion/awardee', activeRouteNames: ['conversion-awardee'] },
       { name: 'Stall Profile', href: '/conversion/stall', activeRouteNames: ['conversion-stall'] },
       { name: 'Rental', href: '/conversion/rental', activeRouteNames: ['conversion-rental'] },
     ]

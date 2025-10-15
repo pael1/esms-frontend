@@ -5,7 +5,7 @@
             <Loader v-if="$loading.state.isPageLoading" />
             <div class="py-3"></div>
             <div class="sm:flex sm:items-center sm:justify-end p-2">
-              <FormButton type="submit" class="text-sm" @click="addStallDialog()">Create Stall</FormButton>
+              <FormButton type="submit" class="text-sm" @click="addRentalDialog()">Create Rental</FormButton>
             </div>
 
             <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -14,14 +14,14 @@
                 <div class="w-full sm:w-44">
                   <FormSelect
                     v-model="state.user_data.marketcode"
-                    @update:modelValue="fetchStalls"
+                    @update:modelValue="fetchRentals"
                     :options="state.marketCodes"
                   />
                 </div>
                 <div class="w-full sm:w-64">
                   <FormSelect
                     v-model="state.user_data.sectionCode"
-                    @update:modelValue="fetchStalls"
+                    @update:modelValue="fetchRentals"
                     :options="state.sectionCodes"
                   />
                 </div>
@@ -29,11 +29,11 @@
 
               <!-- Right side: TableSearch -->
               <div class="w-full sm:w-auto">
-                <TableSearchSimple @handleFilter="handleFilter" :placeholder="'Enter Stall ID'" />
+                <TableSearchSimple @handleFilter="handleFilter" :placeholder="'Enter Name'" />
               </div>
             </div>
-            <TableStall :stalls="state.stalls.data" @viewStallClick="viewStall" />
-            <Pagination v-if="state.stalls?.data?.length > 0" :data="state.stalls" @previous="previous" @next="next" />
+            <TableRental :rentals="state.rentals.data" @viewRentalClick="view" />
+            <Pagination v-if="state.rentals?.data?.length > 0" :data="state.rentals" @previous="previous" @next="next" />
         </div>
     </div>
 
@@ -145,6 +145,7 @@
         </form>
       </div>
     </Modal>
+
     <!-- view/edit -->
      <Modal :show="state.openViewDialog">
       <div class="w-full max-w-4xl mx-auto bg-white px-4 py-5 sm:px-6 rounded-lg space-y-4">
@@ -256,6 +257,7 @@
   
   <script setup>
   import { stallService } from '~/api/StallService'
+  import { rentalService } from '~/api/RentalService'
   import { useUserStore } from '@/store/user'
   import { useParameterStore } from '@/store/parameter'
   import { useMarketcodeStore } from '@/store/marketcode'
@@ -263,7 +265,6 @@
   import { Toaster, toast } from 'vue-sonner'
   import 'vue-sonner/style.css'
 
-  const { $capitalizeWords } = useNuxtApp()
   const { showError, showSuccess, showLoading, closeLoading } = useSweetLoading()
 
   let currentPage = 1
@@ -291,7 +292,7 @@
   })
 
   useHead({
-    title: 'Conversion Stall List | eSMS'
+    title: 'Conversion Rental List | eSMS'
   })
 
   //default form for easy reset
@@ -317,7 +318,7 @@
         stall_type: 'regular',
         sectionCode: '01',
     },
-    stalls: [],
+    rentals: [],
     dataFilter: [],
     sectionCodes: sectionCodes,
     marketCodes: marketCodes,
@@ -337,34 +338,30 @@
   })
 
   onMounted(() => {
-      fetchStalls()
+      fetchRentals()
   })
 
   //static data
-  const classOptions = [
-    { label: 'CLASS A', value: 'CLASS A' },
-    { label: 'CLASS B', value: 'CLASS B' },
-    { label: 'CLASS C', value: 'CLASS C' },
-    { label: 'CLASS D', value: 'CLASS D' }
-  ]
-  const extensions = [
-    { label: 'A', value: 'A' },
-    { label: 'B', value: 'B' },
-    { label: 'C', value: 'C' },
-  ]
+  // const classOptions = [
+  //   { label: 'CLASS A', value: 'CLASS A' },
+  //   { label: 'CLASS B', value: 'CLASS B' },
+  //   { label: 'CLASS C', value: 'CLASS C' },
+  //   { label: 'CLASS D', value: 'CLASS D' }
+  // ]
+  // const extensions = [
+  //   { label: 'A', value: 'A' },
+  //   { label: 'B', value: 'B' },
+  //   { label: 'C', value: 'C' },
+  // ]
   //ed nof static data
 
   function getSubSection(selectedSection) {
     subSection(selectedSection);
   }
 
-  function addStallDialog() {
-    $loading.start()
-    //load datas
+  function addRentalDialog() {
     loadParameters()
-    $loading.stop()
     Object.assign(state.form, defaultForm)
-    //open modal
     state.open = true
   }
   function closedDialog() {
@@ -374,45 +371,44 @@
   function handleFilter(value) {
       currentPage = 1
       state.dataFilter = value
-      fetchStalls()
+      fetchRentals()
   }
 
   async function previous() {
       currentPage--
-      fetchStalls()
+      fetchRentals()
   }
 
   async function next() {
       currentPage++
-      fetchStalls()
+      fetchRentals()
   }
 
-  async function addStall() {
-    $loading.start()
-      try {
-          let params = state.form;
-          const response = await stallService.addData(params)
-          if (response) {
-              fetchStalls()
-              toast.success('Stall saved successfully')
-          }
-        // closeLoading()
-        state.open = false
-        // clearForm()
-      } catch (error) {
-      console.log(error);
-        let errorMessages = []
-          Object.entries(error.errors).forEach(([field, messages]) => {
-            messages.forEach((message) => {
-              errorMessages.push(`${field}: ${message}`)
-            })
-          })
-          showError('', errorMessages.join('<br>'))
-      }
-      $loading.stop()
-  }
+  // async function addStall() {
+  //   $loading.start()
+  //     try {
+  //         let params = state.form;
+  //         const response = await stallService.addData(params)
+  //         if (response) {
+  //             fetchRentals()
+  //             toast.success('Stall saved successfully')
+  //         }
+  //       // closeLoading()
+  //       state.open = false
+  //       // clearForm()
+  //     } catch (error) {
+  //       let errorMessages = []
+  //         Object.entries(error.errors).forEach(([field, messages]) => {
+  //           messages.forEach((message) => {
+  //             errorMessages.push(`${field}: ${message}`)
+  //           })
+  //         })
+  //         showError('', errorMessages.join('<br>'))
+  //     }
+  //     $loading.stop()
+  // }
 
-  async function fetchStalls() {
+  async function fetchRentals() {
       $loading.start()
       try {
           let params = {
@@ -422,9 +418,9 @@
               section: state.user_data.sectionCode,
               ...state.dataFilter
           }
-          const response = await stallService.getStalls(params)
+          const response = await rentalService.getRental(params)
           if (response) {
-              state.stalls = response
+              state.rentals = response
           }
       } catch (error) {
           console.log(error)
@@ -433,7 +429,7 @@
   }
 
   //emit functions
-  async function viewStall(stallId, isView) { 
+  async function view(stallId, isView) { 
     $loading.start()
 
     //load datas
@@ -468,58 +464,58 @@
     state.openViewDialog = true;
   } 
 
-  async function updateStall() {
-    $loading.start()
-      try {
-        // showLoading('Saving', '');
-          let params = state.form;
-          let id = state.stallProfileId;
+  // async function updateStall() {
+  //   $loading.start()
+  //     try {
+  //       // showLoading('Saving', '');
+  //         let params = state.form;
+  //         let id = state.stallProfileId;
           
-          const response = await stallService.updateStall(params, id)
-          if (response) {
-              fetchStalls()
-              $loading.stop()
+  //         const response = await stallService.updateStall(params, id)
+  //         if (response) {
+  //             fetchRentals()
+  //             $loading.stop()
 
-              state.openViewDialog = false
-              toast.success('Stall updated successfully')
-          }
-        // clearForm()
-      } catch (error) {
-        console.log(error)
-        let errorMessages = []
-          Object.entries(error.errors).forEach(([field, messages]) => {
-            messages.forEach((message) => {
-              errorMessages.push(`${field}: ${message}`)
-            })
-          })
-          showError('', errorMessages.join('<br>'))
-      }
-  }
+  //             state.openViewDialog = false
+  //             toast.success('Stall updated successfully')
+  //         }
+  //       // clearForm()
+  //     } catch (error) {
+  //       console.log(error)
+  //       let errorMessages = []
+  //         Object.entries(error.errors).forEach(([field, messages]) => {
+  //           messages.forEach((message) => {
+  //             errorMessages.push(`${field}: ${message}`)
+  //           })
+  //         })
+  //         showError('', errorMessages.join('<br>'))
+  //     }
+  // }
 
   function closedDialogView() {
     state.openViewDialog = false
   }
   //end of emit functions
 
-  async function subSection(section) {
-    try {
-      let params = {
-        fieldId: 'SERIESCODE',
-        section_id: section
-      }
-      const response = await parameterService.getSubSection(params)
-      if (response) {
-        console.log(response)
-          let options = response.data.map((item) => ({
-              value: item.fieldValue,
-              label: item.fieldDescription
-          }));
-          state.parameter.sub_sections = options;
-      }
-    } catch (error) {
-      console.error(error)
-    }
-  }
+  // async function subSection(section) {
+  //   try {
+  //     let params = {
+  //       fieldId: 'SERIESCODE',
+  //       section_id: section
+  //     }
+  //     const response = await parameterService.getSubSection(params)
+  //     if (response) {
+  //       console.log(response)
+  //         let options = response.data.map((item) => ({
+  //             value: item.fieldValue,
+  //             label: item.fieldDescription
+  //         }));
+  //         state.parameter.sub_sections = options;
+  //     }
+  //   } catch (error) {
+  //     console.error(error)
+  //   }
+  // }
 
   async function fetchTypes() {
     try {
@@ -539,23 +535,23 @@
     }
   }
 
-  async function fetchInfluences() {
-    try {
-      let params = {
-        fieldId: 'CFSI'
-      }
-      const response = await parameterService.getParameter(params)
-      if (response) {
-          let options = response.data.map((item) => ({
-              value: item.fieldDescription,
-              label: item.fieldDescription
-          }));
-          state.parameter.cfsi = options;
-      }
-    } catch (error) {
-      console.error(error)
-    }
-  }
+  // async function fetchInfluences() {
+  //   try {
+  //     let params = {
+  //       fieldId: 'CFSI'
+  //     }
+  //     const response = await parameterService.getParameter(params)
+  //     if (response) {
+  //         let options = response.data.map((item) => ({
+  //             value: item.fieldDescription,
+  //             label: item.fieldDescription
+  //         }));
+  //         state.parameter.cfsi = options;
+  //     }
+  //   } catch (error) {
+  //     console.error(error)
+  //   }
+  // }
 
   async function fetchParameter(fieldId, stateKey) {
     try {
@@ -577,7 +573,7 @@
     fetchParameter('MARKETCODE', 'markets')
     fetchParameter('SECTIONCODE', 'sections')
     fetchParameter('STRUCTCODE', 'buildings')
-    fetchInfluences()
+    // fetchInfluences()
   }
   //end of parameter
    

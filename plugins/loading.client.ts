@@ -8,12 +8,12 @@ export default defineNuxtPlugin(() => {
 
   function startLoading() {
     state.isPageLoading = true
-    NProgress.start()
+    // NProgress.start()
   }
 
   function stopLoading() {
     state.isPageLoading = false
-    NProgress.done()
+    // NProgress.done()
   }
 
   // Expose globally with provide()
