@@ -66,8 +66,15 @@
                 </div>
               </div>
               <!-- Make Section wider -->
-              <div class="flex-[3] min-w-[300px]">
-                
+              <div class="flex-[3] min-w-[300px] bg-gray-50 p-3 rounded-md border">
+                <div v-if="state.owner.details">
+                  <p><strong>Name:</strong> {{ state.owner.details.full_name }}</p>
+                  <p><strong>Address:</strong> {{ state.owner.details.address }}</p>
+                  <p><strong>Contact:</strong> {{ state.owner.details.contactnumber }}</p>
+                </div>
+                <div v-else class="text-gray-500 italic">
+                  No owner details found
+                </div>
               </div>
             </div>
 
@@ -352,6 +359,7 @@
     owner: {
       ownerId: null,
       owners: [],
+      details: null,
     },
     rentals: [],
     dataFilter: [],
@@ -660,10 +668,22 @@
   }
 
   const fetchOptions = debounce(async (ownerId) => {
-    console.log('Searching for owner:', ownerId)
-    const response = await stallOwnerService.getOwner(ownerId)
-    if (response) {
-      console.log(response)
+    if (!ownerId) {
+      state.owner.details = null
+      return
+    }
+
+    try {
+      const response = await stallOwnerService.getOwner(ownerId)
+      if (response && response.data) {
+        console.log(response)
+        state.owner.details = response.data // adjust this based on your API response
+      } else {
+        console.log("response")
+        state.owner.details = null
+      }
+    } catch (error) {
+      console.error('Failed to fetch owner:', error)
     }
   }, 400)
 
