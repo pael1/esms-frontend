@@ -26,9 +26,9 @@ class AwardeeService extends BaseAPIService {
         return await this.request(`/awardees`, 'GET', params);
     }
 
-    async getStallOwner(params: object): Promise<any> {
-        return await this.request(`/stallowner`, 'GET', params);
-    }
+    // async getStallOwner(params: object): Promise<any> {
+    //     return await this.request(`/stallowner`, 'GET', params);
+    // }
 
     async getAwardeeProfile(id: any): Promise<any> {
         return await this.request(`/awardees/${id}`, 'GET');

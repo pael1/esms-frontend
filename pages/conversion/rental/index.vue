@@ -43,7 +43,7 @@
       <div class="w-full max-w-4xl mx-auto bg-white px-4 py-5 sm:px-6 rounded-lg space-y-4">
         <div class="border-b border-green-200 -ml-4 -mt-2 flex flex-wrap items-center justify-between sm:flex-nowrap">
           <div class="ml-2 mb-2">
-            <h3 class="text-lg font-semibold text-green-900">Create Stall</h3>
+            <h3 class="text-lg font-semibold text-green-900">Create Rental</h3>
           </div>
         </div>
 
@@ -52,82 +52,109 @@
           autocomplete="off"
           class="p-4"
         >
-          <div class="bg-green-50 shadow-lg rounded-lg p-4 mb-10 space-y-5">
-            
-            <!-- First row -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <div class="text-start">
+          <div class="bg-green-50 shadow-lg rounded-lg">
+            <div class="flex flex-wrap gap-2">
+              <div class="flex-1 min-w-[100px] mb-5">
+                <FormLabel for="owner-name" label="Owner ID" />
+                <div class="mt-1">
+                  <FormTextSearch
+                    name="owner_name"
+                    v-model="state.owner.ownerId"
+                    @search-change="searchOwner"
+                    class="w-full"
+                  />
+                </div>
+              </div>
+              <!-- Make Section wider -->
+              <div class="flex-[3] min-w-[300px]">
+                
+              </div>
+            </div>
+
+            <div class="flex flex-wrap gap-2 mb-10">
+              <div class="flex-1 min-w-[150px]">
                 <FormLabel for="stall_type" label="Type" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.type" :options="state.parameter.types" />
+                  <FormSelect v-model="state.stall.stallType" @update:modelValue="fetchStall" :options="state.parameter.types" />
                 </div>
               </div>
-              <div class="text-start">
+
+              <div class="flex-1 min-w-[150px]">
                 <FormLabel for="market" label="Market" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.market" :options="state.parameter.markets" />
+                  <FormSelect v-model="state.stall.marketCode" @update:modelValue="fetchStall" :options="state.parameter.markets" />
                 </div>
               </div>
-              <div class="text-start">
+
+              <!-- Make Section wider -->
+              <div class="flex-[2] min-w-[200px]">
                 <FormLabel for="section" label="Section" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.section" :options="state.parameter.sections" @change="getSubSection($event)" />
+                  <FormSelect
+                    v-model="state.stall.sectionCode" @update:modelValue="fetchStall"
+                    :options="state.stall_options.sections"
+                  />
+                </div>
+              </div>
+
+              <div class="flex-1 min-w-[150px]">
+                <FormLabel for="stall_no" label="Stall No" />
+                <div class="mt-1">
+                  <FormSelect
+                    v-model="state.stall.stallNo" @update:modelValue="fetchStall"
+                    :options="state.stall_options.stallNos"
+                  />
                 </div>
               </div>
             </div>
 
-            <!-- Second row -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <div class="text-start">
-                <FormLabel for="sub-section" label="Sub Section" />
+                <FormLabel for="contract-start-date" label="Contract Start Date" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.sub_section" :options="state.parameter.sub_sections" />
+                  <FormDate name="contract_start_date" v-model="state.form.contractStartDate" />
                 </div>
               </div>
               <div class="text-start">
-                <FormLabel for="building" label="Building" />
+                <FormLabel for="period-of-contracy" label="Period of Contract" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.building" :options="state.parameter.buildings" />
+                  <FormText name="period_of_contract" v-model="state.form.contractEndDate" />
                 </div>
               </div>
               <div class="text-start">
-                <FormLabel for="cfsi" label="Local Influence" />
+                <FormLabel for="business-id" label="Business ID" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.cfsi" :options="state.parameter.cfsi" />
+                  <FormText name="business_id" v-model="state.form.busID" />
                 </div>
               </div>
             </div>
 
-            <!-- Third row -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
-              <div class="sm:col-span-2 text-start">
-                <FormLabel for="class" label="Class" />
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div class="text-start">
+                <FormLabel for="business-plate-no" label="Business Plate No" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.class" :options="classOptions" />
+                  <FormText name="business_plate_no" v-model="state.form.busPlateNo" />
                 </div>
               </div>
               <div class="text-start">
-                <FormLabel for="id" label="ID" />
+                <FormLabel for="business-started" label="Business Started" />
                 <div class="mt-1">
-                  <FormNumber name="id" v-model="state.form.stall_id" />
+                  <FormDate name="business_started" v-model="state.form.busDateStart" />
                 </div>
               </div>
               <div class="text-start">
-                <FormLabel for="Extension" label="Extension" />
+                <FormLabel for="capital" label="Capital" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.extension" :options="extensions" />
+                  <FormText name="capital" v-model="state.form.capital" />
                 </div>
               </div>
-              <div class="text-start">
-                <FormLabel for="area" label="Area" />
+            </div>
+
+            <div class="grid grid-cols-1 gap-2">
+              <div class="w-full">
+                <FormLabel for="line-of-business" label="Line of Business" />
                 <div class="mt-1">
-                  <FormNumber name="area" v-model="state.form.area"/>
-                </div>
-              </div>
-              <div class="text-start">
-                <FormLabel for="area-ext" label="Area Extension" />
-                <div class="mt-1">
-                  <FormNumber name="area_extension" v-model="state.form.area_extension"/>
+                  <FormTextArea name="line_of_business" v-model="state.form.lineOfBusiness" class="w-full" />
                 </div>
               </div>
             </div>
@@ -264,6 +291,8 @@
   import { parameterService } from '~/api/ParameterService'
   import { Toaster, toast } from 'vue-sonner'
   import 'vue-sonner/style.css'
+  import { debounce } from 'lodash-es'
+  import { stallOwnerService } from '~/api/StallOwnerService'
 
   const { showError, showSuccess, showLoading, closeLoading } = useSweetLoading()
 
@@ -297,17 +326,13 @@
 
   //default form for easy reset
   const defaultForm = {
-    type: null, 
-    market: null,
-    section: null,
-    sub_section: null,
-    building: null,
-    cfsi: null,
-    class: null,
-    stall_id: null,
-    extension: null,
-    area: null,
-    area_extension: null,
+    contractStartDate: null, 
+    contractEndDate: null,
+    busID: null,
+    busPlateNo: null,
+    busDateStart: null,
+    capital: null,
+    lineOfBusiness: null,
   }
 
   const state = reactive({
@@ -318,6 +343,16 @@
         stall_type: 'regular',
         sectionCode: '01',
     },
+    stall: {
+        marketCode: null,
+        stallType: null,
+        sectionCode: null,
+        stallNo: null,
+    },
+    owner: {
+      ownerId: null,
+      owners: [],
+    },
     rentals: [],
     dataFilter: [],
     sectionCodes: sectionCodes,
@@ -325,6 +360,10 @@
     open: false,
     openViewDialog: false,
     isEdit: false,
+    stall_options: {
+      sections: [],
+      stallNos: [],
+    },
     parameter: {
       types: [],
       markets: [],
@@ -340,20 +379,6 @@
   onMounted(() => {
       fetchRentals()
   })
-
-  //static data
-  // const classOptions = [
-  //   { label: 'CLASS A', value: 'CLASS A' },
-  //   { label: 'CLASS B', value: 'CLASS B' },
-  //   { label: 'CLASS C', value: 'CLASS C' },
-  //   { label: 'CLASS D', value: 'CLASS D' }
-  // ]
-  // const extensions = [
-  //   { label: 'A', value: 'A' },
-  //   { label: 'B', value: 'B' },
-  //   { label: 'C', value: 'C' },
-  // ]
-  //ed nof static data
 
   function getSubSection(selectedSection) {
     subSection(selectedSection);
@@ -421,6 +446,69 @@
           const response = await rentalService.getRental(params)
           if (response) {
               state.rentals = response
+          }
+      } catch (error) {
+          console.log(error)
+      }
+      $loading.stop()
+  }
+
+  //get stall details
+  async function fetchStall() {
+      $loading.start()
+      try {
+          let params = {
+              type: state.stall.stallType,
+              marketcode: state.stall.marketCode,
+              section: state.stall.sectionCode,
+              name: state.stall.stallNo,
+          }
+          console.log(params)
+          const response = await stallService.getStalls(params)
+          if (response) {
+            console.log(response)
+              // state.rentals = response
+
+              //store section options
+              state.stall_options.sections = response.data.map((item) => ({
+                value: item.sectionCode,
+                label: item.stallDescription
+              }))
+
+              state.stall_options.stallNos = response.data.map((item) => ({
+                value: item.stallNoId,
+                label: item.stallNoId
+              }))
+          }
+      } catch (error) {
+          console.log(error)
+      }
+      $loading.stop()
+  }
+
+  //get owners details
+  async function fetchOwners() {
+      $loading.start()
+      try {
+          let params = {
+              name: state.owner.ow,
+          }
+          console.log(params)
+          const response = await stallService.getStalls(params)
+          if (response) {
+            console.log(response)
+              // state.rentals = response
+
+              //store section options
+              state.stall_options.sections = response.data.map((item) => ({
+                value: item.sectionCode,
+                label: item.stallDescription
+              }))
+
+              state.stall_options.stallNos = response.data.map((item) => ({
+                value: item.stallNoId,
+                label: item.stallNoId
+              }))
           }
       } catch (error) {
           console.log(error)
@@ -567,6 +655,17 @@
       console.error(`Failed to fetch ${fieldId}`, error)
     }
   }
+  function searchOwner(ownerId) {
+    fetchOptions(ownerId)
+  }
+
+  const fetchOptions = debounce(async (ownerId) => {
+    console.log('Searching for owner:', ownerId)
+    const response = await stallOwnerService.getOwner(ownerId)
+    if (response) {
+      console.log(response)
+    }
+  }, 400)
 
   function loadParameters() {
     fetchTypes()

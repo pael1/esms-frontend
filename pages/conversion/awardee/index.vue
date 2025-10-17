@@ -37,11 +37,11 @@
   </template>
   
   <script setup>
-  import { awardeeService } from '~/api/AwardeeService'
   import { useUserStore } from '@/store/user'
   import { useParameterStore } from '@/store/parameter'
   import { useMarketcodeStore } from '@/store/marketcode'
   import { useRouter } from 'vue-router'
+  import { stallOwnerService } from '~/api/StallOwnerService'
 
 
   let currentPage = 1
@@ -90,7 +90,7 @@
               ...state.dataFilter
           }
           
-          const response = await awardeeService.getStallOwner(params)
+          const response = await stallOwnerService.getOwners(params)
           if (response) {
               state.awardees = response
               console.log(state.awardees);
