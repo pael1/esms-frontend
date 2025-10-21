@@ -40,7 +40,7 @@
                                         {{ $capitalizeWords(stall.stallDescription) }}
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                        {{ stall.stallNoId }}
+                                        {{ stall.stallNo }}
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                         {{ stall.stallArea ?? 0 }} SQM

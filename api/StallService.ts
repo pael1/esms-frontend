@@ -6,10 +6,16 @@ class StallService extends BaseAPIService {
         return await this.request(`/stalls`, 'GET', params);
     }
 
+    //get stall using stallNoID
+    async getStall(id: any): Promise<any> {
+        return await this.request(`/stalls/${id}/description`, 'GET');
+    }
+
     async addData(params: object): Promise<any> {
         return await this.request(`/stalls`, 'POST', params);
     }
 
+    // get stall using id -- usage for editing/viewing stall details
     async getStallDetails(id: any): Promise<any> {
         return await this.request(`/stalls/${id}`, 'GET');
     }

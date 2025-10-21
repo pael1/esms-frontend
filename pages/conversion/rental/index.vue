@@ -38,7 +38,7 @@
     </div>
 
     <!-- Modal -->
-     <!-- create -->
+    <!-- create -->
     <Modal :show="state.open">
       <div class="w-full max-w-4xl mx-auto bg-white px-4 py-5 sm:px-6 rounded-lg space-y-4">
         <div class="border-b border-green-200 -ml-4 -mt-2 flex flex-wrap items-center justify-between sm:flex-nowrap">
@@ -48,69 +48,75 @@
         </div>
 
         <form
-          @submit.prevent="addStall"
+          @submit.prevent="addRental"
           autocomplete="off"
           class="p-4"
         >
           <div class="bg-green-50 shadow-lg rounded-lg">
-            <div class="flex flex-wrap gap-2">
-              <div class="flex-1 min-w-[100px] mb-5">
+            <!-- OWNER SECTION -->
+            <div class="flex flex-wrap gap-5 mb-2">
+              <!-- Owner ID input -->
+              <div class="w-full md:flex-1 md:min-w-[200px]">
                 <FormLabel for="owner-name" label="Owner ID" />
                 <div class="mt-1">
                   <FormTextSearch
                     name="owner_name"
-                    v-model="state.owner.ownerId"
-                    @search-change="searchOwner"
+                    v-model="state.form.ownerId"
+                    @blur="searchOwner"
                     class="w-full"
                   />
                 </div>
               </div>
-              <!-- Make Section wider -->
-              <div class="flex-[3] min-w-[300px] bg-gray-50 p-3 rounded-md border">
-                <div v-if="state.owner.details">
-                  <p><strong>Name:</strong> {{ state.owner.details.full_name }}</p>
-                  <p><strong>Address:</strong> {{ state.owner.details.address }}</p>
-                  <p><strong>Contact:</strong> {{ state.owner.details.contactnumber }}</p>
+
+              <!-- Owner Name Display -->
+              <div class="w-full md:flex-[3]">
+                <div class="mt-1">
+                  <FormLabel for="owner-details" label="Owner Name" />
                 </div>
-                <div v-else class="text-gray-500 italic">
+                <div
+                  v-if="state.owner.details">
+                  <p
+                    class="text-2xl font-bold text-gray-800 tracking-wide leading-snug break-words"
+                  >
+                    {{ $capitalizeWords(state.owner.details.full_name) }}
+                  </p>
+                </div>
+                <div v-else class="text-gray-500 italic min-h-[60px]">
                   No owner details found
                 </div>
               </div>
             </div>
 
-            <div class="flex flex-wrap gap-2 mb-10">
-              <div class="flex-1 min-w-[150px]">
-                <FormLabel for="stall_type" label="Type" />
+            <!-- STALL SECTION -->
+            <div class="flex flex-wrap gap-5 mb-5">
+              <!-- Stall No input -->
+              <div class="w-full md:flex-1 md:min-w-[200px]">
+                <FormLabel for="stall-no" label="Stall No" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.stall.stallType" @update:modelValue="fetchStall" :options="state.parameter.types" />
-                </div>
-              </div>
-
-              <div class="flex-1 min-w-[150px]">
-                <FormLabel for="market" label="Market" />
-                <div class="mt-1">
-                  <FormSelect v-model="state.stall.marketCode" @update:modelValue="fetchStall" :options="state.parameter.markets" />
-                </div>
-              </div>
-
-              <!-- Make Section wider -->
-              <div class="flex-[2] min-w-[200px]">
-                <FormLabel for="section" label="Section" />
-                <div class="mt-1">
-                  <FormSelect
-                    v-model="state.stall.sectionCode" @update:modelValue="fetchStall"
-                    :options="state.stall_options.sections"
+                  <FormTextSearch
+                    name="stall_no"
+                    v-model="state.form.stallNo"
+                    @blur="searchStall"
+                    class="w-full"
                   />
                 </div>
               </div>
 
-              <div class="flex-1 min-w-[150px]">
-                <FormLabel for="stall_no" label="Stall No" />
+              <!-- Stall Description -->
+              <div class="w-full md:flex-[3]">
                 <div class="mt-1">
-                  <FormSelect
-                    v-model="state.stall.stallNo" @update:modelValue="fetchStall"
-                    :options="state.stall_options.stallNos"
-                  />
+                  <FormLabel for="stall-details" label="Stall Description" />
+                </div>
+                <div
+                  v-if="state.stall.details">
+                  <p
+                    class="text-1xl font-semibold text-gray-800 tracking-wide leading-snug break-words mt-2"
+                  >
+                    {{ $capitalizeWords(state.stall.details.stallDescription) }}
+                  </p>
+                </div>
+                <div v-else class="text-gray-500 italic min-h-[60px]">
+                  No stall details found
                 </div>
               </div>
             </div>
@@ -125,7 +131,7 @@
               <div class="text-start">
                 <FormLabel for="period-of-contracy" label="Period of Contract" />
                 <div class="mt-1">
-                  <FormText name="period_of_contract" v-model="state.form.contractEndDate" />
+                  <FormDate name="period_of_contract" v-model="state.form.contractEndDate" />
                 </div>
               </div>
               <div class="text-start">
@@ -180,96 +186,138 @@
       </div>
     </Modal>
 
-    <!-- view/edit -->
-     <Modal :show="state.openViewDialog">
+    <!-- create -->
+    <Modal :show="state.openViewDialog">
       <div class="w-full max-w-4xl mx-auto bg-white px-4 py-5 sm:px-6 rounded-lg space-y-4">
         <div class="border-b border-green-200 -ml-4 -mt-2 flex flex-wrap items-center justify-between sm:flex-nowrap">
           <div class="ml-2 mb-2">
-            <h3 class="text-lg font-semibold text-green-900">{{ state.isEdit ? 'Edit Stall' : 'View Stall' }}</h3>
+            <h3 class="text-lg font-semibold text-green-900">{{ state.isEdit ? 'Edit Rental' : 'View Rental' }}</h3>
           </div>
         </div>
 
         <form
-          @submit.prevent="updateStall"
+          @submit.prevent="updateRental"
           autocomplete="off"
           class="p-4"
         >
-          <div class="bg-green-50 shadow-lg rounded-lg p-4 mb-10 space-y-5">
-            
-            <!-- First row -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <div class="text-start">
-                <FormLabel for="stall_type" label="Type" />
+          <div class="bg-green-50 shadow-lg rounded-lg">
+            <!-- OWNER SECTION -->
+            <div class="flex flex-wrap gap-5 mb-2">
+              <!-- Owner ID input -->
+              <div class="w-full md:flex-1 md:min-w-[200px]">
+                <FormLabel for="owner-name" label="Owner ID" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.type" :options="state.parameter.types" :disabled="!state.isEdit" />
+                  <FormTextSearch
+                    name="owner_name"
+                    v-model="state.form.ownerId"
+                    @blur="searchOwner"
+                    class="w-full"
+                    :disabled="!state.isEdit"
+                  />
                 </div>
               </div>
-              <div class="text-start">
-                <FormLabel for="market" label="Market" />
+
+              <!-- Owner Name Display -->
+              <div class="w-full md:flex-[3]">
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.market" :options="state.parameter.markets" :disabled="!state.isEdit" />
+                  <FormLabel for="owner-details" label="Owner Name" />
                 </div>
-              </div>
-              <div class="text-start">
-                <FormLabel for="section" label="Section" />
-                <div class="mt-1">
-                  <FormSelect v-model="state.form.section" :options="state.parameter.sections" @change="getSubSection($event)" :disabled="!state.isEdit" />
+                <div
+                  v-if="state.owner.details">
+                  <p
+                    class="text-2xl font-bold text-gray-800 tracking-wide leading-snug break-words"
+                  >
+                    {{ $capitalizeWords(state.owner.details.full_name) }}
+                  </p>
+                </div>
+                <div v-else class="text-gray-500 italic min-h-[60px]">
+                  No owner details found
                 </div>
               </div>
             </div>
 
-            <!-- Second row -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <div class="text-start">
-                <FormLabel for="sub-section" label="Sub Section" />
+            <!-- STALL SECTION -->
+            <div class="flex flex-wrap gap-5 mb-5">
+              <!-- Stall No input -->
+              <div class="w-full md:flex-1 md:min-w-[200px]">
+                <FormLabel for="stall-no" label="Stall No" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.sub_section" :options="state.parameter.sub_sections" :disabled="!state.isEdit" />
+                  <FormTextSearch
+                    name="stall_no"
+                    v-model="state.form.stallNo"
+                    @blur="searchStall"
+                    class="w-full"
+                    :disabled="!state.isEdit"
+                  />
                 </div>
               </div>
-              <div class="text-start">
-                <FormLabel for="building" label="Building" />
+
+              <!-- Stall Description -->
+              <div class="w-full md:flex-[3]">
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.building" :options="state.parameter.buildings" :disabled="!state.isEdit" />
+                  <FormLabel for="stall-details" label="Stall Description" />
                 </div>
-              </div>
-              <div class="text-start">
-                <FormLabel for="cfsi" label="Local Influence" />
-                <div class="mt-1">
-                  <FormSelect v-model="state.form.cfsi" :options="state.parameter.cfsi" :disabled="!state.isEdit" />
+                <div
+                  v-if="state.stall.details">
+                  <p
+                    class="text-1xl font-semibold text-gray-800 tracking-wide leading-snug break-words mt-2"
+                  >
+                    {{ $capitalizeWords(state.stall.details.stallDescription) }}
+                  </p>
+                </div>
+                <div v-else class="text-gray-500 italic min-h-[60px]">
+                  No stall details found
                 </div>
               </div>
             </div>
 
-            <!-- Third row -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
-              <div class="sm:col-span-2 text-start">
-                <FormLabel for="class" label="Class" />
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div class="text-start">
+                <FormLabel for="contract-start-date" label="Contract Start Date" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.class" :options="classOptions" :disabled="!state.isEdit" />
+                  <FormDate name="contract_start_date" v-model="state.form.contractStartDate" :disabled="!state.isEdit"/>
                 </div>
               </div>
               <div class="text-start">
-                <FormLabel for="id" label="ID" />
+                <FormLabel for="period-of-contracy" label="Period of Contract" />
                 <div class="mt-1">
-                  <FormNumber name="id" v-model="state.form.stall_id" :disabled="!state.isEdit" />
+                  <FormDate name="period_of_contract" v-model="state.form.contractEndDate" :disabled="!state.isEdit"/>
                 </div>
               </div>
               <div class="text-start">
-                <FormLabel for="Extension" label="Extension" />
+                <FormLabel for="business-id" label="Business ID" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.extension" :options="extensions" :disabled="!state.isEdit" />
+                  <FormText name="business_id" v-model="state.form.busID" :disabled="!state.isEdit"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div class="text-start">
+                <FormLabel for="business-plate-no" label="Business Plate No" />
+                <div class="mt-1">
+                  <FormText name="business_plate_no" v-model="state.form.busPlateNo" :disabled="!state.isEdit"/>
                 </div>
               </div>
               <div class="text-start">
-                <FormLabel for="area" label="Area" />
+                <FormLabel for="business-started" label="Business Started" />
                 <div class="mt-1">
-                  <FormNumber name="area" v-model="state.form.area" :disabled="!state.isEdit" />
+                  <FormDate name="business_started" v-model="state.form.busDateStart" :disabled="!state.isEdit"/>
                 </div>
               </div>
               <div class="text-start">
-                <FormLabel for="area-ext" label="Area Extension" />
+                <FormLabel for="capital" label="Capital" />
                 <div class="mt-1">
-                  <FormNumber name="area_extension" v-model="state.form.area_extension" :disabled="!state.isEdit" />
+                  <FormText name="capital" v-model="state.form.capital" :disabled="!state.isEdit"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-2">
+              <div class="w-full">
+                <FormLabel for="line-of-business" label="Line of Business" />
+                <div class="mt-1">
+                  <FormTextArea name="line_of_business" v-model="state.form.lineOfBusiness" class="w-full" :disabled="!state.isEdit"/>
                 </div>
               </div>
             </div>
@@ -300,6 +348,9 @@
   import 'vue-sonner/style.css'
   import { debounce } from 'lodash-es'
   import { stallOwnerService } from '~/api/StallOwnerService'
+  import { capitalize } from 'vue'
+
+  const { $capitalizeWords } = useNuxtApp()
 
   const { showError, showSuccess, showLoading, closeLoading } = useSweetLoading()
 
@@ -333,6 +384,8 @@
 
   //default form for easy reset
   const defaultForm = {
+    ownerId: null,
+    stallNo: null,
     contractStartDate: null, 
     contractEndDate: null,
     busID: null,
@@ -344,7 +397,7 @@
 
   const state = reactive({
     form: { ...defaultForm },
-    stallProfileId: null,
+    stallRentalId: null,
     user_data: {
         marketcode: userMarketcode,
         stall_type: 'regular',
@@ -354,11 +407,9 @@
         marketCode: null,
         stallType: null,
         sectionCode: null,
-        stallNo: null,
+        details: null,
     },
     owner: {
-      ownerId: null,
-      owners: [],
       details: null,
     },
     rentals: [],
@@ -368,10 +419,6 @@
     open: false,
     openViewDialog: false,
     isEdit: false,
-    stall_options: {
-      sections: [],
-      stallNos: [],
-    },
     parameter: {
       types: [],
       markets: [],
@@ -379,7 +426,6 @@
       sub_sections: [],
       buildings: [],
       cfsi: [],
-      class: [],
       extension: [],
     }
   })
@@ -393,7 +439,7 @@
   }
 
   function addRentalDialog() {
-    loadParameters()
+    // loadParameters()
     Object.assign(state.form, defaultForm)
     state.open = true
   }
@@ -417,29 +463,29 @@
       fetchRentals()
   }
 
-  // async function addStall() {
-  //   $loading.start()
-  //     try {
-  //         let params = state.form;
-  //         const response = await stallService.addData(params)
-  //         if (response) {
-  //             fetchRentals()
-  //             toast.success('Stall saved successfully')
-  //         }
-  //       // closeLoading()
-  //       state.open = false
-  //       // clearForm()
-  //     } catch (error) {
-  //       let errorMessages = []
-  //         Object.entries(error.errors).forEach(([field, messages]) => {
-  //           messages.forEach((message) => {
-  //             errorMessages.push(`${field}: ${message}`)
-  //           })
-  //         })
-  //         showError('', errorMessages.join('<br>'))
-  //     }
-  //     $loading.stop()
-  // }
+  async function addRental() {
+    $loading.start()
+    // console.log(state.form)
+    try {
+        let params = state.form;
+        const response = await rentalService.addData(params)
+        if (response) {
+            fetchRentals()
+            toast.success('Rental saved successfully')
+        }
+      // closeLoading()
+      state.open = false
+    } catch (error) {
+      let errorMessages = []
+        Object.entries(error.errors).forEach(([field, messages]) => {
+          messages.forEach((message) => {
+            errorMessages.push(`${field}: ${message}`)
+          })
+        })
+        showError('', errorMessages.join('<br>'))
+    }
+    $loading.stop()
+  }
 
   async function fetchRentals() {
       $loading.start()
@@ -461,96 +507,45 @@
       $loading.stop()
   }
 
-  //get stall details
-  async function fetchStall() {
-      $loading.start()
-      try {
-          let params = {
-              type: state.stall.stallType,
-              marketcode: state.stall.marketCode,
-              section: state.stall.sectionCode,
-              name: state.stall.stallNo,
-          }
-          console.log(params)
-          const response = await stallService.getStalls(params)
-          if (response) {
-            console.log(response)
-              // state.rentals = response
-
-              //store section options
-              state.stall_options.sections = response.data.map((item) => ({
-                value: item.sectionCode,
-                label: item.stallDescription
-              }))
-
-              state.stall_options.stallNos = response.data.map((item) => ({
-                value: item.stallNoId,
-                label: item.stallNoId
-              }))
-          }
-      } catch (error) {
-          console.log(error)
-      }
-      $loading.stop()
-  }
-
-  //get owners details
-  async function fetchOwners() {
-      $loading.start()
-      try {
-          let params = {
-              name: state.owner.ow,
-          }
-          console.log(params)
-          const response = await stallService.getStalls(params)
-          if (response) {
-            console.log(response)
-              // state.rentals = response
-
-              //store section options
-              state.stall_options.sections = response.data.map((item) => ({
-                value: item.sectionCode,
-                label: item.stallDescription
-              }))
-
-              state.stall_options.stallNos = response.data.map((item) => ({
-                value: item.stallNoId,
-                label: item.stallNoId
-              }))
-          }
-      } catch (error) {
-          console.log(error)
-      }
-      $loading.stop()
-  }
-
   //emit functions
-  async function view(stallId, isView) { 
+  async function view(rentalId, isView) { 
     $loading.start()
 
     //load datas
-    loadParameters()
+    // loadParameters()
 
     state.isEdit = !isView;
     try {
-      const response = await stallService.getStallDetails(stallId);
+      const response = await rentalService.getRentalDetails(rentalId);
       if (response.data) {
         console.log(response.data);
 
-        state.stallProfileId = response.data.stallProfileId;
+        state.stallRentalId = response.data.stallDetailId;
         // Map API response to form fields
         state.form = {
-          type: response.data.stallType ?? null,
-          market: response.data.marketCode ?? null,
-          section: response.data.section_id ?? null,
-          sub_section: response.data.sub_section_id ?? null,
-          building: response.data.building_id ?? null,
-          cfsi: response.data.CFSI ?? '',
-          class: response.data.stallClass ?? null,
-          stall_id: response.data.stall_no_id ?? '',
-          extension: response.data.stall_id_ext ?? null,
-          area: response.data.stallArea ?? '',
-          area_extension: response.data.StallAreaExt ?? ''
+          stallNo: response.data.stallNo ?? null,
+          ownerId: response.data.ownerId ?? null,
+          contractStartDate: response.data.contractStartDate ?? null,
+          contractEndDate: response.data.contractEndDate ?? null,
+          busID: response.data.busID ?? null,
+          busPlateNo: response.data.busPlateNo ?? '',
+          busDateStart: response.data.busDateStart ?? null,
+          capital: response.data.capital ?? '',
+          lineOfBusiness: response.data.lineOfBusiness ?? null,
+        }
+
+        //load owner details
+        if (state.form.ownerId) {
+          await searchOwner();
+        } else {
+          state.owner.details = null;
+        }
+
+        //load stall details
+        if (state.form.stallNo) {
+          await searchStall();
+        } else {
+          state.stall.details = null;
         }
       }
     } catch (error) {
@@ -560,81 +555,41 @@
     state.openViewDialog = true;
   } 
 
-  // async function updateStall() {
-  //   $loading.start()
-  //     try {
-  //       // showLoading('Saving', '');
-  //         let params = state.form;
-  //         let id = state.stallProfileId;
-          
-  //         const response = await stallService.updateStall(params, id)
-  //         if (response) {
-  //             fetchRentals()
-  //             $loading.stop()
+  async function updateRental() {
+    $loading.start()
+      try {
+          let params = state.form;
+          let id = state.stallRentalId;
 
-  //             state.openViewDialog = false
-  //             toast.success('Stall updated successfully')
-  //         }
-  //       // clearForm()
-  //     } catch (error) {
-  //       console.log(error)
-  //       let errorMessages = []
-  //         Object.entries(error.errors).forEach(([field, messages]) => {
-  //           messages.forEach((message) => {
-  //             errorMessages.push(`${field}: ${message}`)
-  //           })
-  //         })
-  //         showError('', errorMessages.join('<br>'))
-  //     }
-  // }
+          const response = await rentalService.updateRental(params, id)
+          if (response) {
+              fetchRentals()
+              $loading.stop()
+
+              state.openViewDialog = false
+              toast.success('Rental updated successfully')
+          }
+      } catch (error) {
+        console.log(error)
+        let errorMessages = []
+          Object.entries(error.errors).forEach(([field, messages]) => {
+            messages.forEach((message) => {
+              errorMessages.push(`${field}: ${message}`)
+            })
+          })
+          showError('', errorMessages.join('<br>'))
+      }
+  }
 
   function closedDialogView() {
     state.openViewDialog = false
   }
   //end of emit functions
 
-  // async function subSection(section) {
+  // async function fetchTypes() {
   //   try {
   //     let params = {
-  //       fieldId: 'SERIESCODE',
-  //       section_id: section
-  //     }
-  //     const response = await parameterService.getSubSection(params)
-  //     if (response) {
-  //       console.log(response)
-  //         let options = response.data.map((item) => ({
-  //             value: item.fieldValue,
-  //             label: item.fieldDescription
-  //         }));
-  //         state.parameter.sub_sections = options;
-  //     }
-  //   } catch (error) {
-  //     console.error(error)
-  //   }
-  // }
-
-  async function fetchTypes() {
-    try {
-      let params = {
-        fieldId: 'STALLTYPE'
-      }
-      const response = await parameterService.getParameter(params)
-      if (response) {
-          let options = response.data.map((item) => ({
-              value: item.fieldDescription,
-              label: item.fieldDescription
-          }));
-          state.parameter.types = options;
-      }
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  // async function fetchInfluences() {
-  //   try {
-  //     let params = {
-  //       fieldId: 'CFSI'
+  //       fieldId: 'STALLTYPE'
   //     }
   //     const response = await parameterService.getParameter(params)
   //     if (response) {
@@ -642,58 +597,115 @@
   //             value: item.fieldDescription,
   //             label: item.fieldDescription
   //         }));
-  //         state.parameter.cfsi = options;
+  //         state.parameter.types = options;
   //     }
   //   } catch (error) {
   //     console.error(error)
   //   }
   // }
 
-  async function fetchParameter(fieldId, stateKey) {
-    try {
-      const response = await parameterService.getParameter({ fieldId })
-      if (response) {
-        const options = response.data.map((item) => ({
-          value: item.fieldValue, // fallback
-          label: item.fieldDescription,
-        }))
-        state.parameter[stateKey] = options
-      }
-    } catch (error) {
-      console.error(`Failed to fetch ${fieldId}`, error)
-    }
-  }
-  function searchOwner(ownerId) {
-    fetchOptions(ownerId)
-  }
+  // async function fetchParameter(fieldId, stateKey) {
+  //   try {
+  //     const response = await parameterService.getParameter({ fieldId })
+  //     if (response) {
+  //       const options = response.data.map((item) => ({
+  //         value: item.fieldValue, // fallback
+  //         label: item.fieldDescription,
+  //       }))
+  //       state.parameter[stateKey] = options
+  //     }
+  //   } catch (error) {
+  //     console.error(`Failed to fetch ${fieldId}`, error)
+  //   }
+  // }
 
-  const fetchOptions = debounce(async (ownerId) => {
+  async function searchOwner() {
+    const ownerId = state.form.ownerId
     if (!ownerId) {
       state.owner.details = null
+      state.form.ownerId = null
       return
     }
 
     try {
       const response = await stallOwnerService.getOwner(ownerId)
       if (response && response.data) {
-        console.log(response)
-        state.owner.details = response.data // adjust this based on your API response
-      } else {
-        console.log("response")
-        state.owner.details = null
+        state.owner.details = response.data
       }
     } catch (error) {
-      console.error('Failed to fetch owner:', error)
+      showError(error.message)
+      state.owner.details = null
+      state.form.ownerId = null
     }
-  }, 400)
-
-  function loadParameters() {
-    fetchTypes()
-    fetchParameter('MARKETCODE', 'markets')
-    fetchParameter('SECTIONCODE', 'sections')
-    fetchParameter('STRUCTCODE', 'buildings')
-    // fetchInfluences()
   }
+
+  async function searchStall() {
+    const stallNo = state.form.stallNo
+    if (!stallNo) {
+      state.stall.details = null
+      state.form.stallNo = null
+      return
+    }
+
+    try {
+      const response = await stallService.getStall(stallNo)
+      if (response && response.data) {
+        state.stall.details = response.data
+      }
+    } catch (error) {
+      showError(error.message)
+      state.stall.details = null
+      state.form.stallNo = null
+    }
+  }
+
+  // function searchOwner(ownerId) {
+  //   fetchOwner(ownerId)
+  // }
+
+  // const fetchOwner = debounce(async (ownerId) => {
+  //   if (!ownerId) {
+  //     state.owner.details = null
+  //     return
+  //   }
+
+  //   try {
+  //     const response = await stallOwnerService.getOwner(ownerId)
+  //     if (response && response.data) {
+  //       state.owner.details = response.data // adjust this based on your API response
+  //     }
+  //   } catch (error) {
+  //     showError(error.message)
+  //   }
+  // }, 400)
+
+  // function searchStall(stallId) {
+  //   fetchStallDescription(stallId)
+  // }
+
+  // const fetchStallDescription = debounce(async (stallId) => {
+  //   if (!stallId) {
+  //     state.stall.details = null
+  //     return
+  //   }
+
+  //   try {
+  //     const response = await stallService.getStall(stallId)
+  //     if (response && response.data) {
+  //       state.stall.details = response.data // adjust this based on your API response
+  //     }
+  //   } catch (error) {
+  //     showError(error.message)
+  //   }
+  // }, 400)
+
+  // function loadParameters() {
+  //   fetchTypes()
+  //   fetchParameter('MARKETCODE', 'markets')
+  //   fetchParameter('SECTIONCODE', 'sections')
+  //   fetchParameter('STRUCTCODE', 'buildings')
+  //   // fetchInfluences()
+  // }
   //end of parameter
    
 </script>
