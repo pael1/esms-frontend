@@ -441,6 +441,8 @@
   function addRentalDialog() {
     // loadParameters()
     Object.assign(state.form, defaultForm)
+    state.owner.details = null
+    state.stall.details = null
     state.open = true
   }
   function closedDialog() {

@@ -15,8 +15,8 @@ class RentalService extends BaseAPIService {
     }
 
     async updateRental(params: object, id: any): Promise<any> {
-        // return await this.request(`/rentals/${id}`, 'PUT', params);
-        return await this.request(`/rentals/${id}`, 'PATCH', params);
+        return await this.request(`/rentals/${id}`, 'PUT', params);
+        // return await this.request(`/rentals/${id}`, 'PATCH', params);
     }
 }
 
