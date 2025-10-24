@@ -31,7 +31,7 @@ const props = defineProps({
 
 // Size map
 const sizeClasses: Record<string, string> = {
-  sm: "px-2 py-1 text-xs",
+  sm: "px-1 py-1 text-xs",
   md: "px-3 py-1.5 text-sm",
   lg: "px-5 py-2.5 text-base",
 }

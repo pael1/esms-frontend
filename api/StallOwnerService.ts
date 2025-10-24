@@ -22,8 +22,8 @@ class StallOwnerService extends BaseAPIService {
         return await this.request(`/stallowner/${id}`, 'PUT', params)
     }
 
-    async getOwner(id: any): Promise<any> {
-        return await this.request(`/stallowner/${id}/details`, 'GET');
+    async getOwner(id: any, rentalId: any): Promise<any> {
+        return await this.request(`/stallowner/${id}/details/${rentalId}`, 'GET');
     }
 }
 

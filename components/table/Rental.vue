@@ -46,7 +46,7 @@
                                         <span
                                             :class="rental.rentalStatus && rental.rentalStatus.toLowerCase() === 'active'
                                             ? 'inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20'
-                                            : ''"
+                                            : 'inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20'"
                                         >
                                             {{ $capitalizeWords(rental.rentalStatus) }}
                                         </span>
@@ -56,6 +56,7 @@
                                             <FormButton
                                             type="button"
                                             class="py-0.5 px-2 text-xs"
+                                            size="sm"
                                             @click="view(rental.stallDetailId, true)"
                                             >
                                             View
@@ -63,6 +64,8 @@
                                             <FormButton
                                             type="button"
                                             class="py-0.5 px-2 text-xs  bg-yellow-600 hover:bg-yellow-500"
+                                            size="sm"
+                                            :disabled="rental.rentalStatus === 'cancel'"
                                             @click="view(rental.stallDetailId, false)"
                                             >
                                             Edit

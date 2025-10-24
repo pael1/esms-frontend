@@ -62,7 +62,7 @@
                   <FormTextSearch
                     name="owner_name"
                     v-model="state.form.ownerId"
-                    @blur="searchOwner"
+                    @blur="searchOwner(0)"
                     class="w-full"
                   />
                 </div>
@@ -96,7 +96,7 @@
                   <FormTextSearch
                     name="stall_no"
                     v-model="state.form.stallNo"
-                    @blur="searchStall"
+                    @blur="searchStall(0)"
                     class="w-full"
                   />
                 </div>
@@ -189,9 +189,28 @@
     <!-- create -->
     <Modal :show="state.openViewDialog">
       <div class="w-full max-w-4xl mx-auto bg-white px-4 py-5 sm:px-6 rounded-lg space-y-4">
-        <div class="border-b border-green-200 -ml-4 -mt-2 flex flex-wrap items-center justify-between sm:flex-nowrap">
+        <div class="border-b border-green-200 -ml-4 -mt-2 flex flex-wrap items-center justify-between sm:flex-nowrap px-4 py-2">
           <div class="ml-2 mb-2">
-            <h3 class="text-lg font-semibold text-green-900">{{ state.isEdit ? 'Edit Rental' : 'View Rental' }}</h3>
+            <h3 class="text-lg font-semibold text-green-900">
+              {{ state.isEdit ? 'Edit Rental' : 'View Rental' }}
+            </h3>
+          </div>
+
+          <div class="mr-2 mb-2">
+              <FormButton
+                v-if="state.rentalStatus !== 'cancel'"
+                type="button"
+                @click="cancelRental"
+                buttonStyle="red"
+                size="sm"
+                class="px-3 py-1 text-sm"
+              >
+                Cancel Rental
+              </FormButton>
+
+              <p v-else class="text-red-600 font-semibold text-sm">
+                Rental Cancelled
+              </p>
           </div>
         </div>
 
@@ -210,7 +229,7 @@
                   <FormTextSearch
                     name="owner_name"
                     v-model="state.form.ownerId"
-                    @blur="searchOwner"
+                    @blur="searchOwner(state.stallRentalId)"
                     class="w-full"
                     :disabled="!state.isEdit"
                   />
@@ -245,7 +264,7 @@
                   <FormTextSearch
                     name="stall_no"
                     v-model="state.form.stallNo"
-                    @blur="searchStall"
+                    @blur="searchStall(state.stallRentalId)"
                     class="w-full"
                     :disabled="!state.isEdit"
                   />
@@ -352,7 +371,7 @@
 
   const { $capitalizeWords } = useNuxtApp()
 
-  const { showError, showSuccess, showLoading, closeLoading } = useSweetLoading()
+  const { showError, showSuccess, showConfirm, showLoading, closeLoading } = useSweetLoading()
 
   let currentPage = 1
 
@@ -427,7 +446,8 @@
       buildings: [],
       cfsi: [],
       extension: [],
-    }
+    },
+    rentalStatus: null,
   })
 
   onMounted(() => {
@@ -513,9 +533,6 @@
   async function view(rentalId, isView) { 
     $loading.start()
 
-    //load datas
-    // loadParameters()
-
     state.isEdit = !isView;
     try {
       const response = await rentalService.getRentalDetails(rentalId);
@@ -523,6 +540,7 @@
         console.log(response.data);
 
         state.stallRentalId = response.data.stallDetailId;
+        state.rentalStatus = response.data.rentalStatus;
         // Map API response to form fields
         state.form = {
           stallNo: response.data.stallNo ?? null,
@@ -538,14 +556,14 @@
 
         //load owner details
         if (state.form.ownerId) {
-          await searchOwner();
+          await searchOwner(state.stallRentalId);
         } else {
           state.owner.details = null;
         }
 
         //load stall details
         if (state.form.stallNo) {
-          await searchStall();
+          await searchStall(state.stallRentalId);
         } else {
           state.stall.details = null;
         }
@@ -584,9 +602,38 @@
   }
 
   function closedDialogView() {
+    state.stallRentalId = null
+    state.rentalStatus = null
     state.openViewDialog = false
   }
   //end of emit functions
+
+  //cancel rental
+  async function cancelRental() {
+    const confirm = await showConfirm(
+      'Are you sure you want to cancel this rental?'
+    )
+
+    if (!confirm) {
+      return
+    }
+
+    $loading.start()
+    try {
+      let id = state.stallRentalId
+      const response = await rentalService.cancelRental(id)
+      if (response) {
+        fetchRentals()
+        $loading.stop()
+
+        state.openViewDialog = false
+        toast.success('Rental cancelled successfully')
+      }
+    } catch (error) {
+      showError(error.message)
+    }
+    $loading.stop()
+  }
 
   // async function fetchTypes() {
   //   try {
@@ -621,7 +668,7 @@
   //   }
   // }
 
-  async function searchOwner() {
+  async function searchOwner(rentalId) {
     const ownerId = state.form.ownerId
     if (!ownerId) {
       state.owner.details = null
@@ -630,7 +677,7 @@
     }
 
     try {
-      const response = await stallOwnerService.getOwner(ownerId)
+      const response = await stallOwnerService.getOwner(ownerId, rentalId)
       if (response && response.data) {
         state.owner.details = response.data
       }
@@ -641,7 +688,7 @@
     }
   }
 
-  async function searchStall() {
+  async function searchStall(rentalId) {
     const stallNo = state.form.stallNo
     if (!stallNo) {
       state.stall.details = null
@@ -650,7 +697,7 @@
     }
 
     try {
-      const response = await stallService.getStall(stallNo)
+      const response = await stallService.getStall(stallNo, rentalId)
       if (response && response.data) {
         state.stall.details = response.data
       }
@@ -660,54 +707,6 @@
       state.form.stallNo = null
     }
   }
-
-  // function searchOwner(ownerId) {
-  //   fetchOwner(ownerId)
-  // }
-
-  // const fetchOwner = debounce(async (ownerId) => {
-  //   if (!ownerId) {
-  //     state.owner.details = null
-  //     return
-  //   }
-
-  //   try {
-  //     const response = await stallOwnerService.getOwner(ownerId)
-  //     if (response && response.data) {
-  //       state.owner.details = response.data // adjust this based on your API response
-  //     }
-  //   } catch (error) {
-  //     showError(error.message)
-  //   }
-  // }, 400)
-
-  // function searchStall(stallId) {
-  //   fetchStallDescription(stallId)
-  // }
-
-  // const fetchStallDescription = debounce(async (stallId) => {
-  //   if (!stallId) {
-  //     state.stall.details = null
-  //     return
-  //   }
-
-  //   try {
-  //     const response = await stallService.getStall(stallId)
-  //     if (response && response.data) {
-  //       state.stall.details = response.data // adjust this based on your API response
-  //     }
-  //   } catch (error) {
-  //     showError(error.message)
-  //   }
-  // }, 400)
-
-  // function loadParameters() {
-  //   fetchTypes()
-  //   fetchParameter('MARKETCODE', 'markets')
-  //   fetchParameter('SECTIONCODE', 'sections')
-  //   fetchParameter('STRUCTCODE', 'buildings')
-  //   // fetchInfluences()
-  // }
   //end of parameter
    
 </script>

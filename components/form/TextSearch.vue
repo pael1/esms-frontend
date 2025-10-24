@@ -2,7 +2,7 @@
   <input
     :type="props.type ?? 'text'"
     :name="props.name"
-    class="block w-full rounded-md border-0 px-1 py-[9px] text-green-900 ring-1 ring-inset ring-green-600 placeholder:text-green-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6"
+    class="block w-full rounded-md pl-3 border-0 px-1 py-[9px] text-green-900 ring-1 ring-inset ring-green-600 placeholder:text-green-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6"
     :value="props.modelValue"
     @input="onInput"
   />

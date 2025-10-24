@@ -18,6 +18,12 @@ class RentalService extends BaseAPIService {
         return await this.request(`/rentals/${id}`, 'PUT', params);
         // return await this.request(`/rentals/${id}`, 'PATCH', params);
     }
+
+    //cancel rental
+    async cancelRental(id: any): Promise<any> {
+        return await this.request(`/rentals/cancel/${id}`, 'PUT');
+        // return await this.request(`/rentals/cancel/${id}`, 'PATCH');
+    }
 }
 
 export const rentalService = new RentalService();
