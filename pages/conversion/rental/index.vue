@@ -5,7 +5,25 @@
             <Loader v-if="$loading.state.isPageLoading" />
             <div class="py-3"></div>
             <div class="sm:flex sm:items-center sm:justify-end p-2">
-              <FormButton type="submit" class="text-sm" @click="addRentalDialog()">Create Rental</FormButton>
+              <FormButton
+                buttonStyle="green"
+                size="md"
+                class="flex items-center gap-2"
+                @click="addRentalDialog()"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                <span>Create Rental</span>
+              </FormButton>
+
             </div>
 
             <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -42,189 +60,132 @@
     <Modal :show="state.open">
       <div class="w-full max-w-4xl mx-auto bg-white px-4 py-5 sm:px-6 rounded-lg space-y-4">
         <Loader v-if="$loading.state.isPageLoading" />
+
+        <!-- Header -->
         <div class="border-b border-green-200 -ml-4 -mt-2 flex flex-wrap items-center justify-between sm:flex-nowrap">
           <div class="ml-2 mb-2">
             <h3 class="text-lg font-semibold text-green-900">Create Rental</h3>
           </div>
         </div>
 
-        <form
-          @submit.prevent="addRental"
-          autocomplete="off"
-          class="p-4"
-        >
-          <div class="bg-green-50 shadow-lg rounded-lg">
-            <!-- OWNER SECTION -->
-            <!-- <div class="flex flex-wrap gap-5 mb-2">
-              <div class="w-full md:flex-1 md:min-w-[200px]">
-                <FormLabel for="owner-name" label="Owner ID" />
-                <div class="mt-1">
-                  <FormTextSearch
-                    name="owner_name"
-                    v-model="state.form.ownerId"
-                    @blur="searchOwner(0)"
-                    class="w-full"
-                  />
-                </div>
-              </div>
+        <!-- FORM -->
+        <form @submit.prevent="addRental" autocomplete="off" class="p-4 space-y-8">
+          <!-- =======================
+                Section 1: Owner & Stall Details
+          ========================== -->
+          <div class="bg-green-50 shadow-md rounded-lg p-4 space-y-4">
+            <h4 class="text-md font-semibold text-green-800 border-b border-green-200 pb-2">
+              Stall Owner & Stall Details
+            </h4>
 
-              <div class="w-full md:flex-[3]">
-                <div class="mt-1">
-                  <FormLabel for="owner-details" label="Owner Name" />
-                </div>
-                <div
-                  v-if="state.owner.details">
-                  <p
-                    class="text-2xl font-bold text-gray-800 tracking-wide leading-snug break-words"
-                  >
-                    {{ $capitalizeWords(state.owner.details.full_name) }}
-                  </p>
-                </div>
-                <div v-else class="text-gray-500 italic min-h-[60px]">
-                  No owner details found
-                </div>
-              </div>
-            </div> -->
-            <div class="flex flex-wrap gap-5 mb-4">
-              <!-- Owner ID input -->
+            <!-- Owner -->
+            <div class="flex flex-wrap gap-5">
               <div class="w-full md:flex-1 md:min-w-[400px]">
                 <FormLabel for="owner-name" label="Owner Name" />
                 <div class="mt-1">
-                  <FormSelectSearch
-                    v-model="state.owner.selected"
-                    class="w-full"
-                  />
+                  <FormSelectSearch v-model="state.owner.selected" class="w-full" />
                 </div>
               </div>
-              <div class="w-full md:flex-[3]"></div>
             </div>
-           
-            <div class="flex flex-wrap gap-2 mb-10">
+
+            <!-- Stall Details -->
+            <div class="flex flex-wrap gap-2">
               <div class="flex-1 min-w-[150px]">
                 <FormLabel for="stall_type" label="Type" />
-                <div class="mt-1">
-                  <FormSelect v-model="state.stall.stallType" :options="state.parameter.types" />
-                </div>
+                <FormSelect v-model="state.stall.stallType" :options="state.parameter.types" />
               </div>
 
               <div class="flex-1 min-w-[150px]">
                 <FormLabel for="market" label="Market" />
-                <div class="mt-1">
-                  <FormSelect v-model="state.stall.marketCode" @update:modelValue="fetchStall" :options="state.parameter.markets" />
-                </div>
+                <FormSelect
+                  v-model="state.stall.marketCode"
+                  @update:modelValue="fetchStall"
+                  :options="state.parameter.markets"
+                />
               </div>
 
-              <!-- Make Section wider -->
               <div class="flex-[2] min-w-[200px]">
                 <FormLabel for="section" label="Section" />
-                <div class="mt-1">
-                  <FormSelect
-                    v-model="state.stall.sectionCode" @update:modelValue="fetchStallNoId"
-                    :options="state.stall_options.sections"
-                  />
-                </div>
+                <FormSelect
+                  v-model="state.stall.sectionCode"
+                  @update:modelValue="fetchStall"
+                  :options="state.stall_options.sections"
+                />
               </div>
 
               <div class="flex-1 min-w-[150px]">
                 <FormLabel for="stall_no" label="Stall No" />
-                <div class="mt-1">
-                  <FormSelect
-                    v-model="state.stall.stallNo" @update:modelValue="fetchStall"
-                    :options="state.stall_options.stallNos"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <!-- STALL SECTION -->
-            <div class="flex flex-wrap gap-5 mb-5">
-              <!-- Stall No input -->
-              <!-- <div class="w-full md:flex-1 md:min-w-[200px]">
-                <FormLabel for="stall-no" label="Stall No" />
-                <div class="mt-1">
-                  <FormTextSearch
-                    name="stall_no"
-                    v-model="state.form.stallNo"
-                    @blur="searchStall(0)"
-                    class="w-full"
-                  />
-                </div>
-              </div> -->
-
-              <!-- Stall Description -->
-              <!-- <div class="w-full md:flex-[3]">
-                <div class="mt-1">
-                  <FormLabel for="stall-details" label="Stall Description" />
-                </div>
-                <div
-                  v-if="state.stall.details">
-                  <p
-                    class="text-1xl font-semibold text-gray-800 tracking-wide leading-snug break-words mt-2"
-                  >
-                    {{ $capitalizeWords(state.stall.details.stallDescription) }}
-                  </p>
-                </div>
-                <div v-else class="text-gray-500 italic min-h-[60px]">
-                  No stall details found
-                </div>
-              </div> -->
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <div class="text-start">
-                <FormLabel for="contract-start-date" label="Contract Start Date" />
-                <div class="mt-1">
-                  <FormDate name="contract_start_date" v-model="state.form.contractStartDate" />
-                </div>
-              </div>
-              <div class="text-start">
-                <FormLabel for="period-of-contracy" label="Period of Contract" />
-                <div class="mt-1">
-                  <FormDate name="period_of_contract" v-model="state.form.contractEndDate" />
-                </div>
-              </div>
-              <div class="text-start">
-                <FormLabel for="business-id" label="Business ID" />
-                <div class="mt-1">
-                  <FormText name="business_id" v-model="state.form.busID" />
-                </div>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <div class="text-start">
-                <FormLabel for="business-plate-no" label="Business Plate No" />
-                <div class="mt-1">
-                  <FormText name="business_plate_no" v-model="state.form.busPlateNo" />
-                </div>
-              </div>
-              <div class="text-start">
-                <FormLabel for="business-started" label="Business Started" />
-                <div class="mt-1">
-                  <FormDate name="business_started" v-model="state.form.busDateStart" />
-                </div>
-              </div>
-              <div class="text-start">
-                <FormLabel for="capital" label="Capital" />
-                <div class="mt-1">
-                  <FormText name="capital" v-model="state.form.capital" />
-                </div>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 gap-2">
-              <div class="w-full">
-                <FormLabel for="line-of-business" label="Line of Business" />
-                <div class="mt-1">
-                  <FormTextArea name="line_of_business" v-model="state.form.lineOfBusiness" class="w-full" />
-                </div>
+                <FormSelect
+                  v-model="state.stall.stallNo"
+                  @update:modelValue="fetchStall"
+                  :options="state.stall_options.stallNos"
+                />
               </div>
             </div>
           </div>
-          
-          <!-- Buttons -->
-          <div class="mt-4 flex flex-wrap justify-end gap-2">
-            <FormButton type="button" @click="closedDialog" buttonStyle="white" class="px-3 py-1 text-sm">
+
+          <!-- =======================
+                Section 2: Contract & Business Details
+          ========================== -->
+          <div class="bg-white border border-green-200 shadow-sm rounded-lg p-4 space-y-4">
+            <h4 class="text-md font-semibold text-green-800 border-b border-green-200 pb-2">
+              Contract & Business Details
+            </h4>
+
+            <!-- Contract Dates -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div>
+                <FormLabel for="contract-start-date" label="Contract Start Date" />
+                <FormDate name="contract_start_date" v-model="state.form.contractStartDate" />
+              </div>
+
+              <div>
+                <FormLabel for="period-of-contract" label="Period of Contract" />
+                <FormDate name="period_of_contract" v-model="state.form.contractEndDate" />
+              </div>
+
+              <div>
+                <FormLabel for="business-id" label="Business ID" />
+                <FormText name="business_id" v-model="state.form.busID" />
+              </div>
+            </div>
+
+            <!-- Business Details -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div>
+                <FormLabel for="business-plate-no" label="Business Plate No" />
+                <FormText name="business_plate_no" v-model="state.form.busPlateNo" />
+              </div>
+              <div>
+                <FormLabel for="business-started" label="Business Started" />
+                <FormDate name="business_started" v-model="state.form.busDateStart" />
+              </div>
+              <div>
+                <FormLabel for="capital" label="Capital" />
+                <FormText name="capital" v-model="state.form.capital" />
+              </div>
+            </div>
+
+            <div>
+              <FormLabel for="line-of-business" label="Line of Business" />
+              <FormTextArea
+                name="line_of_business"
+                v-model="state.form.lineOfBusiness"
+                class="w-full"
+              />
+            </div>
+          </div>
+
+          <!-- =======================
+                Buttons
+          ========================== -->
+          <div class="flex flex-wrap justify-end gap-2 border-t border-green-100 pt-4">
+            <FormButton
+              type="button"
+              @click="closedDialog"
+              buttonStyle="white"
+              class="px-3 py-1 text-sm"
+            >
               Cancel
             </FormButton>
             <FormButton type="submit" class="px-3 py-1 text-sm">
@@ -235,10 +196,15 @@
       </div>
     </Modal>
 
-    <!-- create -->
+    <!-- Update / View Rental Modal -->
     <Modal :show="state.openViewDialog">
       <div class="w-full max-w-4xl mx-auto bg-white px-4 py-5 sm:px-6 rounded-lg space-y-4">
-        <div class="border-b border-green-200 -ml-4 -mt-2 flex flex-wrap items-center justify-between sm:flex-nowrap px-4 py-2">
+        <Loader v-if="$loading.state.isPageLoading" />
+
+        <!-- Header -->
+        <div
+          class="border-b border-green-200 -ml-4 -mt-2 flex flex-wrap items-center justify-between sm:flex-nowrap px-4 py-2"
+        >
           <div class="ml-2 mb-2">
             <h3 class="text-lg font-semibold text-green-900">
               {{ state.isEdit ? 'Edit Rental' : 'View Rental' }}
@@ -246,163 +212,221 @@
           </div>
 
           <div class="mr-2 mb-2">
-              <FormButton
-                v-if="state.rentalStatus !== 'cancel'"
-                type="button"
-                @click="cancelRental"
-                buttonStyle="red"
-                size="sm"
-                class="px-3 py-1 text-sm"
-              >
-                Cancel Rental
-              </FormButton>
+            <FormButton
+              v-if="state.rentalStatus !== 'cancel'"
+              type="button"
+              @click="cancelRental"
+              buttonStyle="red"
+              size="sm"
+              class="px-3 py-1 text-sm"
+            >
+              Cancel Rental
+            </FormButton>
 
-              <p v-else class="text-red-600 font-semibold text-sm">
-                Rental Cancelled
-              </p>
+            <p v-else class="text-red-600 font-semibold text-sm">
+              Rental Cancelled
+            </p>
           </div>
         </div>
 
-        <form
-          @submit.prevent="updateRental"
-          autocomplete="off"
-          class="p-4"
-        >
-          <div class="bg-green-50 shadow-lg rounded-lg">
-            <!-- OWNER SECTION -->
-            <div class="flex flex-wrap gap-5 mb-2">
-              <!-- Owner ID input -->
-              <div class="w-full md:flex-1 md:min-w-[200px]">
-                <FormLabel for="owner-name" label="Owner ID" />
-                <div class="mt-1">
-                  <FormTextSearch
-                    name="owner_name"
-                    v-model="state.form.ownerId"
-                    @blur="searchOwner(state.stallRentalId)"
-                    class="w-full"
+        <!-- Form -->
+        <form @submit.prevent="updateRental" autocomplete="off" class="p-4 space-y-8">
+          <!-- =======================
+                Section 1: Stall Owner & Stall Details
+          ========================== -->
+          <div class="bg-green-50 shadow-md rounded-lg p-5 space-y-5">
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b border-green-200 pb-2">
+              <h4 class="text-md font-semibold text-green-800">
+                Stall Owner & Stall Details
+              </h4>
+
+              <FormButton
+                type="button"
+                @click="editOwnerAndStall"
+                buttonStyle="yellow"
+                size="sm"
+                class="px-3 py-1 text-sm"
+              >
+                {{ state.isEditOwnerStall ? 'Cancel' : 'Edit' }}
+              </FormButton>
+            </div>
+
+            <!-- When in edit mode -->
+            <div v-if="state.isEditOwnerStall" class="space-y-4">
+              <div class="flex flex-wrap gap-5">
+                <div class="w-full md:flex-1 md:min-w-[400px]">
+                  <FormLabel for="owner-name" label="Owner Name" />
+                  <div class="mt-1">
+                    <FormSelectSearch
+                      v-model="state.owner.selected"
+                      class="w-full"
+                      :disabled="!state.isEdit"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap gap-3">
+                <div class="flex-1 min-w-[150px]">
+                  <FormLabel for="stall_type" label="Type" />
+                  <FormSelect
+                    v-model="state.stall.stallType"
+                    :options="state.parameter.types"
+                    :disabled="!state.isEdit"
+                  />
+                </div>
+
+                <div class="flex-1 min-w-[150px]">
+                  <FormLabel for="market" label="Market" />
+                  <FormSelect
+                    v-model="state.stall.marketCode"
+                    @update:modelValue="fetchStall"
+                    :options="state.parameter.markets"
+                    :disabled="!state.isEdit"
+                  />
+                </div>
+
+                <div class="flex-[2] min-w-[200px]">
+                  <FormLabel for="section" label="Section" />
+                  <FormSelect
+                    v-model="state.stall.sectionCode"
+                    @update:modelValue="fetchStall"
+                    :options="state.stall_options.sections"
+                    :disabled="!state.isEdit"
+                  />
+                </div>
+
+                <div class="flex-1 min-w-[150px]">
+                  <FormLabel for="stall_no" label="Stall No" />
+                  <FormSelect
+                    v-model="state.stall.stallNo"
+                    @update:modelValue="fetchStall"
+                    :options="state.stall_options.stallNos"
                     :disabled="!state.isEdit"
                   />
                 </div>
               </div>
-
-              <!-- Owner Name Display -->
-              <div class="w-full md:flex-[3]">
-                <div class="mt-1">
-                  <FormLabel for="owner-details" label="Owner Name" />
-                </div>
-                <div
-                  v-if="state.owner.details">
-                  <p
-                    class="text-2xl font-bold text-gray-800 tracking-wide leading-snug break-words"
-                  >
-                    {{ $capitalizeWords(state.owner.details.full_name) }}
-                  </p>
-                </div>
-                <div v-else class="text-gray-500 italic min-h-[60px]">
-                  No owner details found
-                </div>
-              </div>
             </div>
 
-            <!-- STALL SECTION -->
-            <div class="flex flex-wrap gap-5 mb-5">
-              <!-- Stall No input -->
-              <div class="w-full md:flex-1 md:min-w-[200px]">
-                <FormLabel for="stall-no" label="Stall No" />
-                <div class="mt-1">
-                  <FormTextSearch
-                    name="stall_no"
-                    v-model="state.form.stallNo"
-                    @blur="searchStall(state.stallRentalId)"
-                    class="w-full"
-                    :disabled="!state.isEdit"
-                  />
-                </div>
+            <!-- When in view mode -->
+            <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4 text-md text-gray-700">
+              <div class="bg-white p-3 rounded-md border border-green-100 shadow-sm">
+                <h5 class="text-green-700 font-medium mb-2">Stall Owner</h5>
+                <p><span class="font-semibold">Name:</span> {{ state.owner.selected?.label || '—' }}</p>
+                <p><span class="font-semibold">Contact Number:</span> {{ state.owner.details.stallOwner?.contactnumber || '—' }}</p>
+                <p><span class="font-semibold">Address:</span> {{ state.owner.details.stallOwner?.address || '—' }}</p>
               </div>
 
-              <!-- Stall Description -->
-              <div class="w-full md:flex-[3]">
-                <div class="mt-1">
-                  <FormLabel for="stall-details" label="Stall Description" />
-                </div>
-                <div
-                  v-if="state.stall.details">
-                  <p
-                    class="text-1xl font-semibold text-gray-800 tracking-wide leading-snug break-words mt-2"
-                  >
-                    {{ $capitalizeWords(state.stall.details.stallDescription) }}
-                  </p>
-                </div>
-                <div v-else class="text-gray-500 italic min-h-[60px]">
-                  No stall details found
-                </div>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <div class="text-start">
-                <FormLabel for="contract-start-date" label="Contract Start Date" />
-                <div class="mt-1">
-                  <FormDate name="contract_start_date" v-model="state.form.contractStartDate" :disabled="!state.isEdit"/>
-                </div>
-              </div>
-              <div class="text-start">
-                <FormLabel for="period-of-contracy" label="Period of Contract" />
-                <div class="mt-1">
-                  <FormDate name="period_of_contract" v-model="state.form.contractEndDate" :disabled="!state.isEdit"/>
-                </div>
-              </div>
-              <div class="text-start">
-                <FormLabel for="business-id" label="Business ID" />
-                <div class="mt-1">
-                  <FormText name="business_id" v-model="state.form.busID" :disabled="!state.isEdit"/>
-                </div>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <div class="text-start">
-                <FormLabel for="business-plate-no" label="Business Plate No" />
-                <div class="mt-1">
-                  <FormText name="business_plate_no" v-model="state.form.busPlateNo" :disabled="!state.isEdit"/>
-                </div>
-              </div>
-              <div class="text-start">
-                <FormLabel for="business-started" label="Business Started" />
-                <div class="mt-1">
-                  <FormDate name="business_started" v-model="state.form.busDateStart" :disabled="!state.isEdit"/>
-                </div>
-              </div>
-              <div class="text-start">
-                <FormLabel for="capital" label="Capital" />
-                <div class="mt-1">
-                  <FormText name="capital" v-model="state.form.capital" :disabled="!state.isEdit"/>
-                </div>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 gap-2">
-              <div class="w-full">
-                <FormLabel for="line-of-business" label="Line of Business" />
-                <div class="mt-1">
-                  <FormTextArea name="line_of_business" v-model="state.form.lineOfBusiness" class="w-full" :disabled="!state.isEdit"/>
-                </div>
+              <div class="bg-white p-3 rounded-md border border-green-100 shadow-sm">
+                <h5 class="text-green-700 font-medium mb-2">Stall Details</h5>
+                <p><span class="font-semibold">Market:</span> {{ state.owner.details.stallProfile?.stallDescription || '—' }}</p>
+                <p><span class="font-semibold">Rate Per Day:</span> {{ $formatPeso(state.owner.details.stallProfile?.TotalRatePerDay || '—') }}</p>
+                <p><span class="font-semibold">Estimated Rate Per Month:</span> {{ $formatPeso(state.owner.details.stallProfile?.TotalRatePerDay * 30 || '—') }}</p>
               </div>
             </div>
           </div>
-          
-          <!-- Buttons -->
-          <div class="mt-4 flex flex-wrap justify-end gap-2">
-            <FormButton type="button" @click="closedDialogView" buttonStyle="white" class="px-3 py-1 text-sm">
+
+          <!-- =======================
+                Section 2: Contract & Business Details
+          ========================== -->
+          <div class="bg-white border border-green-200 shadow-sm rounded-lg p-4 space-y-4">
+            <h4 class="text-md font-semibold text-green-800 border-b border-green-200 pb-2">
+              Contract & Business Details
+            </h4>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div>
+                <FormLabel for="contract-start-date" label="Contract Start Date" />
+                <FormDate
+                  name="contract_start_date"
+                  v-model="state.form.contractStartDate"
+                  :disabled="!state.isEdit"
+                />
+              </div>
+
+              <div>
+                <FormLabel for="period-of-contract" label="Period of Contract" />
+                <FormDate
+                  name="period_of_contract"
+                  v-model="state.form.contractEndDate"
+                  :disabled="!state.isEdit"
+                />
+              </div>
+
+              <div>
+                <FormLabel for="business-id" label="Business ID" />
+                <FormText
+                  name="business_id"
+                  v-model="state.form.busID"
+                  :disabled="!state.isEdit"
+                />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div>
+                <FormLabel for="business-plate-no" label="Business Plate No" />
+                <FormText
+                  name="business_plate_no"
+                  v-model="state.form.busPlateNo"
+                  :disabled="!state.isEdit"
+                />
+              </div>
+              <div>
+                <FormLabel for="business-started" label="Business Started" />
+                <FormDate
+                  name="business_started"
+                  v-model="state.form.busDateStart"
+                  :disabled="!state.isEdit"
+                />
+              </div>
+              <div>
+                <FormLabel for="capital" label="Capital" />
+                <FormText
+                  name="capital"
+                  v-model="state.form.capital"
+                  :disabled="!state.isEdit"
+                />
+              </div>
+            </div>
+
+            <div>
+              <FormLabel for="line-of-business" label="Line of Business" />
+              <FormTextArea
+                name="line_of_business"
+                v-model="state.form.lineOfBusiness"
+                class="w-full"
+                :disabled="!state.isEdit"
+              />
+            </div>
+          </div>
+
+          <!-- =======================
+                Footer Buttons
+          ========================== -->
+          <div class="flex flex-wrap justify-end gap-2 border-t border-green-100 pt-4">
+            <FormButton
+              type="button"
+              @click="closedDialogView"
+              buttonStyle="white"
+              class="px-3 py-1 text-sm"
+            >
               Close
             </FormButton>
-            <FormButton v-if="state.isEdit" type="submit" class="px-3 py-1 text-sm">
+
+            <FormButton
+              v-if="state.isEdit"
+              type="submit"
+              class="px-3 py-1 text-sm"
+            >
               Update
             </FormButton>
           </div>
         </form>
       </div>
     </Modal>
+
   </template>
   
   <script setup>
@@ -488,6 +512,7 @@
     open: false,
     openViewDialog: false,
     isEdit: false,
+    isEditOwnerStall: false,
     parameter: {
       types: [],
       markets: [],
@@ -554,7 +579,7 @@
               type: state.stall.stallType,
               marketcode: state.stall.marketCode,
               sectioncode: state.stall.sectionCode,
-              name: state.stall.stallNo,
+              stallNoId: state.stall.stallNo,
           }
           console.log(params)
           const response = await stallService.getStallSel(params)
@@ -568,6 +593,11 @@
                 label: item.stallDescription
               }))
 
+              state.stall_options.stallNos = response.data.map((item) => ({
+                value: item.stallNoId,
+                label: item.stallNoId
+              }))
+
               state.form.stallNo = response.data[0]?.stallNo || null
           }
       } catch (error) {
@@ -577,31 +607,31 @@
   }
 
   //get stall details
-  async function fetchStallNoId() {
-      $loading.start()
-      try {
-          let params = {
-              type: state.stall.stallType,
-              marketcode: state.stall.marketCode,
-              sectioncode: state.stall.sectionCode,
-              name: state.stall.stallNo,
-          }
-          console.log(params)
-          const response = await stallService.getStallNoIdSel(params)
-          if (response) {
-            console.log(response)
+  // async function fetchStallNoId() {
+  //     $loading.start()
+  //     try {
+  //         let params = {
+  //             type: state.stall.stallType,
+  //             marketcode: state.stall.marketCode,
+  //             sectioncode: state.stall.sectionCode,
+  //             name: state.stall.stallNo,
+  //         }
+  //         console.log(params)
+  //         const response = await stallService.getStallNoIdSel(params)
+  //         if (response) {
+  //           console.log(response)
 
-              //store stallnoid options
-              state.stall_options.stallNos = response.data.map((item) => ({
-                value: item.stallNoId,
-                label: item.stallNoId
-              }))
-          }
-      } catch (error) {
-          console.log(error)
-      }
-      $loading.stop()
-  }
+  //             //store stallnoid options
+  //             state.stall_options.stallNos = response.data.map((item) => ({
+  //               value: item.stallNoId,
+  //               label: item.stallNoId
+  //             }))
+  //         }
+  //     } catch (error) {
+  //         console.log(error)
+  //     }
+  //     $loading.stop()
+  // }
 
   async function addRental() {
     $loading.start()
@@ -655,43 +685,68 @@
     try {
       const response = await rentalService.getRentalDetails(rentalId);
       if (response.data) {
-        console.log(response.data);
+        const rental = response.data;
+        state.owner.details = rental;
+        console.log('Rental Details:', state.owner.details);
 
-        state.stallRentalId = response.data.stallDetailId;
-        state.rentalStatus = response.data.rentalStatus;
+        state.stallRentalId = rental.stallDetailId;
+        state.rentalStatus = rental.rentalStatus;
         // Map API response to form fields
         state.form = {
-          stallNo: response.data.stallNo ?? null,
-          ownerId: response.data.ownerId ?? null,
-          contractStartDate: response.data.contractStartDate ?? null,
-          contractEndDate: response.data.contractEndDate ?? null,
-          busID: response.data.busID ?? null,
-          busPlateNo: response.data.busPlateNo ?? '',
-          busDateStart: response.data.busDateStart ?? null,
-          capital: response.data.capital ?? '',
-          lineOfBusiness: response.data.lineOfBusiness ?? null,
+          stallNo: rental.stallNo ?? null,
+          ownerId: rental.ownerId ?? null,
+          contractStartDate: rental.contractStartDate ?? null,
+          contractEndDate: rental.contractEndDate ?? null,
+          busID: rental.busID ?? null,
+          busPlateNo: rental.busPlateNo ?? '',
+          busDateStart: rental.busDateStart ?? null,
+          capital: rental.capital ?? '',
+          lineOfBusiness: rental.lineOfBusiness ?? null,
         }
 
-        //load owner details
-        if (state.form.ownerId) {
-          await searchOwner(state.stallRentalId);
-        } else {
-          state.owner.details = null;
-        }
+        //stall owner name
+        state.owner.selected = {
+          value: rental.stallOwner.ownerId,
+          label: rental.stallOwner.full_name,
+        };
 
-        //load stall details
-        if (state.form.stallNo) {
-          await searchStall(state.stallRentalId);
-        } else {
-          state.stall.details = null;
-        }
+        console.log('Selected Owner:', state.owner.selected);
+
+        // //load owner details
+        // if (state.form.ownerId) {
+        //   await searchOwner(state.stallRentalId);
+        // } else {
+        //   state.owner.details = null;
+        // }
+
+        // //load stall details
+        // if (state.form.stallNo) {
+        //   await searchStall(state.stallRentalId);
+        // } else {
+        //   state.stall.details = null;
+        // }
       }
     } catch (error) {
       console.log(error);
     }
+    loadParameters()
     $loading.stop()
     state.openViewDialog = true;
   } 
+
+  //edit owner and stall details
+  function editOwnerAndStall() {
+    // Toggle edit mode
+    state.isEditOwnerStall = !state.isEditOwnerStall
+
+    if (state.isEditOwnerStall) {
+      // When entering edit mode
+      console.log('Editing Stall Owner & Stall Details...')
+    } else {
+      // When leaving edit mode (Cancel)
+      console.log('Cancelled editing — reverting data')
+    }
+  }
 
   async function updateRental() {
     $loading.start()
@@ -834,5 +889,5 @@
     // fetchInfluences()
   }
   //end of parameter
-   
+  const { $formatPeso } = useNuxtApp()
 </script>

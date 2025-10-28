@@ -56,6 +56,7 @@
                                             <FormButton
                                             type="button"
                                             class="py-0.5 px-2 text-xs"
+                                            buttonStyle="green"
                                             size="sm"
                                             @click="view(rental.stallDetailId, true)"
                                             >
@@ -63,7 +64,8 @@
                                             </FormButton>
                                             <FormButton
                                             type="button"
-                                            class="py-0.5 px-2 text-xs  bg-yellow-600 hover:bg-yellow-500"
+                                            class="py-0.5 px-2"
+                                            buttonStyle="yellow"
                                             size="sm"
                                             :disabled="rental.rentalStatus === 'cancel'"
                                             @click="view(rental.stallDetailId, false)"

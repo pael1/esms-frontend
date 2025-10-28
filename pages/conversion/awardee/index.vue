@@ -4,7 +4,24 @@
             <Loader v-if="state.isPageLoading" />
             <div class="py-3"></div>
             <div class="sm:flex sm:items-center sm:justify-end p-2">
-              <FormButton type="submit" class="text-sm" @click="registerAwardee()">Create Awardee</FormButton>
+              <FormButton
+                buttonStyle="green"
+                size="md"
+                class="flex items-center gap-2"
+                @click="registerAwardee()"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                <span>Create Awardee</span>
+              </FormButton>
             </div>
             <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <!-- Left side: grouped selects -->

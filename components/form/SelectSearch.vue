@@ -18,11 +18,7 @@ import { stallOwnerService } from '~/api/StallOwnerService'
 
 const emit = defineEmits(['update:modelValue'])
 const props = defineProps({
-  modelValue: Object,
-  searchUrl: {
-    type: String,
-    required: true
-  }
+  modelValue: Object
 })
 
 const selectedOption = ref(props.modelValue)
@@ -31,16 +27,29 @@ const state = reactive({
     names: []
   }
 })
-const isLoading = ref(false)
 
 // when user selects an option, update v-model
 watch(selectedOption, (val) => {
   emit('update:modelValue', val)
 })
 
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    if (!newVal) return
+    // Always include the passed value in the options
+    const exists = state.owner.names.some(o => o.value === newVal.value)
+    if (!exists) {
+      state.owner.names.unshift(newVal)
+    }
+    // Set it as selected
+    selectedOption.value = newVal
+  },
+  { immediate: true }
+)
+
 // debounce typing input to reduce API spam
 const onSearchChange = debounce(async (query: string) => {
-    console.log('Searching for:', query)
     if (!query || query.length < 2) {
         state.owner.names = []
         return
@@ -49,7 +58,6 @@ const onSearchChange = debounce(async (query: string) => {
     try {
         const response = await stallOwnerService.getOwnerName(query)
         if (response && response.data) {
-            console.log('Owner search results:', response.data)
             state.owner.names = response.data.map((item: any) => ({
                 value: item.ownerId,
                 label: item.full_name

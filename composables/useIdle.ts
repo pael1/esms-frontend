@@ -13,7 +13,7 @@ export function useIdle(timeout = 60 * 60 * 1000) { // 60 min default
 
   function resetTimer() {
     if (timer) clearTimeout(timer)
-    timer = setTimeout(async () => {   // ✅ make callback async
+    timer = setTimeout(async () => {   // make callback async
         showWarning('', 'Your session has expired due to inactivity. You have been logged out.')
         try {
             const response = await authService.logout()

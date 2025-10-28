@@ -65,7 +65,7 @@
                             </div>
                         </div>
                     </div>
-                    <!-- ✅ Small, right-aligned buttons -->
+                    <!-- Small, right-aligned buttons -->
                     <div class="mt-4 flex justify-end gap-x-2">
                         <FormButton
                             type="button"

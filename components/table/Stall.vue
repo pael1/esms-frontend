@@ -71,13 +71,17 @@
                                             <FormButton
                                             type="button"
                                             class="py-0.5 px-2 text-xs"
+                                            buttonStyle="green"
+                                            size="sm"
                                             @click="viewStall(stall.stallProfileId, true)"
                                             >
                                             View
                                             </FormButton>
                                             <FormButton
                                             type="button"
-                                            class="py-0.5 px-2 text-xs  bg-yellow-600 hover:bg-yellow-500"
+                                            class="py-0.5 px-2 text-xs"
+                                            buttonStyle="yellow"
+                                            size="sm"
                                             @click="viewStall(stall.stallProfileId, false)"
                                             >
                                             Edit

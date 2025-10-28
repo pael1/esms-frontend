@@ -15,7 +15,7 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 bg-white">
-              <!-- ✅ Check if awardees array has items -->
+              <!-- Check if awardees array has items -->
               <template v-if="props.awardees && props.awardees.length">
                 <tr v-for="awardee in props.awardees" :key="awardee.uuid">
                   <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
@@ -28,12 +28,12 @@
                     {{ $capitalizeWords(awardee.address) }}
                   </td>
                   <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                    <FormButton type="submit" class="py-0.5 text-xs bg-yellow-600 hover:bg-yellow-500" @click="view_profile(awardee.ownerId)">Edit</FormButton>
+                    <FormButton buttonStyle="yellow" size="sm" @click="view_profile(awardee.ownerId)">Edit</FormButton>
                   </td>
                 </tr>
               </template>
 
-              <!-- ✅ No data row -->
+              <!-- No data row -->
               <template v-else>
                 <tr>
                   <td colspan="5" class="text-center px-3 py-4 text-sm text-gray-500">
