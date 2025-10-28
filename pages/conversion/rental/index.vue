@@ -41,6 +41,7 @@
     <!-- create -->
     <Modal :show="state.open">
       <div class="w-full max-w-4xl mx-auto bg-white px-4 py-5 sm:px-6 rounded-lg space-y-4">
+        <Loader v-if="$loading.state.isPageLoading" />
         <div class="border-b border-green-200 -ml-4 -mt-2 flex flex-wrap items-center justify-between sm:flex-nowrap">
           <div class="ml-2 mb-2">
             <h3 class="text-lg font-semibold text-green-900">Create Rental</h3>
@@ -54,8 +55,7 @@
         >
           <div class="bg-green-50 shadow-lg rounded-lg">
             <!-- OWNER SECTION -->
-            <div class="flex flex-wrap gap-5 mb-2">
-              <!-- Owner ID input -->
+            <!-- <div class="flex flex-wrap gap-5 mb-2">
               <div class="w-full md:flex-1 md:min-w-[200px]">
                 <FormLabel for="owner-name" label="Owner ID" />
                 <div class="mt-1">
@@ -68,7 +68,6 @@
                 </div>
               </div>
 
-              <!-- Owner Name Display -->
               <div class="w-full md:flex-[3]">
                 <div class="mt-1">
                   <FormLabel for="owner-details" label="Owner Name" />
@@ -85,12 +84,62 @@
                   No owner details found
                 </div>
               </div>
+            </div> -->
+            <div class="flex flex-wrap gap-5 mb-4">
+              <!-- Owner ID input -->
+              <div class="w-full md:flex-1 md:min-w-[400px]">
+                <FormLabel for="owner-name" label="Owner Name" />
+                <div class="mt-1">
+                  <FormSelectSearch
+                    v-model="state.owner.selected"
+                    class="w-full"
+                  />
+                </div>
+              </div>
+              <div class="w-full md:flex-[3]"></div>
+            </div>
+           
+            <div class="flex flex-wrap gap-2 mb-10">
+              <div class="flex-1 min-w-[150px]">
+                <FormLabel for="stall_type" label="Type" />
+                <div class="mt-1">
+                  <FormSelect v-model="state.stall.stallType" :options="state.parameter.types" />
+                </div>
+              </div>
+
+              <div class="flex-1 min-w-[150px]">
+                <FormLabel for="market" label="Market" />
+                <div class="mt-1">
+                  <FormSelect v-model="state.stall.marketCode" @update:modelValue="fetchStall" :options="state.parameter.markets" />
+                </div>
+              </div>
+
+              <!-- Make Section wider -->
+              <div class="flex-[2] min-w-[200px]">
+                <FormLabel for="section" label="Section" />
+                <div class="mt-1">
+                  <FormSelect
+                    v-model="state.stall.sectionCode" @update:modelValue="fetchStallNoId"
+                    :options="state.stall_options.sections"
+                  />
+                </div>
+              </div>
+
+              <div class="flex-1 min-w-[150px]">
+                <FormLabel for="stall_no" label="Stall No" />
+                <div class="mt-1">
+                  <FormSelect
+                    v-model="state.stall.stallNo" @update:modelValue="fetchStall"
+                    :options="state.stall_options.stallNos"
+                  />
+                </div>
+              </div>
             </div>
 
             <!-- STALL SECTION -->
             <div class="flex flex-wrap gap-5 mb-5">
               <!-- Stall No input -->
-              <div class="w-full md:flex-1 md:min-w-[200px]">
+              <!-- <div class="w-full md:flex-1 md:min-w-[200px]">
                 <FormLabel for="stall-no" label="Stall No" />
                 <div class="mt-1">
                   <FormTextSearch
@@ -100,10 +149,10 @@
                     class="w-full"
                   />
                 </div>
-              </div>
+              </div> -->
 
               <!-- Stall Description -->
-              <div class="w-full md:flex-[3]">
+              <!-- <div class="w-full md:flex-[3]">
                 <div class="mt-1">
                   <FormLabel for="stall-details" label="Stall Description" />
                 </div>
@@ -118,7 +167,7 @@
                 <div v-else class="text-gray-500 italic min-h-[60px]">
                   No stall details found
                 </div>
-              </div>
+              </div> -->
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -430,6 +479,7 @@
     },
     owner: {
       details: null,
+      selected: null,
     },
     rentals: [],
     dataFilter: [],
@@ -448,6 +498,10 @@
       extension: [],
     },
     rentalStatus: null,
+    stall_options: {
+      sections: [],
+      stallNos: [],
+    },
   })
 
   onMounted(() => {
@@ -459,7 +513,7 @@
   }
 
   function addRentalDialog() {
-    // loadParameters()
+    loadParameters()
     Object.assign(state.form, defaultForm)
     state.owner.details = null
     state.stall.details = null
@@ -483,6 +537,70 @@
   async function next() {
       currentPage++
       fetchRentals()
+  }
+
+  //get ownerId
+  watch(() => state.owner.selected, (ownerId) => {
+  if (ownerId) {
+    state.form.ownerId = ownerId
+  }
+})
+
+  //get stall details
+  async function fetchStall() {
+      $loading.start()
+      try {
+          let params = {
+              type: state.stall.stallType,
+              marketcode: state.stall.marketCode,
+              sectioncode: state.stall.sectionCode,
+              name: state.stall.stallNo,
+          }
+          console.log(params)
+          const response = await stallService.getStallSel(params)
+          if (response) {
+            console.log(response)
+              // state.rentals = response
+
+              // store section options
+              state.stall_options.sections = response.data.map((item) => ({
+                value: item.sectionCode,
+                label: item.stallDescription
+              }))
+
+              state.form.stallNo = response.data[0]?.stallNo || null
+          }
+      } catch (error) {
+          console.log(error)
+      }
+      $loading.stop()
+  }
+
+  //get stall details
+  async function fetchStallNoId() {
+      $loading.start()
+      try {
+          let params = {
+              type: state.stall.stallType,
+              marketcode: state.stall.marketCode,
+              sectioncode: state.stall.sectionCode,
+              name: state.stall.stallNo,
+          }
+          console.log(params)
+          const response = await stallService.getStallNoIdSel(params)
+          if (response) {
+            console.log(response)
+
+              //store stallnoid options
+              state.stall_options.stallNos = response.data.map((item) => ({
+                value: item.stallNoId,
+                label: item.stallNoId
+              }))
+          }
+      } catch (error) {
+          console.log(error)
+      }
+      $loading.stop()
   }
 
   async function addRental() {
@@ -635,38 +753,38 @@
     $loading.stop()
   }
 
-  // async function fetchTypes() {
-  //   try {
-  //     let params = {
-  //       fieldId: 'STALLTYPE'
-  //     }
-  //     const response = await parameterService.getParameter(params)
-  //     if (response) {
-  //         let options = response.data.map((item) => ({
-  //             value: item.fieldDescription,
-  //             label: item.fieldDescription
-  //         }));
-  //         state.parameter.types = options;
-  //     }
-  //   } catch (error) {
-  //     console.error(error)
-  //   }
-  // }
+  async function fetchTypes() {
+    try {
+      let params = {
+        fieldId: 'STALLTYPE'
+      }
+      const response = await parameterService.getParameter(params)
+      if (response) {
+          let options = response.data.map((item) => ({
+              value: item.fieldDescription,
+              label: item.fieldDescription
+          }));
+          state.parameter.types = options;
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
-  // async function fetchParameter(fieldId, stateKey) {
-  //   try {
-  //     const response = await parameterService.getParameter({ fieldId })
-  //     if (response) {
-  //       const options = response.data.map((item) => ({
-  //         value: item.fieldValue, // fallback
-  //         label: item.fieldDescription,
-  //       }))
-  //       state.parameter[stateKey] = options
-  //     }
-  //   } catch (error) {
-  //     console.error(`Failed to fetch ${fieldId}`, error)
-  //   }
-  // }
+  async function fetchParameter(fieldId, stateKey) {
+    try {
+      const response = await parameterService.getParameter({ fieldId })
+      if (response) {
+        const options = response.data.map((item) => ({
+          value: item.fieldValue, // fallback
+          label: item.fieldDescription,
+        }))
+        state.parameter[stateKey] = options
+      }
+    } catch (error) {
+      console.error(`Failed to fetch ${fieldId}`, error)
+    }
+  }
 
   async function searchOwner(rentalId) {
     const ownerId = state.form.ownerId
@@ -688,24 +806,32 @@
     }
   }
 
-  async function searchStall(rentalId) {
-    const stallNo = state.form.stallNo
-    if (!stallNo) {
-      state.stall.details = null
-      state.form.stallNo = null
-      return
-    }
+  // async function searchStall(rentalId) {
+  //   const stallNo = state.form.stallNo
+  //   if (!stallNo) {
+  //     state.stall.details = null
+  //     state.form.stallNo = null
+  //     return
+  //   }
 
-    try {
-      const response = await stallService.getStall(stallNo, rentalId)
-      if (response && response.data) {
-        state.stall.details = response.data
-      }
-    } catch (error) {
-      showError(error.message)
-      state.stall.details = null
-      state.form.stallNo = null
-    }
+  //   try {
+  //     const response = await stallService.getStall(stallNo, rentalId)
+  //     if (response && response.data) {
+  //       state.stall.details = response.data
+  //     }
+  //   } catch (error) {
+  //     showError(error.message)
+  //     state.stall.details = null
+  //     state.form.stallNo = null
+  //   }
+  // }
+
+  function loadParameters() {
+    fetchTypes()
+    fetchParameter('MARKETCODE', 'markets')
+    fetchParameter('SECTIONCODE', 'sections')
+    fetchParameter('STRUCTCODE', 'buildings')
+    // fetchInfluences()
   }
   //end of parameter
    
