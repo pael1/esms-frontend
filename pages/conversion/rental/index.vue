@@ -670,6 +670,7 @@
           const response = await rentalService.getRental(params)
           if (response) {
               state.rentals = response
+              console.log(response);
           }
       } catch (error) {
           console.log(error)

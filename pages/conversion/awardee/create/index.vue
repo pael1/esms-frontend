@@ -1,4 +1,9 @@
 <template>
+  <ButtonBack @click="goBack">
+      <span class="flex items-center justify-between">
+          <ArrowLeftIcon class="text-green-900 w-5 h-5 mr-2" /> Back
+      </span>
+  </ButtonBack>
   <div class="max-w-5xl mx-auto space-y-6 my-10">
     <Loader v-if="state.isPageLoading" />
     <form @submit.prevent="awardeeAddForm"
@@ -129,13 +134,13 @@
             <label class="block text-sm font-medium mb-1">Birthdate</label>
             <FormDate v-model="child.childBDate" />
           </div>
-          <FormButton type="submit" class="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600" @click="removeChild(index)">
+          <FormButton type="button" buttonStyle="red" size="lg" @click="removeChild(index)">
             Remove
           </FormButton>
         </div>
 
         <!-- Add Child Button -->
-        <FormButton type="button" class="px-3 py-1 text-sm" @click="addChild">
+        <FormButton type="button" buttonSyle="green" size="sm" @click="addChild">
             Add Child
         </FormButton>
       </div>
@@ -180,14 +185,14 @@
 
           <!-- Remove Button (1 col) -->
           <div class="md:col-span-1 flex">
-            <FormButton type="submit" class="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 w-full" @click="removeEmployee(index)">
+            <FormButton type="button" buttonStyle="red" size="lg" @click="removeEmployee(index)">
                 Remove
             </FormButton>
           </div>
         </div>
 
         <!-- Add Employee Button -->
-        <FormButton type="button" class="px-3 py-1 text-sm" @click="addEmployee">
+        <FormButton type="button" buttonStyle="green" size="sm" @click="addEmployee">
           Add Employee
         </FormButton>
       </div>
@@ -222,7 +227,7 @@
               >
                 Remove
               </button> -->
-              <FormButton type="button" class="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600" @click="removeFile(index)">
+              <FormButton type="button" buttonStyle="red" size="sm"  @click="removeFile(index)">
                 Remove
             </FormButton>
             </li>
@@ -310,8 +315,12 @@ import { reactive, ref } from 'vue'
 import { awardeeService } from '~/api/AwardeeService'
 import { stallOwnerService } from '~/api/StallOwnerService'
 import * as yup from "yup";
+import { useRouter } from 'vue-router'
+import { ArrowLeftIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 
-const { showError, showSuccess, showConfirmOkay } = useSweetLoading()
+const router = useRouter()
+
+const { showError, showSuccess, showConfirmOkay, showConfirm } = useSweetLoading()
 
 definePageMeta({
   layout: 'main'
@@ -502,45 +511,6 @@ const awardeeSchema = yup.object({
     }),
 });
 
-// async function awardeeAddForm() {
-//   try {
-//     // Validate state.form before sending
-//     await awardeeSchema.validate(state.form, { abortEarly: false });
-
-//     const formData = objectToFormData(state.form);
-//     let params = formData;
-
-//     const response = await awardeeService.create(params);
-//     if (response) {
-//       const confirmed = await showConfirmOkay("Success", "Awardee saved successfully.");
-//       if (!confirmed) return;
-//       window.location.reload();
-//     }
-//   } catch (error) {
-//     let errorMessages = [];
-
-//     if (error.name === "ValidationError") {
-//       // Handle frontend validation errors
-//       error.inner.forEach((err) => {
-//         errorMessages.push(err.message);
-//       });
-//       showError("", errorMessages.join("<br>"));
-//     } else {
-//       // Handle backend/Laravel validation errors
-//       if (error.errors) {
-//         Object.entries(error.errors).forEach(([field, messages]) => {
-//           messages.forEach((message) => {
-//             errorMessages.push(`${field}: ${message}`);
-//           });
-//         });
-//         showError("Server Validation", errorMessages.join("<br>"));
-//       } else {
-//         showError("", error.message || "An error occurred while saving the awardee.");
-//       }
-//     }
-//   }
-// }
-
 async function awardeeAddForm() {
   try {
     state.errors = {}; // reset errors
@@ -553,9 +523,12 @@ async function awardeeAddForm() {
 
     const response = await stallOwnerService.create(formData);
     if (response) {
-      const confirmed = await showConfirmOkay("Success", "Awardee saved successfully.");
-      if (!confirmed) return;
-      window.location.reload();
+      const confirmed = await showConfirm('Successfully created', 'Do you want to create another awardee?', 'Yes', 'No')
+      if (confirmed){
+        window.location.reload();
+      } else {
+        router.push('/conversion/awardee')
+      }
     }
   } catch (error) {
     state.errors = {}; // clear old errors
@@ -608,6 +581,10 @@ function objectToFormData(obj, form = new FormData(), namespace = '') {
     }
   }
   return form
+}
+
+const goBack = () => {
+  window.history.back()
 }
 
 </script>

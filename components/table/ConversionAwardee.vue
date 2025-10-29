@@ -9,6 +9,7 @@
                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">OwnerID</th>
                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Name</th>
                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Address</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Rental Status</th>
                 <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
                   <span class="sr-only">Edit</span>
                 </th>
@@ -26,6 +27,15 @@
                   </td>
                   <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                     {{ $capitalizeWords(awardee.address) }}
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm">
+                      <span
+                          :class="awardee.rental_status && awardee.rental_status.toLowerCase() === 'available'
+                          ? 'inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20'
+                          : 'inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20'"
+                      >
+                          {{ (awardee.rental_status === 'available') ? 'Available' : "Rented" }}
+                      </span>
                   </td>
                   <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                     <FormButton buttonStyle="yellow" size="sm" @click="view_profile(awardee.ownerId)">Edit</FormButton>

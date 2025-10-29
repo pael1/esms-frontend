@@ -1,5 +1,10 @@
 <template>
   <Toaster richColors position="top-right" />
+  <ButtonBack @click="goBack">
+      <span class="flex items-center justify-between">
+          <ArrowLeftIcon class="text-green-900 w-5 h-5 mr-2" /> Back
+      </span>
+  </ButtonBack>
   <div class="max-w-5xl mx-auto space-y-6 my-10">
     <Loader v-if="state.isPageLoading" />
     <form @submit.prevent="awardeeUpdateForm"
@@ -243,14 +248,10 @@
               :key="index"
               class="flex items-center justify-between"
             >
-              <span>{{ file.filePath }} ({{ file.attachFileType }})</span>
-              <button
-                type="button"
-                class="text-red-600 hover:underline text-xs"
-                @click="removeFile(index)"
-              >
+              <span>{{ file.filePath.name }} ({{ file.attachFileType }})</span>
+              <FormButton type="button" buttonStyle="red" size="sm" @click="removeFile(index)">
                 Remove
-              </button>
+              </FormButton>
             </li>
           </ul>
         </div>
@@ -277,7 +278,7 @@
 
           <!-- Attach Button (2 cols) -->
           <div class="col-span-6 md:col-span-2">
-            <FormButton type="button" class="px-3 py-1 text-sm" @click="attachFile">
+            <FormButton type="button" buttonStyle="green" size="md" @click="attachFile">
               Attach File
             </FormButton>
           </div>
@@ -305,6 +306,7 @@ import { fileService } from '~/api/FileService';
 import { Toaster, toast } from 'vue-sonner'
 import 'vue-sonner/style.css'
 import * as yup from "yup";
+import { ArrowLeftIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 
 const { showError, showSuccess, showConfirm, showConfirmOkay } = useSweetLoading()
 const config = useRuntimeConfig()
@@ -564,7 +566,7 @@ function attachFile() {
     filePath: state.form.selectedFile,
     attachFileType: state.form.selectedFileType
   })
-  console.log(state.form.files)
+  console.log("attached files ", state.form.files);
   state.form.selectedFile = null
   document.getElementById('file-upload').value = '' // reset input
 }
@@ -688,5 +690,8 @@ function buildFormData(form) {
   return formData
 }
 
+const goBack = () => {
+  window.history.back()
+}
 
 </script>
