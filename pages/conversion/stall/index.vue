@@ -502,7 +502,6 @@
           }
         // clearForm()
       } catch (error) {
-        console.log(error)
         let errorMessages = []
           Object.entries(error.errors).forEach(([field, messages]) => {
             messages.forEach((message) => {
@@ -510,6 +509,7 @@
             })
           })
           showError('', errorMessages.join('<br>'))
+          $loading.stop()
       }
   }
 
