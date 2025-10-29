@@ -57,7 +57,7 @@
     <!-- Modal -->
      <!-- create -->
     <Modal :show="state.open">
-      <div class="w-full max-w-4xl mx-auto bg-white px-4 py-5 sm:px-6 rounded-lg space-y-4">
+      <div class="w-full max-w-4xl mx-auto bg-gray-100 px-4 py-5 sm:px-6 rounded-lg space-y-4">
         <div class="border-b border-green-200 -ml-4 -mt-2 flex flex-wrap items-center justify-between sm:flex-nowrap">
           <div class="ml-2 mb-2">
             <h3 class="text-lg font-semibold text-green-900">Create Stall</h3>
@@ -69,26 +69,50 @@
           autocomplete="off"
           class="p-4"
         >
-          <div class="bg-green-50 shadow-lg rounded-lg p-4 mb-10 space-y-5">
+          <div class="bg-white shadow-lg rounded-lg p-4 mb-10 space-y-5">
             
             <!-- First row -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <div class="text-start">
                 <FormLabel for="stall_type" label="Type" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.type" :options="state.parameter.types" />
+                  <FormSelect v-model="state.form.type" :options="state.parameter.types" :class="[
+                    'rounded-md transition-all',
+                    state.errors.type
+                      ? 'ring-1 ring-red-500 focus:ring-red-500'
+                      : 'ring-1 ring-gray-300 focus:ring-green-600'
+                  ]" @change="clearError('type')" />
+                  <p v-if="state.errors.type" class="text-sm text-red-500 mt-1">
+                    {{ state.errors.type[0] }}
+                  </p>
                 </div>
               </div>
               <div class="text-start">
                 <FormLabel for="market" label="Market" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.market" :options="state.parameter.markets" />
+                  <FormSelect v-model="state.form.market" :options="state.parameter.markets" :class="[
+                    'rounded-md transition-all',
+                    state.errors.market
+                      ? 'ring-1 ring-red-500 focus:ring-red-500'
+                      : 'ring-1 ring-gray-300 focus:ring-green-600'
+                  ]" @change="clearError('market')" />
+                  <p v-if="state.errors.market" class="text-sm text-red-500 mt-1">
+                    {{ state.errors.market[0] }}
+                  </p>
                 </div>
               </div>
               <div class="text-start">
                 <FormLabel for="section" label="Section" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.section" :options="state.parameter.sections" @change="getSubSection($event)" />
+                  <FormSelect v-model="state.form.section" :options="state.parameter.sections" @change="getSubSection($event)" :class="[  
+                    'rounded-md transition-all',
+                    state.errors.section
+                      ? 'ring-1 ring-red-500 focus:ring-red-500'
+                      : 'ring-1 ring-gray-300 focus:ring-green-600'
+                  ]" />
+                  <p v-if="state.errors.section" class="text-sm text-red-500 mt-1">
+                    {{ state.errors.section[0] }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -104,7 +128,15 @@
               <div class="text-start">
                 <FormLabel for="building" label="Building" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.building" :options="state.parameter.buildings" />
+                  <FormSelect v-model="state.form.building" :options="state.parameter.buildings" :class="[
+                    'rounded-md transition-all',
+                    state.errors.building
+                      ? 'ring-1 ring-red-500 focus:ring-red-500'
+                      : 'ring-1 ring-gray-300 focus:ring-green-600'
+                  ]" @change="clearError('building')" />
+                  <p v-if="state.errors.building" class="text-sm text-red-500 mt-1">
+                    {{ state.errors.building[0] }}
+                  </p>
                 </div>
               </div>
               <div class="text-start">
@@ -120,13 +152,29 @@
               <div class="sm:col-span-2 text-start">
                 <FormLabel for="class" label="Class" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.class" :options="classOptions" />
+                  <FormSelect v-model="state.form.class" :options="classOptions" :class="[
+                    'rounded-md transition-all',
+                    state.errors.class
+                      ? 'ring-1 ring-red-500 focus:ring-red-500'
+                      : 'ring-1 ring-gray-300 focus:ring-green-600'
+                  ]" @change="clearError('class')" />
+                  <p v-if="state.errors.class" class="text-sm text-red-500 mt-1">
+                    {{ state.errors.class[0] }}
+                  </p>
                 </div>
               </div>
               <div class="text-start">
                 <FormLabel for="id" label="ID" />
                 <div class="mt-1">
-                  <FormNumber name="id" v-model="state.form.stall_id" />
+                  <FormNumber name="id" v-model="state.form.stall_id" :class="[
+                    'rounded-md transition-all',
+                    state.errors.stall_id
+                      ? 'ring-1 ring-red-500 focus:ring-red-500'
+                      : 'ring-1 ring-gray-300 focus:ring-green-600'
+                  ]" @change="clearError('stall_id')" />
+                  <p v-if="state.errors.stall_id" class="text-sm text-red-500 mt-1">
+                    {{ state.errors.stall_id[0] }}
+                  </p>
                 </div>
               </div>
               <div class="text-start">
@@ -138,7 +186,15 @@
               <div class="text-start">
                 <FormLabel for="area" label="Area" />
                 <div class="mt-1">
-                  <FormNumber name="area" v-model="state.form.area"/>
+                  <FormNumber name="area" v-model="state.form.area" :class="[
+                    'rounded-md transition-all',
+                    state.errors.area
+                      ? 'ring-1 ring-red-500 focus:ring-red-500'
+                      : 'ring-1 ring-gray-300 focus:ring-green-600'
+                  ]" @change="clearError('area')" />
+                  <p v-if="state.errors.area" class="text-sm text-red-500 mt-1">
+                    {{ state.errors.area[0] }}
+                  </p>
                 </div>
               </div>
               <div class="text-start">
@@ -164,7 +220,7 @@
     </Modal>
     <!-- view/edit -->
      <Modal :show="state.openViewDialog">
-      <div class="w-full max-w-4xl mx-auto bg-white px-4 py-5 sm:px-6 rounded-lg space-y-4">
+      <div class="w-full max-w-4xl mx-auto bg-gray-100 px-4 py-5 sm:px-6 rounded-lg space-y-4">
         <div class="border-b border-green-200 -ml-4 -mt-2 flex flex-wrap items-center justify-between sm:flex-nowrap">
           <div class="ml-2 mb-2">
             <h3 class="text-lg font-semibold text-green-900">{{ state.isEdit ? 'Edit Stall' : 'View Stall' }}</h3>
@@ -176,26 +232,50 @@
           autocomplete="off"
           class="p-4"
         >
-          <div class="bg-green-50 shadow-lg rounded-lg p-4 mb-10 space-y-5">
+          <div class="bg-white shadow-lg rounded-lg p-4 mb-10 space-y-5">
             
             <!-- First row -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <div class="text-start">
                 <FormLabel for="stall_type" label="Type" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.type" :options="state.parameter.types" :disabled="!state.isEdit" />
+                  <FormSelect v-model="state.form.type" :options="state.parameter.types" :disabled="!state.isEdit" :class="[
+                    'rounded-md transition-all',
+                    state.errors.type
+                      ? 'ring-1 ring-red-500 focus:ring-red-500'
+                      : 'ring-1 ring-gray-300 focus:ring-green-600'
+                  ]" @change="clearError('type')" />
+                  <p v-if="state.errors.type" class="text-sm text-red-500 mt-1">
+                    {{ state.errors.type[0] }}
+                  </p>
                 </div>
               </div>
               <div class="text-start">
                 <FormLabel for="market" label="Market" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.market" :options="state.parameter.markets" :disabled="!state.isEdit" />
+                  <FormSelect v-model="state.form.market" :options="state.parameter.markets" :disabled="!state.isEdit" :class="[
+                    'rounded-md transition-all',
+                    state.errors.market
+                      ? 'ring-1 ring-red-500 focus:ring-red-500'
+                      : 'ring-1 ring-gray-300 focus:ring-green-600'
+                  ]" @change="clearError('market')" />
+                  <p v-if="state.errors.market" class="text-sm text-red-500 mt-1">
+                    {{ state.errors.market[0] }}
+                  </p>
                 </div>
               </div>
               <div class="text-start">
                 <FormLabel for="section" label="Section" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.section" :options="state.parameter.sections" @change="getSubSection($event)" :disabled="!state.isEdit" />
+                  <FormSelect v-model="state.form.section" :options="state.parameter.sections" @change="getSubSection($event)" :disabled="!state.isEdit" :class="[  
+                    'rounded-md transition-all',
+                    state.errors.section
+                      ? 'ring-1 ring-red-500 focus:ring-red-500'
+                      : 'ring-1 ring-gray-300 focus:ring-green-600'
+                  ]" />
+                  <p v-if="state.errors.section" class="text-sm text-red-500 mt-1">
+                    {{ state.errors.section[0] }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -211,7 +291,15 @@
               <div class="text-start">
                 <FormLabel for="building" label="Building" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.building" :options="state.parameter.buildings" :disabled="!state.isEdit" />
+                  <FormSelect v-model="state.form.building" :options="state.parameter.buildings" :disabled="!state.isEdit" :class="[
+                    'rounded-md transition-all',
+                    state.errors.building
+                      ? 'ring-1 ring-red-500 focus:ring-red-500'
+                      : 'ring-1 ring-gray-300 focus:ring-green-600'
+                  ]" @change="clearError('building')" />
+                  <p v-if="state.errors.building" class="text-sm text-red-500 mt-1">
+                    {{ state.errors.building[0] }}
+                  </p>
                 </div>
               </div>
               <div class="text-start">
@@ -227,13 +315,29 @@
               <div class="sm:col-span-2 text-start">
                 <FormLabel for="class" label="Class" />
                 <div class="mt-1">
-                  <FormSelect v-model="state.form.class" :options="classOptions" :disabled="!state.isEdit" />
+                  <FormSelect v-model="state.form.class" :options="classOptions" :disabled="!state.isEdit" :class="[  
+                    'rounded-md transition-all',
+                    state.errors.class
+                      ? 'ring-1 ring-red-500 focus:ring-red-500'
+                      : 'ring-1 ring-gray-300 focus:ring-green-600'
+                  ]" @change="clearError('class')" />
+                  <p v-if="state.errors.class" class="text-sm text-red-500 mt-1">
+                    {{ state.errors.class[0] }}
+                  </p>
                 </div>
               </div>
               <div class="text-start">
                 <FormLabel for="id" label="ID" />
                 <div class="mt-1">
-                  <FormNumber name="id" v-model="state.form.stall_id" :disabled="!state.isEdit" />
+                  <FormNumber name="id" v-model="state.form.stall_id" :disabled="!state.isEdit" :class="[  
+                    'rounded-md transition-all',
+                    state.errors.stall_id
+                      ? 'ring-1 ring-red-500 focus:ring-red-500'
+                      : 'ring-1 ring-gray-300 focus:ring-green-600'
+                  ]" @change="clearError('stall_id')" />
+                  <p v-if="state.errors.stall_id" class="text-sm text-red-500 mt-1">
+                    {{ state.errors.stall_id[0] }}
+                  </p>
                 </div>
               </div>
               <div class="text-start">
@@ -245,7 +349,15 @@
               <div class="text-start">
                 <FormLabel for="area" label="Area" />
                 <div class="mt-1">
-                  <FormNumber name="area" v-model="state.form.area" :disabled="!state.isEdit" />
+                  <FormNumber name="area" v-model="state.form.area" :disabled="!state.isEdit" :class="[  
+                    'rounded-md transition-all',
+                    state.errors.area
+                      ? 'ring-1 ring-red-500 focus:ring-red-500'
+                      : 'ring-1 ring-gray-300 focus:ring-green-600'
+                  ]" @change="clearError('area')" />
+                  <p v-if="state.errors.area" class="text-sm text-red-500 mt-1">
+                    {{ state.errors.area[0] }}
+                  </p>
                 </div>
               </div>
               <div class="text-start">
@@ -350,7 +462,8 @@
       cfsi: [],
       class: [],
       extension: [],
-    }
+    },
+    errors: []
   })
 
   onMounted(() => {
@@ -372,7 +485,16 @@
   //ed nof static data
 
   function getSubSection(selectedSection) {
+    if (state.errors["section"]) {
+      delete state.errors["section"]
+    }
     subSection(selectedSection);
+  }
+
+  function clearError(field) {
+    if (state.errors[field]) {
+      delete state.errors[field]
+    }
   }
 
   function addStallDialog() {
@@ -413,18 +535,23 @@
               fetchStalls()
               toast.success('Stall saved successfully')
           }
-        // closeLoading()
         state.open = false
-        // clearForm()
       } catch (error) {
-      console.log(error);
-        let errorMessages = []
-          Object.entries(error.errors).forEach(([field, messages]) => {
-            messages.forEach((message) => {
-              errorMessages.push(`${field}: ${message}`)
-            })
-          })
-          showError('', errorMessages.join('<br>'))
+        // console.log(error);
+        // let errorMessages = []
+        //   Object.entries(error.errors).forEach(([field, messages]) => {
+        //     messages.forEach((message) => {
+        //       errorMessages.push(`${field}: ${message}`)
+        //     })
+        //   })
+        //   showError('', errorMessages.join('<br>'))
+        if (error.errors) {
+          state.errors = error.errors
+        } else {
+          console.error('Unexpected error:', error)
+          toast.error('Something went wrong.')
+        }
+
       }
       $loading.stop()
   }
@@ -495,20 +622,24 @@
           const response = await stallService.updateStall(params, id)
           if (response) {
               fetchStalls()
-              $loading.stop()
-
               state.openViewDialog = false
               toast.success('Stall updated successfully')
           }
         // clearForm()
       } catch (error) {
         let errorMessages = []
-          Object.entries(error.errors).forEach(([field, messages]) => {
-            messages.forEach((message) => {
-              errorMessages.push(`${field}: ${message}`)
-            })
-          })
-          showError('', errorMessages.join('<br>'))
+          // Object.entries(error.errors).forEach(([field, messages]) => {
+          //   messages.forEach((message) => {
+          //     errorMessages.push(`${field}: ${message}`)
+          //   })
+          // })
+          // showError('', errorMessages.join('<br>'))
+          if (error.errors) {
+            state.errors = error.errors
+          } else {
+            console.error('Unexpected error:', error)
+            toast.error('Something went wrong.')
+          }
           $loading.stop()
       }
   }

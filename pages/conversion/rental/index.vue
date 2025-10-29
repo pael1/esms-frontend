@@ -58,7 +58,7 @@
     <!-- Modal -->
     <!-- create -->
     <Modal :show="state.open">
-      <div class="w-full max-w-4xl mx-auto bg-white px-4 py-5 sm:px-6 rounded-lg space-y-4">
+      <div class="w-full max-w-4xl mx-auto bg-gray-100 px-4 py-5 sm:px-6 rounded-lg space-y-4">
         <Loader v-if="$loading.state.isPageLoading" />
 
         <!-- Header -->
@@ -73,7 +73,7 @@
           <!-- =======================
                 Section 1: Owner & Stall Details
           ========================== -->
-          <div class="bg-green-50 shadow-md rounded-lg p-4 space-y-4">
+          <div class="bg-white shadow-md rounded-lg p-4 space-y-4">
             <h4 class="text-md font-semibold text-green-800 border-b border-green-200 pb-2">
               Stall Owner & Stall Details
             </h4>
@@ -83,7 +83,15 @@
               <div class="w-full md:flex-1 md:min-w-[400px]">
                 <FormLabel for="owner-name" label="Owner Name" />
                 <div class="mt-1">
-                  <FormSelectSearch v-model="state.owner.selected" class="w-full" />
+                  <FormSelectSearch v-model="state.owner.selected" class="w-full" :class="[
+                    'rounded-md transition-all',
+                    state.errors.ownerId
+                      ? 'ring-1 ring-red-500 focus:ring-red-500'
+                      : 'ring-1 ring-gray-300 focus:ring-green-600'
+                  ]" @change="clearError('ownerId')" />
+                  <p v-if="state.errors.ownerId" class="text-sm text-red-500 mt-1">
+                    {{ state.errors.ownerId[0] }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -118,8 +126,16 @@
                 <FormSelect
                   v-model="state.stall.stallNo"
                   @update:modelValue="fetchStall"
-                  :options="state.stall_options.stallNos"
+                  :options="state.stall_options.stallNos" :class="[
+                    'rounded-md transition-all',
+                    state.errors.stallNo
+                      ? 'ring-1 ring-red-500 focus:ring-red-500'
+                      : 'ring-1 ring-gray-300 focus:ring-green-600'
+                  ]" @change="clearError('stallNo')"
                 />
+                <p v-if="state.errors.stallNo" class="text-sm text-red-500 mt-1">
+                  {{ state.errors.stallNo[0] }}
+                </p>
               </div>
             </div>
           </div>
@@ -127,7 +143,7 @@
           <!-- =======================
                 Section 2: Contract & Business Details
           ========================== -->
-          <div class="bg-white border border-green-200 shadow-sm rounded-lg p-4 space-y-4">
+          <div class="bg-white shadow-sm rounded-lg p-4 space-y-4">
             <h4 class="text-md font-semibold text-green-800 border-b border-green-200 pb-2">
               Contract & Business Details
             </h4>
@@ -198,7 +214,7 @@
 
     <!-- Update / View Rental Modal -->
     <Modal :show="state.openViewDialog">
-      <div class="w-full max-w-4xl mx-auto bg-white px-4 py-5 sm:px-6 rounded-lg space-y-4">
+      <div class="w-full max-w-4xl mx-auto bg-gray-100 px-4 py-5 sm:px-6 rounded-lg space-y-4">
         <Loader v-if="$loading.state.isPageLoading" />
 
         <!-- Header -->
@@ -234,7 +250,7 @@
           <!-- =======================
                 Section 1: Stall Owner & Stall Details
           ========================== -->
-          <div class="bg-green-50 shadow-md rounded-lg p-5 space-y-5">
+          <div class="bg-white shadow-md rounded-lg p-5 space-y-5">
             <!-- Header -->
             <div class="flex items-center justify-between border-b border-green-200 pb-2">
               <h4 class="text-md font-semibold text-green-800">
@@ -330,7 +346,7 @@
           <!-- =======================
                 Section 2: Contract & Business Details
           ========================== -->
-          <div class="bg-white border border-green-200 shadow-sm rounded-lg p-4 space-y-4">
+          <div class="bg-white shadow-sm rounded-lg p-4 space-y-4">
             <h4 class="text-md font-semibold text-green-800 border-b border-green-200 pb-2">
               Contract & Business Details
             </h4>
@@ -527,6 +543,7 @@
       sections: [],
       stallNos: [],
     },
+    errors: []
   })
 
   onMounted(() => {
@@ -535,6 +552,12 @@
 
   function getSubSection(selectedSection) {
     subSection(selectedSection);
+  }
+
+  function clearError(field) {
+    if (state.errors[field]) {
+      delete state.errors[field]
+    }
   }
 
   function addRentalDialog() {
@@ -635,7 +658,6 @@
 
   async function addRental() {
     $loading.start()
-    // console.log(state.form)
     try {
         let params = state.form;
         const response = await rentalService.addData(params)
@@ -643,16 +665,14 @@
             fetchRentals()
             toast.success('Rental saved successfully')
         }
-      // closeLoading()
       state.open = false
     } catch (error) {
-      let errorMessages = []
-        Object.entries(error.errors).forEach(([field, messages]) => {
-          messages.forEach((message) => {
-            errorMessages.push(`${field}: ${message}`)
-          })
-        })
-        showError('', errorMessages.join('<br>'))
+      if (error.errors) {
+        state.errors = error.errors
+      } else {
+        console.error('Unexpected error:', error)
+        toast.error('Something went wrong.')
+      }
     }
     $loading.stop()
   }
@@ -706,10 +726,10 @@
         }
 
         //stall owner name
-        state.owner.selected = {
-          value: rental.stallOwner.ownerId,
-          label: rental.stallOwner.full_name,
-        };
+        // state.owner.selected = {
+        //   value: rental.stallOwner.ownerId,
+        //   label: rental.stallOwner.full_name,
+        // };
 
         console.log('Selected Owner:', state.owner.selected);
 
@@ -764,14 +784,19 @@
               toast.success('Rental updated successfully')
           }
       } catch (error) {
-        console.log(error)
-        let errorMessages = []
-          Object.entries(error.errors).forEach(([field, messages]) => {
-            messages.forEach((message) => {
-              errorMessages.push(`${field}: ${message}`)
-            })
-          })
-          showError('', errorMessages.join('<br>'))
+        // let errorMessages = []
+        //   Object.entries(error.errors).forEach(([field, messages]) => {
+        //     messages.forEach((message) => {
+        //       errorMessages.push(`${field}: ${message}`)
+        //     })
+        //   })
+        //   showError('', errorMessages.join('<br>'))
+        if (error.errors) {
+          state.errors = error.errors
+        } else {
+          console.error('Unexpected error:', error)
+          toast.error('Something went wrong.')
+        }
       }
   }
 
@@ -842,25 +867,25 @@
     }
   }
 
-  async function searchOwner(rentalId) {
-    const ownerId = state.form.ownerId
-    if (!ownerId) {
-      state.owner.details = null
-      state.form.ownerId = null
-      return
-    }
+  // async function searchOwner(rentalId) {
+  //   const ownerId = state.form.ownerId
+  //   if (!ownerId) {
+  //     state.owner.details = null
+  //     state.form.ownerId = null
+  //     return
+  //   }
 
-    try {
-      const response = await stallOwnerService.getOwner(ownerId, rentalId)
-      if (response && response.data) {
-        state.owner.details = response.data
-      }
-    } catch (error) {
-      showError(error.message)
-      state.owner.details = null
-      state.form.ownerId = null
-    }
-  }
+  //   try {
+  //     const response = await stallOwnerService.getOwner(ownerId, rentalId)
+  //     if (response && response.data) {
+  //       state.owner.details = response.data
+  //     }
+  //   } catch (error) {
+  //     showError(error.message)
+  //     state.owner.details = null
+  //     state.form.ownerId = null
+  //   }
+  // }
 
   // async function searchStall(rentalId) {
   //   const stallNo = state.form.stallNo
