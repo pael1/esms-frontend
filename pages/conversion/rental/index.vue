@@ -829,7 +829,7 @@
         toast.success('Rental cancelled successfully')
       }
     } catch (error) {
-      showError(error.message)
+      toast.error(error.message || 'Something went wrong.')
     }
     $loading.stop()
   }
