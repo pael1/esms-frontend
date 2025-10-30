@@ -778,7 +778,6 @@
           const response = await rentalService.updateRental(params, id)
           if (response) {
               fetchRentals()
-              $loading.stop()
 
               state.openViewDialog = false
               toast.success('Rental updated successfully')
@@ -798,6 +797,7 @@
           toast.error('Something went wrong.')
         }
       }
+      $loading.stop()
   }
 
   function closedDialogView() {
