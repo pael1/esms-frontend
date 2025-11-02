@@ -9,24 +9,19 @@
     </div>
 
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      <div class="bg-white shadow-sm border border-green-100 rounded-lg p-5 hover:shadow-md transition-all duration-300">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="bg-white shadow-sm border border-green-400 rounded-lg p-5 hover:shadow-md transition-all duration-300">
         <h3 class="text-sm text-gray-500">Total Payments Collected (This Month)</h3>
         <p class="text-2xl font-bold text-green-700 mt-2">₱{{ totals.payments.toLocaleString() }}</p>
       </div>
 
-      <div class="bg-white shadow-sm border border-green-100 rounded-lg p-5 hover:shadow-md transition-all duration-300">
-        <h3 class="text-sm text-gray-500">Total Order Payments Issued</h3>
-        <p class="text-2xl font-bold text-green-700 mt-2">{{ totals.opsCards.toLocaleString() }}</p>
-      </div>
-      
-      <div class="bg-white shadow-sm border border-green-100 rounded-lg p-5 hover:shadow-md transition-all duration-300">
-        <h3 class="text-sm text-gray-500">Active Stalls</h3>
-        <p class="text-2xl font-bold text-green-700 mt-2">{{ totals.opsCards.toLocaleString() }}</p>
+      <div class="bg-white shadow-sm border border-green-400 rounded-lg p-5 hover:shadow-md transition-all duration-300">
+        <h3 class="text-sm text-gray-500">Total Payments Pending (This Month)</h3>
+        <p class="text-2xl font-bold text-green-700 mt-2">₱{{ totals.payments.toLocaleString() }}</p>
       </div>
 
-      <div class="bg-white shadow-sm border border-green-100 rounded-lg p-5 hover:shadow-md transition-all duration-300">
-        <h3 class="text-sm text-gray-500">Active Stall Owners</h3>
+      <div class="bg-white shadow-sm border border-green-400 rounded-lg p-5 hover:shadow-md transition-all duration-300">
+        <h3 class="text-sm text-gray-500">Total Order Payments Issued</h3>
         <p class="text-2xl font-bold text-green-700 mt-2">{{ totals.opsCards.toLocaleString() }}</p>
       </div>
     </div>
@@ -34,7 +29,7 @@
     <!-- Charts Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       <!-- Sales Trend -->
-      <div class="bg-white shadow-md rounded-xl p-5 border border-green-100 hover:shadow-lg transition-all duration-300">
+      <div class="bg-white shadow-md rounded-xl p-5 border border-green-400 hover:shadow-lg transition-all duration-300">
         <h2 class="text-lg font-semibold text-green-700 mb-3">Monthly Payments Collected</h2>
         <apexchart
           type="area"
@@ -45,7 +40,7 @@
       </div>
 
       <!-- Revenue Breakdown -->
-      <!-- <div class="bg-white shadow-md rounded-xl p-5 border border-green-100 hover:shadow-lg transition-all duration-300">
+      <div class="bg-white shadow-md rounded-xl p-5 border border-green-400 hover:shadow-lg transition-all duration-300">
         <h2 class="text-lg font-semibold text-green-700 mb-3">Revenue Breakdown</h2>
         <apexchart
           type="donut"
@@ -53,10 +48,10 @@
           :options="chartOptions.revenue"
           :series="chartSeries.revenue"
         />
-      </div> -->
+      </div>
 
       <!-- Stall Utilization -->
-      <div class="bg-white shadow-md rounded-xl p-5 border border-green-100 hover:shadow-lg transition-all duration-300">
+      <div class="bg-white shadow-md rounded-xl p-5 border border-green-400 hover:shadow-lg transition-all duration-300">
         <h2 class="text-lg font-semibold text-green-700 mb-3">Stall Utilization</h2>
         <apexchart
           type="bar"
@@ -70,6 +65,7 @@
 </template>
 
 <script setup>
+import { dashboardService } from '~/api/DashboardService'
 import { ref, reactive, onMounted } from 'vue'
 import ApexCharts from 'vue3-apexcharts'
 
@@ -90,7 +86,7 @@ const totals = reactive({
 // Chart data placeholders
 const chartSeries = reactive({
   sales: [{ name: 'Sales', data: [] }],
-  // revenue: [45, 30, 15, 10],
+  revenue: [45, 30, 15, 10],
   utilization: [{ name: 'Occupied', data: [] }],
 })
 
@@ -124,12 +120,12 @@ const chartOptions = reactive({
     },
     tooltip: { theme: 'light' },
   },
-  // revenue: {
-  //   labels: ['Market Fees', 'Rent', 'Permits', 'Others'],
-  //   colors: ['#22c55e', '#16a34a', '#15803d', '#86efac'],
-  //   legend: { position: 'bottom', labels: { colors: '#374151' } },
-  //   dataLabels: { enabled: false },
-  // },
+  revenue: {
+    labels: ['Market Fees', 'Rent', 'Permits', 'Others'],
+    colors: ['#22c55e', '#16a34a', '#15803d', '#86efac'],
+    legend: { position: 'bottom', labels: { colors: '#374151' } },
+    dataLabels: { enabled: false },
+  },
   utilization: {
     chart: { type: 'bar', toolbar: { show: false } },
     plotOptions: {
@@ -151,7 +147,21 @@ const chartOptions = reactive({
 // Fetch chart data
 onMounted(() => {
   fetchChartData()
+  fetchRevenue()
 })
+
+async function fetchRevenue() {
+    try {
+      const response = await dashboardService.getRevenue()
+      if (response) {
+          console.log(response)
+          // Add totals from API
+          totals.payments = response.current_month_total ?? 0
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
 async function fetchChartData() {
   state.isPageLoading = true
