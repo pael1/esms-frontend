@@ -114,9 +114,7 @@
                           :to="sub.href"
                           @click="sidebarOpen = false"
                           class="group flex items-center gap-x-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-green-100 hover:text-green-900"
-                          :class="{
-                            'bg-green-100 text-green-900': sub.activeRouteNames.includes($route.name),
-                          }"
+                          :class="sub.activeRouteNames.includes($route.name) ? 'bg-green-100 text-green-900' : ''"
                         >
                           {{ sub.name }}
                         </NuxtLink>
@@ -192,8 +190,8 @@
               <MenuButton class="-m-1.5 flex items-center p-1.5">
                 <span class="sr-only">Open user menu</span>
                 <span class="hidden lg:flex lg:items-center">
-                  <span class="ml-4 text-sm font-semibold leading-6 text-gray-900" aria-hidden="true">{{
-                    user?.UserFirstName + ' ' + user?.UserLastName }}</span>
+                  <span class="ml-4 text-sm font-semibold leading-6 text-green-700" aria-hidden="true">{{
+                    $capitalizeWords(user?.firstname + ' ' + user?.midinit + ' ' + user?.lastname) }}</span>
                   <ChevronDownIcon class="ml-2 h-5 w-5 text-gray-400" aria-hidden="true" />
                 </span>
               </MenuButton>
@@ -252,7 +250,8 @@ import {
   HomeIcon,
   UsersIcon,
   XMarkIcon,
-  DocumentMinusIcon
+  DocumentMinusIcon,
+  UserIcon
 } from '@heroicons/vue/24/outline'
 import { ChevronRightIcon, ChevronDownIcon } from '@heroicons/vue/20/solid'
 import { useMarketcodeStore } from '~/store/marketcode'
@@ -269,6 +268,8 @@ const marketStore = useMarketcodeStore()
 
 const route = useRouter()
 const route1 = useRoute()
+
+const { $capitalizeWords } = useNuxtApp()
 
 const { setup, cleanup } = useIdle(60 * 60 * 1000)
 
@@ -309,6 +310,12 @@ const navigation = [
       { name: 'Rental', href: '/conversion/rental', activeRouteNames: ['conversion-rental'] },
     ]
   },
+  {
+    name: 'Users',
+    href: '/users',
+    icon: UserIcon,
+    activeRouteNames: ['users'],
+  },
 ];
 
 // Auto-open submenu if current route matches any child
@@ -342,7 +349,12 @@ const breadcrumbs = computed(() => {
 const filteredNavigation = computed(() =>
   navigation.filter(item => {
     if (!item) return false
-    if (item.name === 'Conversion' && user.MarketCode !== '00' && user.MarketCode !== '99') {
+    //show the conversion module for the CEE users only
+    if (item.name === 'Conversion' && user.office !== '00' && user.office !== '99') {
+      return false
+    } 
+    //show the users module for admin users only
+    if (item.name === 'Users' && user.office !== '00' && user.office !== '99') {
       return false
     } 
 

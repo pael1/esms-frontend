@@ -127,8 +127,9 @@ async function login() {
             }
             const response = await authService.login(params)
             if (response.data) {
+                console.log(response.data);
                 localStorage.setItem("_token", response.data.token)
-                userStore.setUser(response.data.user.user_detail)
+                userStore.setUser(response.data.user.details)
 
                 //set user section and market code
                 fetchMarkets()  

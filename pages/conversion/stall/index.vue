@@ -407,9 +407,9 @@
   //default marketcode
   let userMarketcode = '07'
   //if user is admin only show all marketcodes else show only marketcode for specific user
-  if (user.MarketCode != '99' && user.MarketCode != '00') {
-    marketCodes = marketCodes.filter((m) => m.value === user.MarketCode)
-    userMarketcode = user.MarketCode
+  if (user.office != '99' && user.office != '00') {
+    marketCodes = marketCodes.filter((m) => m.value === user.office)
+    userMarketcode = user.office
   }
 
   //global loading
