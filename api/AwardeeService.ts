@@ -50,12 +50,13 @@ class AwardeeService extends BaseAPIService {
     //     return await this.request(`/childrens`, 'GET', params);
     // }
 
-    async getAwardeeTransactions(params: object): Promise<any> {
-        return await this.request(`/awardees/transactions/${params.ownerId}`, 'GET', params);
+    async getAwardeeTransactions(params: object, id: any): Promise<any> {
+        return await this.request(`/awardees/${id}/transactions`, 'GET', params);
     }
 
     async getAwardeeFiles(params: object): Promise<any> {
-        return await this.request(`/awardees/files/${params.ownerId}`, 'GET', params);
+        // return await this.request(`/awardees/files/${params.ownerId}`, 'GET', params);
+        return await this.request(`/files`, 'GET', params);
     }
 
     // async getAwardeeEmployeesData(params: object): Promise<any> {

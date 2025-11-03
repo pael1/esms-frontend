@@ -28,18 +28,89 @@
                 <div class="flex h-16 items-center justify-center text-xl font-semibold text-green-100">
                   <img class="w-[90px]" src="/public/images/logo2.png" alt="Your Company">
                 </div>
+                <!-- mobile sidebar -->
                 <nav class="flex flex-1 flex-col">
                   <ul role="list" class="flex flex-1 flex-col gap-y-7">
                     <li>
                       <ul role="list" class="-mx-2 space-y-1">
-                        <li v-for="item in filteredNavigation" :key="item.name">
-                          <NuxtLink :to="item.href" @click="sidebarOpen = false"
-                            :class="[item.activeRouteNames.includes($route.name) ? 'bg-green-100 text-green-900' : 'text-green-900 hover:bg-green-100 hover:text-green-900', 'group flex items-center gap-x-3 rounded-md p-2 py-2 text-lg font-semibold leading-6']">
-                            <component :is="item.icon"
-                              :class="[item.activeRouteNames.includes($route.name) ? 'text-green-900' : 'text-green-900 group-hover:text-green-900', 'h-6 w-6 shrink-0']"
-                              aria-hidden="true" />
-                            {{ item.name }}
-                          </NuxtLink>
+                        <li v-for="(item, index) in filteredNavigation" :key="item.name">
+                          <div>
+                            <!-- Parent Link -->
+                            <div v-if="!item.children">
+                              <NuxtLink
+                                :to="item.href"
+                                @click="sidebarOpen = false"
+                                class="group flex items-center gap-x-3 rounded-md p-2 py-2 text-lg font-semibold leading-6"
+                                :class="[
+                                  item.activeRouteNames.includes($route.name)
+                                    ? 'bg-green-100 text-green-900'
+                                    : 'text-gray-900 hover:bg-green-100 hover:text-green-900'
+                                ]"
+                              >
+                                <component
+                                  :is="item.icon"
+                                  :class="[
+                                    item.activeRouteNames.includes($route.name)
+                                      ? 'text-green-900'
+                                      : 'text-green-900 group-hover:text-green-900',
+                                    'h-6 w-6 shrink-0'
+                                  ]"
+                                  aria-hidden="true"
+                                />
+                                <span>{{ item.name }}</span>
+                              </NuxtLink>
+                            </div>
+
+                            <!-- Parent with Submenu -->
+                            <div v-else>
+                              <button
+                                type="button"
+                                @click="toggleSubmenu(index)"
+                                class="group flex w-full items-center gap-x-3 rounded-md p-2 py-2 text-lg font-semibold leading-6 text-left cursor-pointer"
+                                :class="[
+                                  item.activeRouteNames.includes($route.name)
+                                    ? 'bg-green-100 text-green-900'
+                                    : 'text-gray-900 hover:bg-green-100 hover:text-green-900'
+                                ]"
+                              >
+                                <component
+                                  :is="item.icon"
+                                  :class="[
+                                    item.activeRouteNames.includes($route.name)
+                                      ? 'text-green-900'
+                                      : 'text-green-900 group-hover:text-green-900',
+                                    'h-6 w-6 shrink-0'
+                                  ]"
+                                  aria-hidden="true"
+                                />
+                                <span>{{ item.name }}</span>
+                                <ChevronRightIcon
+                                  :class="[
+                                    'ml-auto h-5 w-5 transform transition-transform duration-300',
+                                    openSubmenus[index]
+                                      ? 'rotate-90 text-green-800'
+                                      : 'rotate-0 text-green-800'
+                                  ]"
+                                />
+                              </button>
+
+                              <!-- Submenu -->
+                              <ul v-if="openSubmenus[index]" class="ml-10 mt-1 space-y-1">
+                                <li v-for="sub in item.children" :key="sub.name">
+                                  <NuxtLink
+                                    :to="sub.href"
+                                    @click="sidebarOpen = false"
+                                    class="group flex items-center gap-x-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-green-100 hover:text-green-900"
+                                    :class="{
+                                      'bg-green-100 text-green-900': sub.activeRouteNames.includes($route.name)
+                                    }"
+                                  >
+                                    {{ sub.name }}
+                                  </NuxtLink>
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
                         </li>
                       </ul>
                     </li>
@@ -60,19 +131,11 @@
           <img class="w-[90px]" src="/public/images/logo2.png" alt="Your Company">
         </div>
 
+        <!-- desktop sidebar -->
         <nav class="flex flex-1 flex-col">
           <ul role="list" class="flex flex-1 flex-col gap-y-7">
             <li>
               <ul role="list" class="-mx-2 space-y-1">
-                <!-- <li v-for="item in filteredNavigation" :key="item.name">
-                  <NuxtLink :to="item.href" @click="sidebarOpen = false"
-                    :class="[item.activeRouteNames.includes($route.name) ? 'bg-green-100 text-green-900' : 'text-gray-900 hover:bg-green-100 hover:text-green-900', 'group flex items-center gap-x-3 rounded-md p-2 py-2 text-lg font-semibold leading-6']">
-                    <component :is="item.icon"
-                      :class="[item.activeRouteNames.includes($route.name) ? 'text-green-900' : 'text-green-900 group-hover:text-green-900', 'h-6 w-6 shrink-0']"
-                      aria-hidden="true" />
-                    {{ item.name }}
-                  </NuxtLink>
-                </li> -->
                 <li v-for="(item, index) in filteredNavigation" :key="item.name">
                   <div>
                     <div

@@ -85,7 +85,7 @@
           page: currentPage,
           ownerId: id,
       }
-      const response = await awardeeService.getAwardeeTransactions(params);
+      const response = await awardeeService.getAwardeeTransactions(params, id);
       if (response.data) {
         console.log(response.data)
         state.transactions = response;

@@ -34,7 +34,7 @@
     </div>
   </template>
   
-  <script setup lang="ts">
+  <script setup>
   import { ref } from 'vue';
   import { awardeeService } from '~/api/AwardeeService';
   import { ArrowLeftIcon, XMarkIcon } from '@heroicons/vue/24/outline'

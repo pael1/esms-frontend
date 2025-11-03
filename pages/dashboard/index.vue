@@ -11,18 +11,18 @@
     <!-- Summary Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       <div class="bg-white shadow-sm border border-green-400 rounded-lg p-5 hover:shadow-md transition-all duration-300">
-        <h3 class="text-sm text-gray-500">Total Payments Collected (This Month)</h3>
-        <p class="text-2xl font-bold text-green-700 mt-2">₱{{ totals.payments.toLocaleString() }}</p>
+        <h3 class="text-sm text-gray-500">Over All Payments (Current Month)</h3>
+        <p class="text-2xl font-bold text-green-700 mt-2">{{ $formatPeso(state.total.over_all.toLocaleString()) }}</p>
       </div>
 
       <div class="bg-white shadow-sm border border-green-400 rounded-lg p-5 hover:shadow-md transition-all duration-300">
-        <h3 class="text-sm text-gray-500">Total Payments Pending (This Month)</h3>
-        <p class="text-2xl font-bold text-green-700 mt-2">₱{{ totals.payments.toLocaleString() }}</p>
+        <h3 class="text-sm text-gray-500">Payments Collected (Current Month)</h3>
+        <p class="text-2xl font-bold text-green-700 mt-2">{{ $formatPeso(state.total.collected.toLocaleString()) }}</p>
       </div>
 
       <div class="bg-white shadow-sm border border-green-400 rounded-lg p-5 hover:shadow-md transition-all duration-300">
-        <h3 class="text-sm text-gray-500">Total Order Payments Issued</h3>
-        <p class="text-2xl font-bold text-green-700 mt-2">{{ totals.opsCards.toLocaleString() }}</p>
+        <h3 class="text-sm text-gray-500">Payments Pending (Current Month)</h3>
+        <p class="text-2xl font-bold text-green-700 mt-2">{{ $formatPeso(state.total.un_collected.toLocaleString()) }}</p>
       </div>
     </div>
 
@@ -72,16 +72,24 @@ import ApexCharts from 'vue3-apexcharts'
 definePageMeta({ layout: 'main' })
 useHead({ title: 'Dashboard | eSMS' })
 
+const { $formatPeso } = useNuxtApp()
+
 const apexchart = ApexCharts
 
 const state = reactive({
   isPageLoading: false,
+  total: {
+    collected: 0,
+    un_collected: 0,
+    over_all: 0,
+  },
+  opsCards: 0
 })
 
-const totals = reactive({
-  payments: 0,
-  opsCards: 0,
-})
+// const state = reactive({
+//   payments: 0,
+//   opsCards: 0,
+// })
 
 // Chart data placeholders
 const chartSeries = reactive({
@@ -93,33 +101,44 @@ const chartSeries = reactive({
 // Chart options
 const chartOptions = reactive({
   sales: {
-    chart: { type: 'area', toolbar: { show: false }, zoom: { enabled: false } },
+    chart: {
+      type: 'area',
+      toolbar: { show: false },
+      zoom: { enabled: false },
+    },
     colors: ['#16a34a'],
     dataLabels: { enabled: false },
     stroke: { curve: 'smooth', width: 2 },
     fill: {
       type: 'gradient',
       gradient: {
-        shadeIntensity: 1,
-        opacityFrom: 0.4,
+        shadeIntensity: 0.6,
+        opacityFrom: 0.5,
         opacityTo: 0.1,
-        stops: [0, 100],
       },
     },
     grid: { borderColor: '#e5e7eb' },
     xaxis: {
       categories: [],
-      labels: {
-        style: { colors: '#4b5563', fontSize: '12px' },
-      },
+      labels: { style: { colors: '#4b5563', fontSize: '12px' } },
     },
     yaxis: {
       labels: {
-        formatter: (val) => `₱${val}`,
+        formatter: (val) => {
+          if (val >= 1_000_000) return `₱${(val / 1_000_000).toFixed(1)}M`
+          if (val >= 1_000) return `₱${(val / 1_000).toFixed(1)}K`
+          return `₱${val.toFixed(2)}`
+        },
       },
     },
-    tooltip: { theme: 'light' },
+    tooltip: {
+      theme: 'light',
+      y: {
+        formatter: (val) => `₱${val.toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
+      },
+    },
   },
+
   revenue: {
     labels: ['Market Fees', 'Rent', 'Permits', 'Others'],
     colors: ['#22c55e', '#16a34a', '#15803d', '#86efac'],
@@ -156,7 +175,15 @@ async function fetchRevenue() {
       if (response) {
           console.log(response)
           // Add totals from API
-          totals.payments = response.current_month_total ?? 0
+          state.total.collected = response.monthly_total_collected ?? 0
+          state.total.un_collected = response.monthly_total_uncollected ?? 0
+          state.total.over_all = response.overall_total_m ?? 0
+
+          chartSeries.sales[0].data = response.series[0].data
+          chartOptions.sales = {
+            ...chartOptions.sales,
+            xaxis: { ...chartOptions.sales.xaxis, categories: response.categories },
+          }
       }
     } catch (error) {
       console.error(error)
@@ -169,12 +196,13 @@ async function fetchChartData() {
     const { data } = await useFetch('http://127.0.0.1:8000/api/sales-data')
 
     if (data.value) {
+      console.log("hi ", data.value)
       // Update series & categories
-      chartSeries.sales[0].data = data.value.series[0].data
-      chartOptions.sales = {
-        ...chartOptions.sales,
-        xaxis: { ...chartOptions.sales.xaxis, categories: data.value.categories },
-      }
+      // chartSeries.sales[0].data = data.value.series[0].data
+      // chartOptions.sales = {
+      //   ...chartOptions.sales,
+      //   xaxis: { ...chartOptions.sales.xaxis, categories: data.value.categories },
+      // }
 
       chartSeries.utilization[0].data = data.value.utilization || [70, 50, 60]
       chartOptions.utilization = {
@@ -186,8 +214,8 @@ async function fetchChartData() {
       }
 
       // Add totals from API
-      totals.payments = data.value.total_payments ?? 0
-      totals.opsCards = data.value.total_ops_cards ?? 0
+      state.payments = data.value.total_payments ?? 0
+      state.opsCards = data.value.total_ops_cards ?? 0
     }
   } catch (error) {
     console.error(error)
