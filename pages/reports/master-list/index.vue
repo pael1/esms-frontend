@@ -77,7 +77,7 @@
   const state = reactive({
     isPageLoading: false,
     user_data: {
-        marketcode: user.MarketCode,
+        marketcode: user.office,
         stall_type: 'regular',
         sectionCode: '01',
     },
