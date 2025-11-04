@@ -59,20 +59,19 @@
                 <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
                     <div class="flex flex-col items-start p-3 bg-gray-50 rounded-lg border">
                         <label class="text-gray-600 text-xs font-medium mb-1">Stall Area</label>
-                        <p class="text-gray-700 text-sm">{{state.awardee?.stallRentalDet?.stallProfile?.stallArea}}</p>
+                        <p class="text-gray-700 text-sm">{{ $formatPeso(state.awardee?.stallRentalDet?.stallProfile?.stallArea) }}</p>
                     </div>
                     <div class="flex flex-col items-start p-3 bg-gray-50 rounded-lg border">
                         <label class="text-gray-600 text-xs font-medium mb-1">Stall Ext. Area</label>
-                        <p class="text-gray-700 text-sm">{{state.awardee?.stallRentalDet?.stallProfile?.StallAreaExt
-                        }}</p>
+                        <p class="text-gray-700 text-sm">{{ $formatPeso(state.awardee?.stallRentalDet?.stallProfile?.StallAreaExt) }}</p>
                     </div>
                     <div class="flex flex-col items-start p-3 bg-gray-50 rounded-lg border">
                         <label class="text-gray-600 text-xs font-medium mb-1">Rate per Day</label>
-                        <p class="text-gray-700 text-sm">{{state.awardee?.stallRentalDet?.stallProfile?.ratePerDay}}</p>
+                        <p class="text-gray-700 text-sm">{{ $formatPeso(state.awardee?.stallRentalDet?.stallProfile?.TotalRatePerDay) }}</p>
                     </div>
                     <div class="flex flex-col items-start p-3 bg-gray-50 rounded-lg border">
                         <label class="text-gray-600 text-xs font-medium mb-1">Rate per Month</label>
-                        <p class="text-gray-700 text-sm">{{state.awardee?.rate_per_month}}</p>
+                        <p class="text-gray-700 text-sm">{{ $formatPeso(state.awardee?.stallRentalDet?.stallProfile?.TotalRatePerDay * 30) }}</p>
                     </div>
                 </div>
             </div>
@@ -90,6 +89,8 @@
   
   const router = useRouter();
   const id = router?.currentRoute?.value?.params?.id;
+
+  const { $formatPeso } = useNuxtApp()
 
   //global loading
   const { $loading } = useNuxtApp()
