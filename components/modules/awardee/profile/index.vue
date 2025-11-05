@@ -2,11 +2,23 @@
   <div class="px-4 sm:px-6 lg:px-8">
     <!-- Profile Section -->
     <div class="flex flex-col sm:flex-row items-center sm:items-start sm:space-x-6 space-y-4 sm:space-y-0 mb-6">
-      <embed
-        :src="pdfSrc"
-        type="application/pdf"
-        class="w-full sm:w-32 h-32 rounded-lg border-4 border-green-300 object-contain"
-      />
+      <div>
+        <!-- If attachIdPhoto contains "profile_pic/", show PDF -->
+        <embed
+          v-if="!props.profile?.attachIdPhoto?.includes('profile_pic/')"
+          :src="pdfSrc"
+          type="application/pdf"
+          class="w-full sm:w-32 h-32 rounded-lg border-4 border-green-300 object-contain"
+        />
+
+        <!-- Otherwise, show image -->
+        <img
+          v-else
+          :src="imgSrc"
+          alt="Profile Image"
+          class="w-full sm:w-32 h-32 rounded-lg border-4 border-green-300 object-cover"
+        />
+      </div>
 
       <div class="text-center sm:text-left w-full">
         <h1 class="text-xl sm:text-2xl font-semibold text-gray-800 dark:text-white">
@@ -240,6 +252,9 @@ const daysInEach = computed(() =>
 const config = useRuntimeConfig()
 const pdfSrc = computed(() => {
   return `${config.public.apiPublicStorage}/profile_pic/${props.profile?.ownerId}/${props.profile?.attachIdPhoto}`
+})
+const imgSrc = computed(() => {
+  return `${config.public.apiPublicStorage}/${props.profile?.attachIdPhoto}`
 })
 
 const getOption = (id) => {
