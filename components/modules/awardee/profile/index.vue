@@ -297,7 +297,7 @@ async function Generate() {
             extension: props.profile.stallRentalDet.stallProfile.Total_extensionRate,
             stallprofile: props.profile.stallRentalDet.stallProfile,
             items: JSON.stringify(selectedObjects),
-            postBy: user?.UserFirstName + ' ' +user?.UserLastName,
+            postBy: user?.firstname + ' ' +user?.lastname,
           };
           const response = await awardeeService.generateCurrentOP(params);
 
