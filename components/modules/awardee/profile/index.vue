@@ -371,6 +371,10 @@ async function fetch_arrears() {
 
       // //current month is not included in arrears
       let currentOption = await fetch_current()
+      //removed the current options if exists
+      options = options.filter(
+        (item) => item.label !== currentOption.label
+      );
 
       state.options = [
         currentOption,
