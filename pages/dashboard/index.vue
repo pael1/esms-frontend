@@ -68,9 +68,13 @@
 import { dashboardService } from '~/api/DashboardService'
 import { ref, reactive, onMounted } from 'vue'
 import ApexCharts from 'vue3-apexcharts'
+import { useUserStore } from '@/store/user'
 
 definePageMeta({ layout: 'main' })
 useHead({ title: 'Dashboard | eSMS' })
+
+const userStore = useUserStore()
+const user = userStore.getUser
 
 const { $formatPeso } = useNuxtApp()
 
@@ -171,9 +175,8 @@ onMounted(() => {
 
 async function fetchRevenue() {
     try {
-      const response = await dashboardService.getRevenue()
+      const response = await dashboardService.getRevenue(user)
       if (response) {
-          console.log(response)
           // Add totals from API
           state.total.collected = response.monthly_total_collected ?? 0
           state.total.un_collected = response.monthly_total_uncollected ?? 0
@@ -196,7 +199,6 @@ async function fetchChartData() {
     const { data } = await useFetch('http://127.0.0.1:8000/api/sales-data')
 
     if (data.value) {
-      console.log("hi ", data.value)
       // Update series & categories
       // chartSeries.sales[0].data = data.value.series[0].data
       // chartOptions.sales = {

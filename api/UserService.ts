@@ -22,7 +22,8 @@ class UserService extends BaseAPIService {
     }
 
     async updateUser(params: object, id: any): Promise<any> {
-        return await this.request(`/users/${id}`, 'PUT', params);
+        // return await this.request(`/users/${id}`, 'PUT', params);
+        return await this.request(`/users/${id}`, 'PATCH', params);
     }
 }
 
