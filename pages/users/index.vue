@@ -703,7 +703,10 @@
   async function updateUser() {
     $loading.start()
       try {
-          let params = state.form;
+          let params = {
+            ...state.form,
+            id: state.user_id
+          }
           let id = state.user_id;
 
           const response = await userService.updateUser(params, id)
