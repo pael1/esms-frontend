@@ -11,25 +11,17 @@
             <div class="flex items-center justify-between">
             <!-- Left side: select -->
               <div class="flex items-center gap-x-2">
-                <!-- <select
-                  v-model="state.user_data.sectionCode"
-                  @change="fetchAwardees"
-                  id="sectionCode"
-                  class="border border-green-300 rounded px-2 py-1"
-                >
-                  <option
-                    class="block px-3 py-1 text-base leading-6 text-green-900"
-                    v-for="type in state.sectionCodes"
-                    :key="type.fieldValue"
-                    :value="type.fieldValue"
-                  >
-                    {{ $capitalizeWords(type.fieldDescription) }}
-                  </option>
-                </select> -->
+                <div class="w-48">
+                  <FormSelect
+                    v-model="state.user_data.marketcode"
+                    @update:modelValue="fetchReport"
+                    :options="state.marketCodes"
+                  />
+                </div>
                 <div class="w-48">
                   <FormSelect
                     v-model="state.user_data.sectionCode"
-                    @update:modelValue="fetchAwardees"
+                    @update:modelValue="fetchReport"
                     :options="state.sectionCodes"
                   />
                 </div>
@@ -54,6 +46,7 @@
   import { reportService } from '~/api/ReportService'
   import { useUserStore } from '@/store/user'
   import { useParameterStore } from '@/store/parameter'
+  import { useMarketcodeStore } from '@/store/marketcode'
 
   const { showError, showSuccess, showLoading, closeLoading } = useSweetLoading()
 
@@ -65,6 +58,16 @@
   const useParameter = useParameterStore()
   const user = userStore.getUser
   const sectionCodes = useParameter.getSectionCode
+  const useMarketCode = useMarketcodeStore()
+  let marketCodes = useMarketCode.getMarketCode
+
+  //default marketcode
+  let userMarketcode = '07'
+  //if user is admin only show all marketcodes else show only marketcode for specific user
+  if (user.office != '99' && user.office != '00') {
+    marketCodes = marketCodes.filter((m) => m.value === user.office)
+    userMarketcode = user.office
+  }
 
   definePageMeta({
       layout: 'main'
@@ -82,11 +85,12 @@
         sectionCode: '01',
     },
     awardees: [],
-    sectionCodes: sectionCodes
+    sectionCodes: sectionCodes,
+    marketCodes: marketCodes,
   })
 
   onMounted(() => {
-      fetchAwardees()
+      fetchReport()
   })
 
   function getMasterlistParams() {
@@ -97,13 +101,14 @@
     };
   }
 
-  async function fetchAwardees() {
+  async function fetchReport() {
       state.isPageLoading = true
       try {
           let params = {
               ...getMasterlistParams(),
               page: currentPage
           }
+          console.log(params)
           const response = await reportService.masterlist(params)
           if (response) {
               state.awardees = response
@@ -116,7 +121,7 @@
 
   async function previous() {
     currentPage--
-    fetchAwardees()
+    fetchReport()
   }
 
   async function print() {
@@ -147,7 +152,7 @@
 
   async function next() {
       currentPage++
-      fetchAwardees()
+      fetchReport()
   }
 
   function handlePageLoading(isLoading) {

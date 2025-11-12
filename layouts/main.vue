@@ -1,5 +1,6 @@
 <template>
   <div class="">
+    <Loader v-if="$loading.state.isPageLoading" />
     <TransitionRoot as="template" :show="sidebarOpen">
       <Dialog class="relative z-50 lg:hidden" @close="sidebarOpen = false">
         <TransitionChild as="template" enter="transition-opacity ease-linear duration-300" enter-from="opacity-0"
@@ -248,6 +249,7 @@
             <span v-else>🌙</span>
           </button> -->
           <div class="flex items-center gap-x-4 lg:gap-x-6">
+            <Toaster richColors position="top-right" />
             <!-- Profile dropdown -->
             <Menu as="div" class="relative">
               <MenuButton class="-m-1.5 flex items-center p-1.5">
@@ -265,7 +267,7 @@
                 <MenuItems
                   class="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
                   <MenuItem>
-                  <a @click="updateProfile"
+                  <a @click="viewProfile"
                     class='block px-3 py-1 text-base leading-6 text-green-900 hover:bg-green-50 cursor-pointer'>
                     Your profile
                   </a>
@@ -289,6 +291,217 @@
         </div>
       </main>
     </div>
+
+    <!-- MODAL -->
+     <!-- User View / Edit Modal -->
+      <Modal :show="state.openView">
+        <div class="w-full max-w-3xl mx-auto bg-gray-100 px-4 py-5 sm:px-6 rounded-lg space-y-4">
+          <Loader v-if="$loading.state.isPageLoading" />
+
+          <!-- Header -->
+          <div class="border-b border-green-200 -ml-4 -mt-2 flex flex-wrap items-center justify-between sm:flex-nowrap px-4 py-2">
+            <div class="ml-2 mb-2">
+              <h3 class="text-lg font-semibold text-green-900">
+                {{ 'Profile' }}
+              </h3>
+            </div>
+          </div>
+
+          <!-- FORM -->
+          <form @submit.prevent="updateUser" autocomplete="off" class="p-4 space-y-8">
+            <!-- =======================
+                  Section 1: Account Information
+            ========================== -->
+            <div class="bg-white shadow-md rounded-lg p-4 space-y-4">
+              <h4 class="text-md font-semibold text-green-800 border-b border-green-200 pb-2">
+                Account Information
+              </h4>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Username -->
+                <div>
+                  <FormLabel for="username" label="Username" />
+                  <FormText
+                    v-model="state.form.username"
+                    placeholder="Enter username"
+                    :disabled="true"
+                    :class="[
+                      'w-full rounded-md transition-all',
+                      state.errors.username
+                        ? 'ring-1 ring-red-500 focus:ring-red-500'
+                        : 'ring-1 ring-gray-300 focus:ring-green-600'
+                    ]"
+                    @input="clearError('username')"
+                  />
+                  <p v-if="state.errors.username" class="text-sm text-red-500 mt-1">
+                    {{ state.errors.username[0] }}
+                  </p>
+                </div>
+
+                <!-- Employee ID -->
+                <div>
+                  <FormLabel for="employee_id" label="Employee ID" />
+                  <FormText
+                    v-model="state.form.employee_id"
+                    placeholder="Enter employee ID"
+                    :disabled="true"
+                    :class="[
+                      'w-full rounded-md transition-all',
+                      state.errors.employee_id
+                        ? 'ring-1 ring-red-500 focus:ring-red-500'
+                        : 'ring-1 ring-gray-300 focus:ring-green-600'
+                    ]"
+                    @input="clearError('employee_id')"
+                  />
+                  <p v-if="state.errors.employee_id" class="text-sm text-red-500 mt-1">
+                    {{ state.errors.employee_id[0] }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Password -->
+                <div>
+                  <FormLabel for="password" label="Password" />
+                  <FormText
+                    type="password"
+                    v-model="state.form.password"
+                    placeholder="Enter new password"
+                    :class="[
+                      'w-full rounded-md transition-all',
+                      state.errors.password
+                        ? 'ring-1 ring-red-500 focus:ring-red-500'
+                        : 'ring-1 ring-gray-300 focus:ring-green-600'
+                    ]"
+                    @input="clearError('password')"
+                  />
+                  <p v-if="state.errors.password" class="text-sm text-red-500 mt-1">
+                    {{ state.errors.password[0] }}
+                  </p>
+                </div>
+
+                <!-- Confirm Password -->
+                <div>
+                  <FormLabel for="confirm_password" label="Confirm Password" />
+                  <FormText
+                    type="password"
+                    v-model="state.form.password_confirmation"
+                    placeholder="Re-enter password"
+                    :class="[
+                      'w-full rounded-md transition-all',
+                      state.errors.password_confirmation
+                        ? 'ring-1 ring-red-500 focus:ring-red-500'
+                        : 'ring-1 ring-gray-300 focus:ring-green-600'
+                    ]"
+                    @input="clearError('password_confirmation')"
+                  />
+                  <p v-if="state.errors.password_confirmation" class="text-sm text-red-500 mt-1">
+                    {{ state.errors.password_confirmation[0] }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- =======================
+                  Section 2: Personal Information
+            ========================== -->
+            <div class="bg-white shadow-md rounded-lg p-4 space-y-4">
+              <h4 class="text-md font-semibold text-green-800 border-b border-green-200 pb-2">
+                Personal Information
+              </h4>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <FormLabel for="firstname" label="First Name" />
+                  <FormText
+                    v-model="state.form.firstname"
+                    placeholder="First name"
+                    :class="[
+                      'w-full rounded-md transition-all',
+                      state.errors.firstname
+                        ? 'ring-1 ring-red-500 focus:ring-red-500'
+                        : 'ring-1 ring-gray-300 focus:ring-green-600'
+                    ]"
+                    @input="clearError('firstname')"
+                  />
+                  <p v-if="state.errors.firstname" class="text-sm text-red-500 mt-1">
+                    {{ state.errors.firstname[0] }}
+                  </p>
+                </div>
+
+                <div>
+                  <FormLabel for="midinit" label="Middle Initial" />
+                  <FormText
+                    v-model="state.form.midinit"
+                    placeholder="M"
+                    maxlength="1"
+                  />
+                </div>
+
+                <div>
+                  <FormLabel for="lastname" label="Last Name" />
+                  <FormText
+                    v-model="state.form.lastname"
+                    placeholder="Last name"
+                    :class="[
+                      'w-full rounded-md transition-all',
+                      state.errors.lastname
+                        ? 'ring-1 ring-red-500 focus:ring-red-500'
+                        : 'ring-1 ring-gray-300 focus:ring-green-600'
+                    ]"
+                    @input="clearError('lastname')"
+                  />
+                  <p v-if="state.errors.lastname" class="text-sm text-red-500 mt-1">
+                    {{ state.errors.lastname[0] }}
+                  </p>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <FormLabel for="office" label="Office" />
+                  <FormSelect
+                    v-model="state.form.office"
+                    :options="state.parameter.offices"
+                    placeholder="Select office"
+                    :disabled="true"
+                  />
+                </div>
+
+                <div>
+                  <FormLabel for="position" label="Position" />
+                  <FormText
+                    v-model="state.form.position"
+                    placeholder="Position title"
+                    :disabled="true"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- =======================
+                  Buttons
+            ========================== -->
+            <div class="flex flex-wrap justify-end gap-2 border-t border-green-100 pt-4">
+              <FormButton
+                type="button"
+                @click="closedViewDialog"
+                buttonStyle="white"
+                class="px-3 py-1 text-sm"
+              >
+                Close
+              </FormButton>
+
+              <FormButton
+                type="submit"
+                class="px-3 py-1 text-sm"
+              >
+                Update
+              </FormButton>
+            </div>
+          </form>
+        </div>
+      </Modal>
+    <!-- END MODAL -->
   </div>
 </template>
 
@@ -320,6 +533,10 @@ import { ChevronRightIcon, ChevronDownIcon } from '@heroicons/vue/20/solid'
 import { useMarketcodeStore } from '~/store/marketcode'
 import NProgress from 'nprogress'
 import { useIdle } from '~/composables/useIdle'
+import { userService } from '~/api/UserService'
+import { Toaster, toast } from 'vue-sonner'
+import 'vue-sonner/style.css'
+
 
 const openSubmenus = ref({})
 
@@ -333,6 +550,7 @@ const route = useRouter()
 const route1 = useRoute()
 
 const { $capitalizeWords } = useNuxtApp()
+const { $loading } = useNuxtApp()
 
 const { setup, cleanup } = useIdle(60 * 60 * 1000)
 
@@ -440,9 +658,25 @@ function navigate(href) {
 //   colorMode.preference = newTheme
 // }
 
+//default form for easy reset
+const defaultForm = {
+  username: null,
+  password: null,
+  password_confirmation: null, 
+  firstname: null,
+  midinit: null,
+  lastname: null,
+}
+
 const state = reactive({
   error: null,
-  isPageLoading: false
+  isPageLoading: false,
+  openView: false,
+  errors: {},
+  form: { ...defaultForm },
+  parameter: {
+    offices: []
+  }
 })
 
 async function logoutUser() {
@@ -460,6 +694,85 @@ async function logoutUser() {
     state.error = error
   }
   NProgress.done()
+}
+
+// MODAL
+async function viewProfile() { 
+  $loading.start()
+  try {
+    const response = await userService.getUser(user.id);
+    if (response.data) {
+
+      state.user_id = response.data.id;
+      // Map API response to form fields
+      state.form = {
+        username: response.data.username ?? '',
+        employee_id: response.data.details.employee_id ?? '',
+        is_admin: !!response.data.is_admin,
+        is_supervisor: !!response.data.is_supervisor,
+        firstname: response.data.details.firstname ?? '',
+        midinit: response.data.details.midinit ?? '',
+        lastname: response.data.details.lastname ?? '',
+        office: response.data.details.office ?? '',
+        position: response.data.details.position ?? ''
+      }
+
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  $loading.stop()
+
+  // Clear previous errors
+  state.errors = {}
+  fetchOffices();
+  state.openView = true;
+}
+function closedViewDialog() {
+  state.openView = false
+}
+async function updateUser() {
+  $loading.start()
+  try {
+      let params = state.form;
+      let id = state.user_id;
+
+      const response = await userService.updateUser(params, id)
+      if (response) {
+          state.openView = false
+          toast.info('Your profile has been updated', {
+            description: 'Please log out and log back in to apply the changes.',
+            action: {
+              label: 'x',
+              onClick: (t) => toast.dismiss(t.id)
+            },
+            duration: Infinity, // stays until manually closed
+          })
+      }
+  } catch (error) {
+    if (error.errors) {
+      state.errors = error.errors
+    } else {
+      console.error('Unexpected error:', error)
+      toast.error('Something went wrong.')
+    }
+  }
+  $loading.stop()
+}
+
+async function fetchOffices() {
+  try {
+    const response = await userService.getOffices()
+    if (response) {
+        let options = response.data.map((item) => ({
+            value: item.marketOfficeCode,
+            label: $capitalizeWords(item.officeName)
+        }));
+        state.parameter.offices = options;
+    }
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 const sidebarOpen = ref(false)

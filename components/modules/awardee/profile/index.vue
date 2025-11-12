@@ -277,11 +277,7 @@ const totalAmountBasic = computed(() => {
 
 function openDialog() {
     state.open = true
-    // if(isCurrent){
-    //   fetch_current()
-    // } else {
       fetch_arrears()
-    // }
 }
 function closedDialog() {
     state.open = false
@@ -299,10 +295,42 @@ const rules = computed(() => {
 const v$ = useVuelidate(rules, state)
 
 async function Generate() {
+
     v$.value.$validate()
     if (!v$.value.$error) {
-      const selectedObjects = getSelectedLedgerObjects()
-      console.log('Selected Objects:', selectedObjects)
+      // const selectedObjects = getSelectedLedgerObjects()
+      // console.log('Selected Objects:', selectedObjects)
+      // console.log("test options ", state.options)
+
+      const selectedObjects = getSelectedLedgerObjects() // user’s selected options
+      const allOptions = state.options        // all available months
+
+      if (selectedObjects.length === 0) {
+        showError('', 'Please select at least one month to pay.')
+        return
+      }
+
+      // Sort all months in chronological order based on monthsDelayed
+      const sortedOptions = [...allOptions].sort((a, b) => b.monthsDelayed - a.monthsDelayed)
+
+      // Find the index of the last selected month in sorted order
+      let lastSelectedIndex = -1
+      for (let i = 0; i < sortedOptions.length; i++) {
+        if (selectedObjects.some(s => s.value === sortedOptions[i].value)) {
+          lastSelectedIndex = i
+        }
+      }
+
+      // Check if all previous months (older arrears) are selected before the last selected one
+      for (let i = 0; i < lastSelectedIndex; i++) {
+        const olderMonth = sortedOptions[i]
+        const isOlderSelected = selectedObjects.some(s => s.value === olderMonth.value)
+        if (!isOlderSelected) {
+          showError('', "You must pay " + olderMonth.label + " first before paying newer months.")
+          return
+        }
+      }
+
       try {
         showLoading('Generating', '');
           let params = {
@@ -380,8 +408,6 @@ async function fetch_arrears() {
         currentOption,
         ...options
       ]
-
-      // state.options = options
     }
   } catch (error) {
     console.log(error);
