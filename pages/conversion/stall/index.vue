@@ -74,7 +74,7 @@
             <!-- First row -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <div class="text-start">
-                <FormLabel for="stall_type" label="Type" />
+                <FormLabel for="stall_type" label="Type" required />
                 <div class="mt-1">
                   <FormSelect v-model="state.form.type" :options="state.parameter.types" :class="[
                     'rounded-md transition-all',
@@ -88,7 +88,7 @@
                 </div>
               </div>
               <div class="text-start">
-                <FormLabel for="market" label="Market" />
+                <FormLabel for="market" label="Market" required/>
                 <div class="mt-1">
                   <FormSelect v-model="state.form.market" :options="state.parameter.markets" :class="[
                     'rounded-md transition-all',
@@ -102,7 +102,7 @@
                 </div>
               </div>
               <div class="text-start">
-                <FormLabel for="section" label="Section" />
+                <FormLabel for="section" label="Section" required/>
                 <div class="mt-1">
                   <FormSelect v-model="state.form.section" :options="state.parameter.sections" @change="getSubSection($event)" :class="[  
                     'rounded-md transition-all',
@@ -126,7 +126,7 @@
                 </div>
               </div>
               <div class="text-start">
-                <FormLabel for="building" label="Building" />
+                <FormLabel for="building" label="Building" required/>
                 <div class="mt-1">
                   <FormSelect v-model="state.form.building" :options="state.parameter.buildings" :class="[
                     'rounded-md transition-all',
@@ -150,7 +150,7 @@
             <!-- Third row -->
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
               <div class="sm:col-span-2 text-start">
-                <FormLabel for="class" label="Class" />
+                <FormLabel for="class" label="Class" required/>
                 <div class="mt-1">
                   <FormSelect v-model="state.form.class" :options="classOptions" :class="[
                     'rounded-md transition-all',
@@ -164,7 +164,7 @@
                 </div>
               </div>
               <div class="text-start">
-                <FormLabel for="id" label="ID" />
+                <FormLabel for="id" label="ID" required/>
                 <div class="mt-1">
                   <FormNumber name="id" v-model="state.form.stall_id" :class="[
                     'rounded-md transition-all',
@@ -184,7 +184,7 @@
                 </div>
               </div>
               <div class="text-start">
-                <FormLabel for="area" label="Area" />
+                <FormLabel for="area" label="Area" required/>
                 <div class="mt-1">
                   <FormNumber name="area" v-model="state.form.area" :class="[
                     'rounded-md transition-all',
@@ -537,14 +537,6 @@
           }
         state.open = false
       } catch (error) {
-        // console.log(error);
-        // let errorMessages = []
-        //   Object.entries(error.errors).forEach(([field, messages]) => {
-        //     messages.forEach((message) => {
-        //       errorMessages.push(`${field}: ${message}`)
-        //     })
-        //   })
-        //   showError('', errorMessages.join('<br>'))
         if (error.errors) {
           state.errors = error.errors
         } else {

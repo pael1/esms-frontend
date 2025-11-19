@@ -80,7 +80,7 @@
               <!-- Owner -->
               <div class="flex flex-wrap gap-5">
                 <div class="w-full md:flex-1 md:min-w-[400px]">
-                  <FormLabel for="owner-name" label="Owner Name" />
+                  <FormLabel for="owner-name" label="Owner Name" required/>
                   <div class="mt-1">
                     <FormSelectSearch v-model="state.owner.selected" class="w-full" :class="[
                       'rounded-md transition-all',
@@ -98,12 +98,12 @@
               <!-- Stall Details -->
               <div class="flex flex-wrap gap-2">
                 <div class="flex-1 min-w-[150px]">
-                  <FormLabel for="stall_type" label="Type" />
+                  <FormLabel for="stall_type" label="Type" required/>
                   <FormSelect v-model="state.stall.stallType" :options="state.parameter.types" />
                 </div>
 
                 <div class="flex-1 min-w-[150px]">
-                  <FormLabel for="market" label="Market" />
+                  <FormLabel for="market" label="Market" required/>
                   <FormSelect
                     v-model="state.stall.marketCode"
                     @update:modelValue="fetchStall"
@@ -112,7 +112,7 @@
                 </div>
 
                 <div class="flex-[2] min-w-[200px]">
-                  <FormLabel for="section" label="Section" />
+                  <FormLabel for="section" label="Section" required/>
                   <FormSelect
                     v-model="state.stall.sectionCode"
                     @update:modelValue="fetchStall"
@@ -121,7 +121,7 @@
                 </div>
 
                 <div class="flex-1 min-w-[150px]">
-                  <FormLabel for="stall_no" label="Stall No" />
+                  <FormLabel for="stall_no" label="Stall No" required/>
                   <FormSelect
                     v-model="state.stall.stallNo"
                     @update:modelValue="fetchStall"
@@ -180,7 +180,6 @@
                   <FormText name="capital" v-model="state.form.capital" />
                 </div>
               </div>
-
               <div>
                 <FormLabel for="line-of-business" label="Line of Business" />
                 <FormTextArea
@@ -188,6 +187,39 @@
                   v-model="state.form.lineOfBusiness"
                   class="w-full"
                 />
+              </div>
+              <!-- File Upload Form -->
+              <div class="grid grid-cols-12 gap-3 items-center">
+                <!-- File Input (3 cols) -->
+                <div class="col-span-6 md:col-span-10">
+                  <input
+                    id="file-upload"
+                    type="file"
+                    class="block w-full text-sm text-gray-700 border rounded-lg cursor-pointer focus:ring focus:ring-green-300"
+                    @change="onFileUploadChange"
+                  />
+                </div>
+              </div>
+              <!-- File Preview -->
+              <div v-if="state.filePreview" class="mt-3">
+                <!-- Image Preview -->
+                <img 
+                  v-if="state.form.selectedFile.type.startsWith('image/')" 
+                  :src="state.filePreview" 
+                  class="w-32 h-auto border rounded shadow"
+                />
+
+                <!-- PDF Preview -->
+                <iframe 
+                  v-else-if="state.form.selectedFile.type === 'application/pdf'" 
+                  :src="state.filePreview"
+                  class="w-full h-64 border rounded"
+                ></iframe>
+
+                <!-- Other File Types -->
+                <div v-else class="text-sm text-gray-600">
+                  File ready to attach: {{ state.form.selectedFile.name }}
+                </div>
               </div>
             </div>
 
@@ -500,6 +532,7 @@
     busDateStart: null,
     capital: null,
     lineOfBusiness: null,
+    selectedFile: null, 
   }
 
   const state = reactive({
@@ -542,7 +575,8 @@
       sections: [],
       stallNos: [],
     },
-    errors: []
+    errors: [],
+    filePreview: null
   })
 
   onMounted(() => {
@@ -564,6 +598,10 @@
     Object.assign(state.form, defaultForm)
     state.owner.details = null
     state.stall.details = null
+    state.owner.selected = null
+    state.stall.marketCode = null
+    state.stall.sectionCode = null
+    state.stall.stallNo = null
     state.open = true
   }
   function closedDialog() {
@@ -588,10 +626,10 @@
 
   //get ownerId
   watch(() => state.owner.selected, (ownerId) => {
-  if (ownerId) {
-    state.form.ownerId = ownerId
-  }
-})
+    if (ownerId) {
+      state.form.ownerId = ownerId
+    }
+  })
 
   //get stall details
   async function fetchStall() {
@@ -658,7 +696,12 @@
   async function addRental() {
     $loading.start()
     try {
-        let params = state.form;
+      console.log('Submitting form:', state.form);
+        let params = toFormData(state.form);
+        for (let pair of params.entries()) {
+  console.log(pair[0], pair[1]);
+}
+        // return;
         const response = await rentalService.addData(params)
         if (response) {
             fetchRentals()
@@ -669,11 +712,30 @@
       if (error.errors) {
         state.errors = error.errors
       } else {
-        console.error('Unexpected error:', error)
-        toast.error('Something went wrong.')
+        toast.error('Creation failed', {
+          description: error.message || 'Something went wrong.',
+          duration: 8000, // stays until manually closed
+        })
       }
     }
     $loading.stop()
+  }
+
+  function toFormData(obj) {
+    const formData = new FormData();
+
+    Object.entries(obj).forEach(([key, value]) => {
+      if (value === null || value === undefined) return;
+
+      // If file
+      if (value instanceof File) {
+        formData.append(key, value);
+      } else {
+        formData.append(key, value);
+      }
+    });
+
+    return formData;
   }
 
   async function fetchRentals() {
@@ -914,5 +976,16 @@
     // fetchInfluences()
   }
   //end of parameter
+
+  const onFileUploadChange = (event) => {
+    const file = event.target.files[0]
+    if (!file) return
+
+    state.form.selectedFile = file;
+
+    // Preview when image or pdf
+    state.filePreview = URL.createObjectURL(file)
+  }
+
   const { $formatPeso } = useNuxtApp()
 </script>

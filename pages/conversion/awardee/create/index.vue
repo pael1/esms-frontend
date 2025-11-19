@@ -1,4 +1,5 @@
 <template>
+  <Toaster richColors position="top-right" />
   <ButtonBack @click="goBack">
       <span class="flex items-center justify-between">
           <ArrowLeftIcon class="text-green-900 w-5 h-5 mr-2" /> Back
@@ -60,29 +61,29 @@
         <!-- Owner Names -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label class="block text-sm font-medium mb-1">Owner Last Name</label>
+            <FormLabel for="owner_last_name" label="Owner Last Name" required/>
             <FormText v-model="state.form.lastname" />
             <span class="text-red-500">{{ state.errors.lastname }}</span>
           </div>
           <div>
-            <label class="block text-sm font-medium mb-1">Owner First Name</label>
+            <FormLabel for="owner_first_name" label="Owner First Name" required/>
             <FormText v-model="state.form.firstname" />
             <span class="text-red-500">{{ state.errors.firstname }}</span>
           </div>
           <div>
-            <label class="block text-sm font-medium mb-1">Owner Middle Initial</label>
+            <FormLabel for="owner_mid_init" label="Owner Middle Initial" />
             <FormText v-model="state.form.midinit" maxlength="1"/>
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium mb-1">Contact Number</label>
+            <FormLabel for="contact_number" label="Contact Number" required/>
             <FormText v-model="state.form.contactnumber" maxlength="11"/>
             <span class="text-red-500">{{ state.errors.contactnumber }}</span>
           </div>
           <div>
-            <label class="block text-sm font-medium mb-1">Civil Status</label>
+            <FormLabel for="civil_status" label="Civil Status" required/>
             <FormSelect v-model="state.form.civilStatus" :options="civilStatusOptions" />
             <span class="text-red-500">{{ state.errors.civilStatus }}</span>
           </div>
@@ -90,7 +91,7 @@
 
         <!-- Address -->
         <div>
-          <label class="block text-sm font-medium mb-1">Home Address</label>
+          <FormLabel for="civil_status" label="Home Address" required/>
           <FormTextArea v-model="state.form.address" rows="2" />
           <span class="text-red-500">{{ state.errors.address }}</span>
         </div>
@@ -98,15 +99,15 @@
         <!-- Spouse Info -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label class="block text-sm font-medium mb-1">Spouse Last Name</label>
+            <FormLabel for="sln" label="Spouse Last Name" />
             <FormText v-model="state.form.spouseLastname" />
           </div>
           <div>
-            <label class="block text-sm font-medium mb-1">Spouse First Name</label>
+            <FormLabel for="sfn" label="Spouse First Name" />
             <FormText v-model="state.form.spouseFirstname" />
           </div>
           <div>
-            <label class="block text-sm font-medium mb-1">Spouse Mid Initial</label>
+            <FormLabel for="smi" label="Spouse Mid Initial" />
             <FormText v-model="state.form.spouseMidint" />
           </div>
         </div>
@@ -127,11 +128,11 @@
           class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end mb-2"
         >
           <div>
-            <label class="block text-sm font-medium mb-1">Child Name</label>
+            <FormLabel for="cn" label="Child Name" />
             <FormText v-model="child.childName" />
           </div>
           <div>
-            <label class="block text-sm font-medium mb-1">Birthdate</label>
+            <FormLabel for="birthdate" label="Birthdate" />
             <FormDate v-model="child.childBDate" />
           </div>
           <FormButton type="button" buttonStyle="red" size="lg" @click="removeChild(index)">
@@ -161,25 +162,25 @@
         >
           <!-- Employee Name (2 cols) -->
           <div class="md:col-span-2">
-            <label class="block text-sm font-medium mb-1">Employee Name</label>
+            <FormLabel for="em" label="Employee Name" />
             <FormText v-model="employee.employeeName" />
           </div>
 
           <!-- Birthdate (1 col) -->
           <div class="md:col-span-1">
-            <label class="block text-sm font-medium mb-1">Birthdate</label>
+            <FormLabel for="birthdate" label="Birthdate" />
             <FormDate v-model="employee.dateOfBirth" />
           </div>
 
           <!-- Age (1 col) -->
           <div class="md:col-span-1">
-            <label class="block text-sm font-medium mb-1">Age</label>
+            <FormLabel for="birthdate" label="Age" />
             <FormText v-model="employee.age" type="number" />
           </div>
 
           <!-- Address (2 cols) -->
           <div class="md:col-span-3">
-            <label class="block text-sm font-medium mb-1">Address</label>
+            <FormLabel for="address" label="Address" />
             <FormText v-model="employee.address" />
           </div>
 
@@ -317,6 +318,8 @@ import { stallOwnerService } from '~/api/StallOwnerService'
 import * as yup from "yup";
 import { useRouter } from 'vue-router'
 import { ArrowLeftIcon, XMarkIcon } from '@heroicons/vue/24/outline'
+import { Toaster, toast } from 'vue-sonner'
+import 'vue-sonner/style.css'
 
 const router = useRouter()
 
@@ -514,41 +517,57 @@ const awardeeSchema = yup.object({
 async function awardeeAddForm() {
   try {
     state.errors = {}; // reset errors
-
     // frontend validation
     await awardeeSchema.validate(state.form, { abortEarly: false });
 
-    // prepare formData
-    const formData = objectToFormData(state.form);
-
-    const response = await stallOwnerService.create(formData);
-    if (response) {
-      const confirmed = await showConfirm('Successfully created', 'Do you want to create another awardee?', 'Yes', 'No')
+    //checking if the stallowner has stall rental details // check the status
+    const params = {
+      firstname: state.form.firstname,
+      lastname: state.form.lastname,
+      midinit: state.form.midinit,
+    };
+    const ownerResponse = await stallOwnerService.statusDetails(params);
+    if (ownerResponse) {
+      const text = `This Owner has ${ownerResponse.data.length} active stall in ${ownerResponse.data.map((stall) => stall.market_name)
+        .join(", ")}. Do you want to proceed?`;
+      const confirmed = await showConfirm('', text, 'Yes', 'No')
       if (confirmed){
-        window.location.reload();
+        // prepare formData
+        const formData = objectToFormData(state.form);
+        const response = await stallOwnerService.create(formData);
+        if (response) {
+          const confirmed = await showConfirm('Successfully created', 'Do you want to create another awardee?', 'Yes', 'No')
+          if (confirmed){
+            window.location.reload();
+          } else {
+            router.push('/conversion/awardee')
+          }
+        }
       } else {
-        router.push('/conversion/awardee')
+        return;
       }
     }
   } catch (error) {
     state.errors = {}; // clear old errors
     let errorMessages = [];
-
     if (error.name === "ValidationError") {
       // Yup validation errors
       error.inner.forEach((err) => {
         if (!state.errors[err.path]) {
           state.errors[err.path] = err.message;
         }
-        errorMessages.push(err.message);
       });
-      showError("Validation Failed", errorMessages.join("<br>"));
+      // showError("Validation Failed", "Please check the form for errors.");
+      toast.error('Creation failed', {
+        description: 'Please check the form for errors.',
+        action: {
+          label: 'x',
+          onClick: (t) => toast.dismiss(t.id)
+        },
+        duration: Infinity, // stays until manually closed
+      })
     } else if (error.errors) {
       // Laravel backend validation errors
-      Object.entries(error.errors).forEach(([field, messages]) => {
-        state.errors[field] = messages[0]; // first error
-        messages.forEach((msg) => errorMessages.push(`${field}: ${msg}`));
-      });
       showError("Server Validation", errorMessages.join("<br>"));
     } else {
       showError("", error.message || "An error occurred while saving the awardee.");

@@ -11,17 +11,17 @@
     <!-- Summary Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       <div class="bg-white shadow-sm border border-green-400 rounded-lg p-5 hover:shadow-md transition-all duration-300">
-        <h3 class="text-sm text-gray-500">Over All Payments (Current Month)</h3>
+        <h3 class="text-sm text-gray-500">Over All Collection (Current Month)</h3>
         <p class="text-2xl font-bold text-green-700 mt-2">{{ $formatPeso(state.total.over_all.toLocaleString()) }}</p>
       </div>
 
       <div class="bg-white shadow-sm border border-green-400 rounded-lg p-5 hover:shadow-md transition-all duration-300">
-        <h3 class="text-sm text-gray-500">Payments Collected (Current Month)</h3>
+        <h3 class="text-sm text-gray-500">Paid Collection (Current Month)</h3>
         <p class="text-2xl font-bold text-green-700 mt-2">{{ $formatPeso(state.total.collected.toLocaleString()) }}</p>
       </div>
 
       <div class="bg-white shadow-sm border border-green-400 rounded-lg p-5 hover:shadow-md transition-all duration-300">
-        <h3 class="text-sm text-gray-500">Payments Pending (Current Month)</h3>
+        <h3 class="text-sm text-gray-500">Unpaid Collection (Current Month)</h3>
         <p class="text-2xl font-bold text-green-700 mt-2">{{ $formatPeso(state.total.un_collected.toLocaleString()) }}</p>
       </div>
     </div>
@@ -30,7 +30,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       <!-- Sales Trend -->
       <div class="bg-white shadow-md rounded-xl p-5 border border-green-400 hover:shadow-lg transition-all duration-300">
-        <h2 class="text-lg font-semibold text-green-700 mb-3">Monthly Payments Collected</h2>
+        <h2 class="text-lg font-semibold text-green-700 mb-3">Monthly Collection</h2>
         <apexchart
           type="area"
           height="250"

@@ -70,7 +70,7 @@
                         <p class="text-gray-700 text-sm">{{ $formatPeso(state.awardee?.stallRentalDet?.stallProfile?.TotalRatePerDay) }}</p>
                     </div>
                     <div class="flex flex-col items-start p-3 bg-gray-50 rounded-lg border">
-                        <label class="text-gray-600 text-xs font-medium mb-1">Rate per Month</label>
+                        <label class="text-gray-600 text-xs font-medium mb-1">Rate per Month (EST)</label>
                         <p class="text-gray-700 text-sm">{{ $formatPeso(state.awardee?.stallRentalDet?.stallProfile?.TotalRatePerDay * 30) }}</p>
                     </div>
                 </div>

@@ -29,6 +29,11 @@ class StallOwnerService extends BaseAPIService {
     async getOwnerName(searchName: any): Promise<any> {
         return await this.request(`/stallowner/${searchName}/names`, 'GET');
     }
+
+    //using fname lname and middle name to get owner details
+    async statusDetails(params: object): Promise<any> {
+        return await this.request(`/stallowner/status/details`, 'GET', params);
+    }
 }
 
 export const stallOwnerService = new StallOwnerService();
