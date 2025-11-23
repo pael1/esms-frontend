@@ -1,11 +1,11 @@
 <template>
-  <Toaster richColors position="top-right" />
-  <ButtonBack @click="goBack">
-      <span class="flex items-center justify-between">
-          <ArrowLeftIcon class="text-green-900 w-5 h-5 mr-2" /> Back
-      </span>
-  </ButtonBack>
   <div class="max-w-5xl mx-auto space-y-6 my-10">
+    <Toaster richColors position="top-right" />
+    <ButtonBack @click="goBack">
+        <span class="flex items-center justify-between">
+            <ArrowLeftIcon class="text-green-900 w-5 h-5 mr-2" /> Back
+        </span>
+    </ButtonBack>
     <Loader v-if="state.isPageLoading" />
     <form @submit.prevent="awardeeAddForm"
           autocomplete="off">
@@ -527,13 +527,14 @@ async function awardeeAddForm() {
       midinit: state.form.midinit,
     };
     const ownerResponse = await stallOwnerService.statusDetails(params);
-    if (ownerResponse) {
+    const formData = objectToFormData(state.form);
+    //icheck kung ang kani nga stallowner kay naa nay stall nga active
+    if (ownerResponse.data && ownerResponse.data.length > 0) {
       const text = `This Owner has ${ownerResponse.data.length} active stall in ${ownerResponse.data.map((stall) => stall.market_name)
         .join(", ")}. Do you want to proceed?`;
       const confirmed = await showConfirm('', text, 'Yes', 'No')
       if (confirmed){
-        // prepare formData
-        const formData = objectToFormData(state.form);
+        // formData
         const response = await stallOwnerService.create(formData);
         if (response) {
           const confirmed = await showConfirm('Successfully created', 'Do you want to create another awardee?', 'Yes', 'No')
@@ -545,6 +546,17 @@ async function awardeeAddForm() {
         }
       } else {
         return;
+      }
+    } else {
+      // formData
+      const response = await stallOwnerService.create(formData);
+      if (response) {
+        const confirmed = await showConfirm('Successfully created', 'Do you want to create another awardee?', 'Yes', 'No')
+        if (confirmed){
+          window.location.reload();
+        } else {
+          router.push('/conversion/awardee')
+        }
       }
     }
   } catch (error) {

@@ -257,9 +257,9 @@
                 {{ state.isEdit ? 'Edit Rental' : 'View Rental' }}
               </h3>
             </div>
-
+            <!-- disabled sa nako kay wala pa ginagamit -->
             <div class="mr-2 mb-2">
-              <FormButton
+              <!-- <FormButton
                 v-if="state.rentalStatus !== 'cancel'"
                 type="button"
                 @click="cancelRental"
@@ -272,7 +272,7 @@
 
               <p v-else class="text-red-600 font-semibold text-sm">
                 Rental Cancelled
-              </p>
+              </p> -->
             </div>
           </div>
 
@@ -360,7 +360,7 @@
               <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4 text-md text-gray-700">
                 <div class="bg-white p-3 rounded-md border border-green-100 shadow-sm">
                   <h5 class="text-green-700 font-medium mb-2">Stall Owner</h5>
-                  <p><span class="font-semibold">Name:</span> {{ state.owner.selected?.label || '—' }}</p>
+                  <p><span class="font-semibold">Name:</span> {{ state.owner.details.stallOwner?.full_name || '—' }}</p>
                   <p><span class="font-semibold">Contact Number:</span> {{ state.owner.details.stallOwner?.contactnumber || '—' }}</p>
                   <p><span class="font-semibold">Address:</span> {{ state.owner.details.stallOwner?.address || '—' }}</p>
                 </div>
@@ -751,7 +751,7 @@
           const response = await rentalService.getRental(params)
           if (response) {
               state.rentals = response
-              console.log(response);
+              console.log("fetch rental: ", response);
           }
       } catch (error) {
           console.log(error)
@@ -868,32 +868,33 @@
   }
   //end of emit functions
 
-  //cancel rental
-  async function cancelRental() {
-    const confirm = await showConfirm(
-      'Are you sure you want to cancel this rental?'
-    )
+  //disabled sa nako kay wala pa ginagapagamit
+  // //cancel rental
+  // async function cancelRental() {
+  //   const confirm = await showConfirm(
+  //     'Are you sure you want to cancel this rental?'
+  //   )
 
-    if (!confirm) {
-      return
-    }
+  //   if (!confirm) {
+  //     return
+  //   }
 
-    $loading.start()
-    try {
-      let id = state.stallRentalId
-      const response = await rentalService.cancelRental(id)
-      if (response) {
-        fetchRentals()
-        $loading.stop()
+  //   $loading.start()
+  //   try {
+  //     let id = state.stallRentalId
+  //     const response = await rentalService.cancelRental(id)
+  //     if (response) {
+  //       fetchRentals()
+  //       $loading.stop()
 
-        state.openViewDialog = false
-        toast.success('Rental cancelled successfully')
-      }
-    } catch (error) {
-      toast.error(error.message || 'Something went wrong.')
-    }
-    $loading.stop()
-  }
+  //       state.openViewDialog = false
+  //       toast.success('Rental cancelled successfully')
+  //     }
+  //   } catch (error) {
+  //     toast.error(error.message || 'Something went wrong.')
+  //   }
+  //   $loading.stop()
+  // }
 
   async function fetchTypes() {
     try {
