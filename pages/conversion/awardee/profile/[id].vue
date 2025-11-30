@@ -1,11 +1,11 @@
 <template>
-  <Toaster richColors position="top-right" />
-  <ButtonBack @click="goBack">
-      <span class="flex items-center justify-between">
-          <ArrowLeftIcon class="text-green-900 w-5 h-5 mr-2" /> Back
-      </span>
-  </ButtonBack>
   <div class="max-w-5xl mx-auto space-y-6 my-10">
+    <Toaster richColors position="top-right" />
+    <ButtonBack @click="goBack">
+        <span class="flex items-center justify-between">
+            <ArrowLeftIcon class="text-green-900 w-5 h-5 mr-2" /> Back
+        </span>
+    </ButtonBack>
     <Loader v-if="state.isPageLoading" />
     <form @submit.prevent="awardeeUpdateForm"
           autocomplete="off">

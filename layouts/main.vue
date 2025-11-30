@@ -635,7 +635,7 @@ const filteredNavigation = computed(() =>
       return false
     } 
     //show the users module for admin users only
-    if (item.name === 'Users' && user.office !== '00' && user.office !== '99') {
+    if (item.name === 'Users' && user.office !== '00') {
       return false
     } 
 

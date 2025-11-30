@@ -86,6 +86,10 @@ import { useMarketcodeStore } from '@/store/marketcode'
 import { parameterService } from '~/api/ParameterService'
 import NProgress from 'nprogress'
 
+useHead({
+  title: 'Login | eSMS'
+})
+
 const userStore = useUserStore()
 const parameterStore = useParameterStore()
 const marketStore = useMarketcodeStore()
