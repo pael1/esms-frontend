@@ -2,6 +2,10 @@ import BaseAPIService from "./BaseAPIService";
 
 class SyncService extends BaseAPIService {
 
+    async getAllSync(params: object): Promise<any> {
+        return await this.request(`/sync`, 'GET', params);
+    }
+
     async addData(params: object): Promise<any> {
         return await this.request(`/sync`, 'POST', params);
     }

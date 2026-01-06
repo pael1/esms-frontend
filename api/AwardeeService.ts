@@ -72,9 +72,9 @@ class AwardeeService extends BaseAPIService {
     }
 
     //sync the unpaid op to our database
-    async sync_op(params: object): Promise<any> {
-        return await this.request(`/sync`, 'GET', params);
-    }
+    // async sync_op(params: object): Promise<any> {
+    //     return await this.request(`/sync`, 'GET', params);
+    // }
 }
 
 export const awardeeService = new AwardeeService();

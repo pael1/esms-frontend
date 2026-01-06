@@ -1,4 +1,5 @@
 <template>
+  <div>
     <ButtonBack @click="goBack">
         <span class="flex items-center justify-between">
             <ArrowLeftIcon class="text-green-900 w-5 h-5 mr-2" /> Back
@@ -34,7 +35,7 @@
                   </button>
                 </div>
 
-                <TableSyncOp :data="state.data" @update:isPageLoading="handlePageLoading" />
+                <TableSyncOp :data="state.data" @update:isPageLoading="handlePageLoading" @editClick="edit" @paidManuallyClick="paidManually" />
 
                 <Pagination v-if="state.data?.data?.length > 0" :data="state.data" @previous="previous" @next="next" />   
             </div>
@@ -88,6 +89,7 @@
 
       </div>
     </div>
+  </div>
   </template>
   
   <script setup>
@@ -142,7 +144,7 @@
           page: currentPage,
           ownerId: id,
       }
-      const response = await awardeeService.sync_op(params);
+      const response = await syncService.getAllSync(params);
       if (response.data) {
         state.data = response;
       }
@@ -230,6 +232,44 @@
       console.log(error);
     }
   }
+
+  async function edit(sync) { 
+    state.isPageLoading = true
+    console.log(sync)
+    //once i-edit nako siya dapat ang is_processed kay 0 para mabasa siya sa job
+    // state.isEdit = !isView;
+    // try {
+    //   const response = await userService.getUser(userId);
+    //   if (response.data) {
+
+    //     state.user_id = response.data.id;
+    //     // Map API response to form fields
+    //     state.form = {
+    //       username: response.data.username ?? '',
+    //       employee_id: response.data.details.employee_id ?? '',
+    //       is_admin: !!response.data.is_admin,
+    //       is_supervisor: !!response.data.is_supervisor,
+    //       firstname: response.data.details.firstname ?? '',
+    //       midinit: response.data.details.midinit ?? '',
+    //       lastname: response.data.details.lastname ?? '',
+    //       office: response.data.details.office ?? '',
+    //       position: response.data.details.position ?? ''
+    //     }
+
+    //   }
+    // } catch (error) {
+    //   console.log(error);
+    // }
+    state.isPageLoading = false
+  } 
+
+  async function paidManually(sync) { 
+    state.isPageLoading = true
+    //i paid nako dritso, butngan ra nakog ornumber para paid na siya pero naay logs kung kinsay nag manual paid
+    console.log("paid manually")
+    console.log(sync)
+    state.isPageLoading = false
+  } 
   
   const activeTab = ref('stall');
   </script>
