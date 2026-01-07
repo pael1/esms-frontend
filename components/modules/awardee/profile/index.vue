@@ -192,6 +192,7 @@
 <script setup>
 
 import { awardeeService } from '~/api/AwardeeService';
+import { ledgerService } from '~/api/LedgerService';
 import { useVuelidate } from "@vuelidate/core"
 import { required, helpers } from '@vuelidate/validators'
 import { defineProps } from 'vue';
@@ -373,7 +374,7 @@ async function fetch_arrears() {
       let params = {
           ownerId: id,
       }
-    const response = await awardeeService.getAwardeeProfileArrears(params)
+    const response = await ledgerService.getArrears(params)
 
     if (response.data) {
       let options = response.data.map((item) => ({

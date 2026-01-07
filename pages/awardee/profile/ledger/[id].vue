@@ -38,6 +38,7 @@
   <script setup lang="ts">
   import { ref } from 'vue';
   import { awardeeService } from '~/api/AwardeeService';
+  import { ledgerService } from '~/api/LedgerService';
   import { ArrowLeftIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 //   import { ArrowLeftIcon } from '@heroicons/vue/24/outline';
   // import moment from 'moment';
@@ -83,14 +84,10 @@
             page: currentPage,
             ownerId: id,
         }
-      const response = await awardeeService.getAwardeeProfileLedger(params);
+      const response = await ledgerService.getAll(params);
       if (response.data) {
         console.log(response.data)
         state.ledger_datas = response;
-        // state.options = response.data.map((item) => ({
-        //   value: item.stallOwnerAccountId,
-        //   label: item.date,
-        // }));
       }
     } catch (error) {
       console.log(error);

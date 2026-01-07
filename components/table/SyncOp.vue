@@ -41,19 +41,20 @@
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                         <div class="flex justify-center gap-2">
                                             <FormButton
+                                            v-if="String(sync.is_processed) === '0' || String(sync.is_processed) === '2'"
                                             type="button"
                                             class="py-0.5 px-2 text-xs"
-                                            buttonStyle="yellow"
+                                            buttonStyle="red"
                                             size="sm"
-                                            @click="edit(sync)"
+                                            @click="remove(sync)"
                                             >
-                                            Edit
+                                            Remove
                                             </FormButton>
                                             <FormButton
                                             v-if="String(sync.is_processed) === '2'"
                                             type="button"
                                             class="py-0.5 px-2 text-xs"
-                                            buttonStyle="red"
+                                            buttonStyle="yellow"
                                             size="sm"
                                             @click="paidManually(sync)"
                                             >
@@ -87,6 +88,7 @@ const STATUS_CLASS_MAP = {
   0: 'inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-700 ring-1 ring-inset ring-yellow-600/20',
   1: 'inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20',
   2: 'inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20',
+  3: 'inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20',
 }
 
 const statusClass = (value) => {
@@ -101,7 +103,9 @@ const statusLabel = (value) => {
     case '1':
       return 'Processed'
     case '2':
-      return 'Not Found On the POPS'
+      return 'Not Found'
+    case '3':
+      return 'Processed Manually'
     default:
       return 'Unknown'
   }
@@ -114,10 +118,10 @@ const props = defineProps({
     }
 })
 
-const emit = defineEmits(['editClick', 'paidManuallyClick'])
+const emit = defineEmits(['removeClick', 'paidManuallyClick'])
 
-async function edit(sync) {
-    emit('editClick', sync)
+async function remove(sync) {
+    emit('removeClick', sync)
 }
 
 async function paidManually(sync) {

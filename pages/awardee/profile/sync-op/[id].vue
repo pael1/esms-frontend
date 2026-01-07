@@ -27,15 +27,17 @@
                       </div>
                       <h2 class="text-lg font-semibold text-gray-800">Sync Data</h2>
                   </div>
-                  <button
+                  <FormButton
                       type="button"
-                      class="inline-flex items-center gap-x-1 rounded-md bg-green-500 px-2 py-1 text-xs font-medium text-white shadow-sm hover:bg-green-400"
+                      class="py-0.5 px-2 text-xs"
+                      buttonStyle="green"
+                      size="sm"
                       @click="add()">
                       Add Data
-                  </button>
+                  </FormButton>
                 </div>
 
-                <TableSyncOp :data="state.data" @update:isPageLoading="handlePageLoading" @editClick="edit" @paidManuallyClick="paidManually" />
+                <TableSyncOp :data="state.data" @update:isPageLoading="handlePageLoading" @removeClick="remove" @paidManuallyClick="paidManually" />
 
                 <Pagination v-if="state.data?.data?.length > 0" :data="state.data" @previous="previous" @next="next" />   
             </div>
@@ -70,15 +72,18 @@
                     <div class="mt-4 flex justify-end gap-x-2">
                         <FormButton
                             type="button"
-                            @click="closeAdd"
+                            class="py-0.5 px-2 text-xs"
                             buttonStyle="white"
-                            class="px-3 py-1 text-sm rounded-md border border-green-300 text-green-700 hover:bg-green-100"
+                            size="md"
+                            @click="closeAdd"
                         >
                             Cancel
                         </FormButton>
                         <FormButton
                             type="submit"
-                            class="px-3 py-1 text-sm rounded-md bg-green text-white hover:bg-green-800"
+                            class="py-0.5 px-2 text-xs"
+                            buttonStyle="green"
+                            size="md"
                         >
                             Submit
                         </FormButton>
@@ -86,7 +91,6 @@
                 </form>
             </div>
         </Modal>
-
       </div>
     </div>
   </div>
@@ -97,8 +101,9 @@
   import { awardeeService } from '~/api/AwardeeService';
   import { syncService } from '~/api/SyncService';
   import { ArrowLeftIcon, XMarkIcon } from '@heroicons/vue/24/outline'
+import { ledgerService } from '~/api/LedgerService';
 
-  const { showError, showSuccess, showLoading, closeLoading } = useSweetLoading()
+  const { showError, showConfirm, showLoading, closeLoading } = useSweetLoading()
   
   let currentPage = 1
 
@@ -177,6 +182,25 @@
     clearForm()
     state.open = false
   }
+
+  async function remove(sync) { 
+    const confirmed = await showConfirm('Delete Sync?', 'This will remove the OR Number (' + sync.ornumber + ') permanently.')
+    if (!confirmed) return
+
+    state.isPageLoading = true
+    try {
+      const response = await syncService.delete(sync.id);
+      console.log(response)
+      if (response) {
+        fetch_sync_data() // refresh list
+        toast.success('Sync deleted successfully')
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    state.isPageLoading = false
+  }
+
   //END OF MODALS
 
   //clear form
@@ -231,43 +255,19 @@
     } catch (error) {
       console.log(error);
     }
-  }
-
-  async function edit(sync) { 
-    state.isPageLoading = true
-    console.log(sync)
-    //once i-edit nako siya dapat ang is_processed kay 0 para mabasa siya sa job
-    // state.isEdit = !isView;
-    // try {
-    //   const response = await userService.getUser(userId);
-    //   if (response.data) {
-
-    //     state.user_id = response.data.id;
-    //     // Map API response to form fields
-    //     state.form = {
-    //       username: response.data.username ?? '',
-    //       employee_id: response.data.details.employee_id ?? '',
-    //       is_admin: !!response.data.is_admin,
-    //       is_supervisor: !!response.data.is_supervisor,
-    //       firstname: response.data.details.firstname ?? '',
-    //       midinit: response.data.details.midinit ?? '',
-    //       lastname: response.data.details.lastname ?? '',
-    //       office: response.data.details.office ?? '',
-    //       position: response.data.details.position ?? ''
-    //     }
-
-    //   }
-    // } catch (error) {
-    //   console.log(error);
-    // }
-    state.isPageLoading = false
   } 
 
   async function paidManually(sync) { 
     state.isPageLoading = true
-    //i paid nako dritso, butngan ra nakog ornumber para paid na siya pero naay logs kung kinsay nag manual paid
-    console.log("paid manually")
-    console.log(sync)
+    try {
+      const response = await syncService.paidManually(sync.id);
+      if (response) {
+        fetch_sync_data() // refresh list
+        toast.success('Sync deleted successfully')
+      }
+    } catch (error) {
+      console.log(error);
+    }
     state.isPageLoading = false
   } 
   
