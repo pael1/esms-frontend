@@ -21,8 +21,8 @@ class SyncService extends BaseAPIService {
         return await this.request(`/sync/data/arrears`, 'GET', params);
     }
 
-    async paidManually(id: any): Promise<any> {
-        return await this.request(`/sync/${id}/paid-manually`, 'POST');
+    async paidManually(params: object, id: any): Promise<any> {
+        return await this.request(`/sync/${id}/paid-manually`, 'POST', params);
     }
 }
 

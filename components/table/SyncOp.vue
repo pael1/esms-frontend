@@ -118,13 +118,13 @@ const props = defineProps({
     }
 })
 
-const emit = defineEmits(['removeClick', 'paidManuallyClick'])
+const emit = defineEmits(['removeClick', 'paidManuallyModalClick'])
 
 async function remove(sync) {
     emit('removeClick', sync)
 }
 
 async function paidManually(sync) {
-  emit('paidManuallyClick', sync)
+  emit('paidManuallyModalClick', sync)
 }
 </script>

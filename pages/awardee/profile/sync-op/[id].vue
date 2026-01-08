@@ -1,5 +1,6 @@
 <template>
   <div>
+    <Toaster richColors position="top-right" />
     <ButtonBack @click="goBack">
         <span class="flex items-center justify-between">
             <ArrowLeftIcon class="text-green-900 w-5 h-5 mr-2" /> Back
@@ -37,7 +38,7 @@
                   </FormButton>
                 </div>
 
-                <TableSyncOp :data="state.data" @update:isPageLoading="handlePageLoading" @removeClick="remove" @paidManuallyClick="paidManually" />
+                <TableSyncOp :data="state.data" @update:isPageLoading="handlePageLoading" @removeClick="remove" @paidManuallyModalClick="paidManuallyModal" />
 
                 <Pagination v-if="state.data?.data?.length > 0" :data="state.data" @previous="previous" @next="next" />   
             </div>
@@ -91,6 +92,49 @@
                 </form>
             </div>
         </Modal>
+
+        <Modal :show="state.openPaidManuallyModal">
+            <div class="w-full sm:w-1/4 bg-white px-4 py-5 sm:px-6 rounded-lg space-y-4">
+                <div
+                    class="border-b border-green-200 -ml-4 -mt-2 flex flex-wrap items-center justify-between sm:flex-nowrap">
+                    <div class="ml-2 mb-2">
+                        <h3 class="text-lg font-semibold text-green-900">
+                            Paid Manually
+                        </h3>
+                    </div>
+                </div>
+                <form @submit.prevent="paidManually" autocomplete="off">
+                    <div class="grid grid-cols-1 gap-y-2">
+                        <div class="text-start">
+                            <FormLabel for="reason" label="Reason" />
+                            <div class="mt-1">
+                                <TextArea name="reason" v-model="state.reason" />
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Small, right-aligned buttons -->
+                    <div class="mt-4 flex justify-end gap-x-2">
+                        <FormButton
+                            type="button"
+                            class="py-0.5 px-2 text-xs"
+                            buttonStyle="white"
+                            size="md"
+                            @click="closedPaidManually"
+                        >
+                            Cancel
+                        </FormButton>
+                        <FormButton
+                            type="submit"
+                            class="py-0.5 px-2 text-xs"
+                            buttonStyle="green"
+                            size="md"
+                        >
+                            Submit
+                        </FormButton>
+                    </div>
+                </form>
+            </div>
+        </Modal>
       </div>
     </div>
   </div>
@@ -101,7 +145,10 @@
   import { awardeeService } from '~/api/AwardeeService';
   import { syncService } from '~/api/SyncService';
   import { ArrowLeftIcon, XMarkIcon } from '@heroicons/vue/24/outline'
-import { ledgerService } from '~/api/LedgerService';
+  import TextArea from '~/components/form/TextArea.vue';
+  import { Toaster, toast } from 'vue-sonner'
+  import 'vue-sonner/style.css'
+
 
   const { showError, showConfirm, showLoading, closeLoading } = useSweetLoading()
   
@@ -120,8 +167,11 @@ import { ledgerService } from '~/api/LedgerService';
     data: null,
     ornumber: null,
     open: false,
+    openPaidManuallyModal: false,
     months: [],
-    options: []
+    options: [],
+    reason: '',
+    selectedSync: null,
   });
   
   onMounted(() => {
@@ -181,6 +231,15 @@ import { ledgerService } from '~/api/LedgerService';
   function closeAdd() {
     clearForm()
     state.open = false
+  }
+
+  async function paidManuallyModal(sync) { 
+    state.selectedSync = sync
+    state.openPaidManuallyModal = true
+  } 
+  function closedPaidManually() {
+    state.openPaidManuallyModal = false
+    state.reason = ''
   }
 
   async function remove(sync) { 
@@ -257,12 +316,21 @@ import { ledgerService } from '~/api/LedgerService';
     }
   } 
 
-  async function paidManually(sync) { 
+  async function paidManually() { 
     state.isPageLoading = true
     try {
-      const response = await syncService.paidManually(sync.id);
+
+      let params = {
+          reason: state.reason,
+      }
+      let id = state.selectedSync.id
+      console.log(params, id)
+
+      const response = await syncService.paidManually(params, id);
       if (response) {
         fetch_sync_data() // refresh list
+        state.openPaidManuallyModal = false
+        state.reason = ''
         toast.success('Sync deleted successfully')
       }
     } catch (error) {

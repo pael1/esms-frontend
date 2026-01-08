@@ -38,13 +38,13 @@ class AwardeeService extends BaseAPIService {
         return await this.request(`/awardees/generate/current-bill`, 'GET', params);
     }
 
-    async getAwardeeProfileLedger(params: object): Promise<any> {
-        return await this.request(`/ledgers`, 'GET', params);
-    }
+    // async getAwardeeProfileLedger(params: object): Promise<any> {
+    //     return await this.request(`/ledgers`, 'GET', params);
+    // }
 
-    async getAwardeeProfileArrears(params: object): Promise<any> {
-        return await this.request(`/ledgers/data/arrears`, 'GET', params);
-    }
+    // async getAwardeeProfileArrears(params: object): Promise<any> {
+    //     return await this.request(`/ledgers/data/arrears`, 'GET', params);
+    // }
 
     // async getAwardeeChildrens(params: object): Promise<any> {
     //     return await this.request(`/childrens`, 'GET', params);
