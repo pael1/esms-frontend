@@ -377,15 +377,39 @@ async function fetch_arrears() {
     const response = await ledgerService.getArrears(params)
 
     if (response.data) {
-      let options = response.data.map((item) => ({
-        value: item.stallOwnerAccountId,
-        label: item.date,
-        amountBasic: item.amountBasic,
-        interest: item.interest,
-        surcharge: item.surcharge,
-        monthsDelayed: item.monthsDelayed,
-        extensionRate: 0,
-      }));
+      // let options = response.data.map((item) => ({
+      //   value: item.stallOwnerAccountId,
+      //   label: item.date,
+      //   amountBasic: item.amountBasic,
+      //   interest: item.interest,
+      //   surcharge: item.surcharge,
+      //   monthsDelayed: item.monthsDelayed,
+      //   extensionRate: 0,
+      // }));
+
+      let options = response.data.map((item) => {
+        const year = Number(item.year)
+        const monthIndex = new Date(`${item.month} 1, ${year}`).getMonth() + 1
+        const daysInMonth = new Date(year, monthIndex, 0).getDate()
+
+        const extensionRatePerDay =
+          Number(props.profile?.stallRentalDet?.stallProfile?.Total_extensionRate) || 0
+        const hasExtensionRate = extensionRatePerDay > 0
+
+        const ratePerMonth = Number(item.amountBasic) || 0
+        const extensionRate = hasExtensionRate ? Number((daysInMonth * extensionRatePerDay).toFixed(2)) : 0
+        const finalRate = hasExtensionRate ? Number((ratePerMonth - extensionRate).toFixed(2)) : ratePerMonth
+
+        return {
+          value: item.stallOwnerAccountId,
+          label: item.date,
+          amountBasic: finalRate,
+          interest: item.interest,
+          surcharge: item.surcharge,
+          monthsDelayed: item.monthsDelayed,
+          extensionRate: extensionRate,
+        }
+      })
 
       // //current month is not included in arrears
       let currentOption = await fetch_current()
